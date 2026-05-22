@@ -6,12 +6,12 @@
  */
 
 import type { GeneratedFile, GenerationResult } from '@oneatlas/shared';
-import { previewValidator, type PreviewValidationIssue, type PreviewValidationResult } from '../preview/preview.validator';
-import { generatedOutputValidator, type CompileValidationResult, type CompileValidationIssue } from '../generated-output.validator';
-import { safeComponentRegistry } from '../registry/safe-component.registry';
-import { semanticValidator, type SemanticValidationIssue } from '../semantic/semantic-validator';
-import { accessibilityValidator, type AccessibilityValidationIssue } from '../accessibility/accessibility-validator';
-import { performanceValidator, type PerformanceValidationIssue } from '../performance/performance-validator';
+import { previewValidator, type PreviewValidationIssue, type PreviewValidationResult } from '@oneatlas/validation-engine';
+import { generatedOutputValidator, type CompileValidationResult, type CompileValidationIssue } from '@oneatlas/validation-engine';
+import { safeComponentRegistry } from '@oneatlas/validation-engine';
+import { semanticValidator, type SemanticValidationIssue } from '@oneatlas/validation-engine';
+import { accessibilityValidator, type AccessibilityValidationIssue } from '@oneatlas/validation-engine';
+import { performanceValidator, type PerformanceValidationIssue } from '@oneatlas/validation-engine';
 import { logger } from '@oneatlas/shared';
 
 export type ValidationSeverity = 'critical' | 'error' | 'warning' | 'info';

@@ -77,7 +77,7 @@ export class CleanupSweeper {
         console.log(`[CleanupSweeper] Deleting expired workspace directory for app ${appId}.`);
         try {
           fs.rmSync(workspacePath, { recursive: true, force: true });
-        } catch (err) {
+        } catch (err: unknown) {
           console.error(`[CleanupSweeper] Failed to clean directory for ${appId}:`, err);
         }
         continue;
@@ -96,7 +96,7 @@ export class CleanupSweeper {
             this.registry.kill(appId);
             this.workspaceManager.updateMetadata(workspacePath, { runtimeStatus: 'stopped', allocatedPort: 0 });
           }
-        }).catch((err) => {
+        }).catch((err: unknown) => {
           console.error(`[CleanupSweeper] Failed to check database deployment status for ${appId}:`, err);
         });
       }

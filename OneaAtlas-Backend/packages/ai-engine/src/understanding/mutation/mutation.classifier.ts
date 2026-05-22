@@ -106,10 +106,10 @@ JSON OUTPUT FORMAT:
     }
 
     logger.info('MutationClassifier', 'CLASSIFY_COMPLETE', 'Mutation successfully classified.', {
-      patchCount: result.data.patches.length,
-      requiresGlobalRewrite: result.data.requiresGlobalRewrite
+      patchCount: (result.data as any).patches.length,
+      requiresGlobalRewrite: (result.data as any).requiresGlobalRewrite
     });
 
-    return result.data;
+    return result.data as any;
   }
 }

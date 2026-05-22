@@ -6,7 +6,6 @@
 import type { QualityReport } from '@oneatlas/validation-engine';
 import type { PipelineContext } from './generation.pipeline';
 import { rollbackManager } from './rollback-manager';
-import { validationFeedbackLoop } from '@oneatlas/validation-engine';
 
 export interface RetryConfig {
   maxRetries: number;

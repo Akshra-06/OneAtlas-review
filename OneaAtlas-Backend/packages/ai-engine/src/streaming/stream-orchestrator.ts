@@ -12,7 +12,7 @@ import { domainClassifier } from '../intelligence/classification/domain-classifi
 import { workflowInference } from '../intelligence/workflow/workflow-inference';
 import { promptToUIReasoning } from '../intelligence/reasoning/prompt-to-ui-reasoning';
 import { promptAwareDashboardGenerator } from '../intelligence/dashboard/prompt-aware-dashboard';
-import { validationOrchestrator } from '@oneatlas/validation-engine';
+import { ValidationOrchestrator } from '@oneatlas/validation-engine';
 
 export interface OrchestratorConfig {
   enableValidation: boolean;
