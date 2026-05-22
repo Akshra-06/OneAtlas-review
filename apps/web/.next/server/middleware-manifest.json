@@ -1,0 +1,62 @@
+{
+  "version": 3,
+  "middleware": {
+    "/": {
+      "files": [
+        "server/edge-runtime-webpack.js",
+        "server/middleware.js"
+      ],
+      "name": "middleware",
+      "page": "/",
+      "matchers": [
+        {
+          "regexp": "^/.*$",
+          "originalSource": "/:path*"
+        }
+      ],
+      "wasm": [],
+      "assets": [],
+      "env": {
+        "__NEXT_BUILD_ID": "development",
+        "NEXT_SERVER_ACTIONS_ENCRYPTION_KEY": "Flj6ZC5zJTKRZibtiRU1Vf7zTeGhnGuwpzUz/ZPMd6g=",
+        "__NEXT_PREVIEW_MODE_ID": "dfcb91f5e089a6241fa4abde3abd90af",
+        "__NEXT_PREVIEW_MODE_SIGNING_KEY": "b578665e8eb6762887758e5f1ad92b2ae5018f0827d165db0178d5d2907e9858",
+        "__NEXT_PREVIEW_MODE_ENCRYPTION_KEY": "5943cabcb08959a1653fd4be9e69c295ae52f970067e97b7d602b9cb4ecf0093"
+      }
+    }
+  },
+  "functions": {
+    "/(marketing)/page": {
+      "files": [
+        "server/server-reference-manifest.js",
+        "server/app/(marketing)/page_client-reference-manifest.js",
+        "server/middleware-build-manifest.js",
+        "server/middleware-react-loadable-manifest.js",
+        "server/next-font-manifest.js",
+        "server/interception-route-rewrite-manifest.js",
+        "server/edge-runtime-webpack.js",
+        "server/app/(marketing)/page.js"
+      ],
+      "name": "app/(marketing)/page",
+      "page": "/(marketing)/page",
+      "matchers": [
+        {
+          "regexp": "^/$",
+          "originalSource": "/"
+        }
+      ],
+      "wasm": [],
+      "assets": [],
+      "env": {
+        "__NEXT_BUILD_ID": "development",
+        "NEXT_SERVER_ACTIONS_ENCRYPTION_KEY": "Flj6ZC5zJTKRZibtiRU1Vf7zTeGhnGuwpzUz/ZPMd6g=",
+        "__NEXT_PREVIEW_MODE_ID": "dfcb91f5e089a6241fa4abde3abd90af",
+        "__NEXT_PREVIEW_MODE_SIGNING_KEY": "b578665e8eb6762887758e5f1ad92b2ae5018f0827d165db0178d5d2907e9858",
+        "__NEXT_PREVIEW_MODE_ENCRYPTION_KEY": "5943cabcb08959a1653fd4be9e69c295ae52f970067e97b7d602b9cb4ecf0093"
+      }
+    }
+  },
+  "sortedMiddleware": [
+    "/"
+  ]
+}

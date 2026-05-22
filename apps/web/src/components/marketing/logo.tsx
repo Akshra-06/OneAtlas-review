@@ -1,0 +1,21 @@
+export function Logo() {
+  return (
+    <div className="logo">
+      <div className="logo-mark">
+        <svg
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2.2"
+          strokeLinejoin="round"
+        >
+          <path d="M3 6l6-3 6 3 6-3v15l-6 3-6-3-6 3z" />
+          <path d="M9 3v15M15 6v15" />
+        </svg>
+      </div>
+      <span>
+        OneAtlas<span className="dev">.dev</span>
+      </span>
+    </div>
+  );
+}

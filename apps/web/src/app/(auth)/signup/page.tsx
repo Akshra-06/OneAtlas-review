@@ -1,0 +1,18 @@
+import Link from "next/link";
+import { SignupForm } from "@/components/auth/signup-form";
+import { Logo } from "@/components/landing/logo";
+
+export default function SignupPage() {
+  return (
+    <main className="min-h-screen bg-[#FAFBFF] flex flex-col">
+      <header className="px-8 py-5">
+        <Link href="/" className="inline-block">
+          <Logo />
+        </Link>
+      </header>
+      <div className="flex-1 flex items-center justify-center px-6 pb-16">
+        <SignupForm />
+      </div>
+    </main>
+  );
+}
