@@ -1,0 +1,186 @@
+import { PromptParser } from '../parser/prompt.parser';
+import type { ParsedPrompt } from '../parser/prompt.parser';
+import { AppTypeDetector } from '../detector/apptype.detector';
+import type { AppCategory } from '../detector/apptype.detector';
+import { IntentExtractor } from '../extractors/intent.extractor';
+import { FeatureExtractor } from '../extractors/feature.extractor';
+import { AppTypeExtractor } from '../extractors/apptype.extractor';
+import { AppNormalizer } from '../normalizer/app.normalizer';
+import { EntityNormalizer } from '../normalizer/entity.normalizer';
+import { PromptGuard } from '@oneatlas/validation-engine';
+// Import the SHARED authoritative type — this is what the generation engine consumes
+import type { AppUnderstanding, Entity } from '@oneatlas/shared';
+import { ModelRouter } from '../../gateway/router/model.router';
+import { logger } from '../../shared/utils/logger';
+import { truncateToTokenLimit, assertPromptSafe } from '../../shared/utils/token.utils';
+import type { ConfidenceScore } from '@oneatlas/shared';
+import { CONFIDENCE_THRESHOLD } from '@oneatlas/shared';
+import { tracer } from '../../shared/utils/intelligence_trace';
+
+export interface UnderstandingResult {
+  data: AppUnderstanding;
+  confidence: ConfidenceScore;
+  latencyMs: number;
+}
+
+export class UnderstandingOrchestrator {
+  private parser = new PromptParser();
+  private detector = new AppTypeDetector();
+  private appNormalizer = new AppNormalizer();
+
+  private intentExtractor: IntentExtractor;
+  private featureExtractor: FeatureExtractor;
+  private appTypeExtractor: AppTypeExtractor;
+
+  constructor(private router: ModelRouter) {
+    this.intentExtractor = new IntentExtractor(router);
+    this.featureExtractor = new FeatureExtractor(router);
+    this.appTypeExtractor = new AppTypeExtractor(router);
+  }
+
+  async process(rawPrompt: string): Promise<UnderstandingResult> {
+    const start = Date.now();
+    tracer.reset();
+
+    try {
+      logger.info('UnderstandingOrchestrator', 'PIPELINE_START', 'Starting modular extraction pipeline.', {
+        promptLength: rawPrompt.length
+      });
+
+      // === SECURITY: Adversarial Prompt Defense (Phase 7) ===
+      // Synchronous, zero-cost heuristic guard. Must pass before ANY AI calls are made.
+      try {
+        PromptGuard.validate(rawPrompt);
+      } catch (guardError) {
+        tracer.recordSecurityTrigger('PromptGuard');
+        throw guardError;
+      }
+
+      // === EDGE CASE: Empty / trivially short prompt ===
+      if (!rawPrompt || rawPrompt.trim().length < 5) {
+        logger.warn('UnderstandingOrchestrator', 'INVALID_PROMPT', 'Prompt too short for meaningful extraction.');
+        throw new Error('Prompt is too short. Please provide a meaningful application description.');
+      }
+
+      // === EDGE CASE: Token overflow protection & Semantic Distillation ===
+      const { safe, estimatedTokens } = assertPromptSafe(rawPrompt, 3500);
+      let safePrompt = rawPrompt;
+      
+      if (!safe) {
+        logger.info('UnderstandingOrchestrator', 'TOKEN_OVERFLOW', 'Prompt exceeds safe limit. Engaging Context Distiller.', { estimatedTokens });
+        const { ContextDistiller } = await import('./context.distiller');
+        const distiller = new ContextDistiller(this.router);
+        safePrompt = await distiller.distill(rawPrompt);
+      }
+
+      // 1. Parsing
+      const parsed: ParsedPrompt = await logger.trace('PromptParser', 'PARSE', () =>
+        Promise.resolve(this.parser.parse(safePrompt))
+      );
+
+      // === EDGE CASE: Noisy/empty keyword extraction ===
+      if (parsed.keywords.length === 0) {
+        logger.warn('UnderstandingOrchestrator', 'NOISY_PROMPT', 'No extractable keywords found. Results may be low confidence.');
+      }
+
+      // 2. Hybrid App Type Detection
+      let appType: AppCategory;
+      let confidence: ConfidenceScore;
+      const heuristicResult = this.detector.detect(parsed);
+
+      if (heuristicResult.confidence >= CONFIDENCE_THRESHOLD) {
+        appType = heuristicResult.type;
+        confidence = { score: heuristicResult.confidence, method: 'heuristic', reliable: true };
+        logger.info('UnderstandingOrchestrator', 'APPTYPE_HEURISTIC', `Fast heuristic detection: ${appType}`, { confidence: confidence.score });
+      } else if (heuristicResult.confidence <= 0.2 && parsed.keywords.length === 0) {
+        // Early-abort: Junk/gibberish prompt — skip expensive AI extraction entirely
+        appType = 'other';
+        confidence = { score: 0.3, method: 'fallback', reliable: false };
+        logger.warn('UnderstandingOrchestrator', 'APPTYPE_EARLY_ABORT', 'Confidence too low and no extractable keywords. Skipping AI extractor.', { heuristicConfidence: heuristicResult.confidence });
+      } else {
+        logger.info('UnderstandingOrchestrator', 'APPTYPE_AI_FALLBACK', 'Low heuristic confidence. Escalating to AI extractor.', { heuristicConfidence: heuristicResult.confidence });
+        appType = await logger.trace('AppTypeExtractor', 'AI_EXTRACT', () =>
+          this.appTypeExtractor.extract(parsed.original)
+        );
+        confidence = { score: 0.75, method: 'ai', reliable: true };
+      }
+
+      // 3. Parallel AI Extraction with observability
+      const { ARCHETYPE_BASELINES } = await import('./archetypes');
+      const baseline = ARCHETYPE_BASELINES[appType.toLowerCase()];
+      const baselineContext = baseline 
+        ? `BASELINE ARCHETYPE: ${JSON.stringify(baseline)}. Use this as a starting point and extend it based on the user's request. Output the FULL graph.`
+        : '';
+
+      let intentTitle = 'My Application';
+      let architecture: any = { features: [], pages: [], entities: [], workflows: [] };
+
+      try {
+        const [title, arch] = await logger.trace('Extractors', 'PARALLEL_EXTRACT',
+          () => Promise.all([
+            this.intentExtractor.extract(parsed.original),
+            this.featureExtractor.extract(`Intent: ${parsed.original}. Category Scope: ${appType}. ${baselineContext}`)
+          ])
+        );
+        intentTitle = title;
+        architecture = arch;
+      } catch (extractError) {
+        logger.error('UnderstandingOrchestrator', 'EXTRACTION_CRASH', 'AI extractors critically failed. Engaging recovery.', { error: String(extractError) });
+        confidence = { score: 0.2, method: 'fallback', reliable: false };
+      }
+
+      // === EDGE CASE: Empty extraction results — Engage Semantic Heuristic ===
+      if (architecture.features.length === 0) {
+        logger.warn('UnderstandingOrchestrator', 'EMPTY_FEATURES', 'Feature extractor returned no results. Synthesizing heuristic recovery.');
+        const { SemanticHeuristic } = await import('./semantic.heuristic');
+        const recovered = SemanticHeuristic.synthesize(parsed.original, appType);
+        
+        architecture = {
+          features: recovered.features,
+          pages: recovered.pages,
+          entities: recovered.entities,
+          workflows: recovered.workflows
+        };
+        intentTitle = recovered.appName || intentTitle;
+        confidence = { score: Math.min(confidence.score, 0.4), method: 'fallback', reliable: false };
+      }
+
+      // 4. Normalization
+      const normalizedEntities = this.appNormalizer.normalizeEntities(
+        architecture.entities.map((entity: Entity) => ({
+          id: entity.id,
+          name: entity.name,
+          description: entity.description,
+          attributes: entity.attributes || [],
+          relations: entity.relations || [],
+        }))
+      );
+
+      const finalUnderstanding: AppUnderstanding = {
+        appName: this.appNormalizer.normalizeName(intentTitle),
+        appType,
+        features: this.appNormalizer.normalizeFeatures(architecture.features),
+        pages: this.appNormalizer.normalizePages(architecture.pages),
+        entities: normalizedEntities,
+        workflows: this.appNormalizer.normalizeWorkflows(architecture.workflows),
+        metadata: {
+          rawPrompt: rawPrompt,
+        },
+      };
+
+      const latencyMs = Date.now() - start;
+      logger.info('UnderstandingOrchestrator', 'PIPELINE_COMPLETE', 'Modular pipeline complete.', {
+        appName: finalUnderstanding.appName,
+        appType: finalUnderstanding.appType,
+        featureCount: finalUnderstanding.features.length,
+        entityCount: finalUnderstanding.entities.length,
+        latencyMs,
+        confidence: confidence.score
+      });
+
+      return { data: finalUnderstanding, confidence, latencyMs };
+    } finally {
+      tracer.emitTrace();
+    }
+  }
+}

@@ -1,0 +1,14 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "module": "commonjs",
+    "moduleResolution": "node",
+    "outDir": "./dist",
+    "paths": {
+      "@oneatlas/db": ["../../packages/db/src/index.ts"],
+      "@oneatlas/ai": ["../../packages/ai/src/index.ts"],
+      "@oneatlas/shared": ["../../packages/shared/src/index.ts"]
+    }
+  },
+  "include": ["src/**/*"]
+}

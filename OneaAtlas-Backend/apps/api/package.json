@@ -1,0 +1,35 @@
+{
+  "name": "@oneatlas/api",
+  "version": "0.0.1",
+  "private": true,
+  "scripts": {
+    "dev": "next dev --port 3001",
+    "build": "next build",
+    "build:pages": "cd ../../packages/db && npx prisma generate && cd ../../apps/api && npx @cloudflare/next-on-pages",
+    "preview": "npx wrangler pages dev .vercel/output/static --compatibility-flags=nodejs_compat",
+    "deploy": "npx wrangler pages deploy .vercel/output/static --project-name=oneatlas-api",
+    "start": "next start --port 3001",
+    "lint": "next lint",
+    "type-check": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@clerk/nextjs": "^7.3.5",
+    "@oneatlas/ai": "workspace:*",
+    "@oneatlas/db": "workspace:*",
+    "@oneatlas/shared": "workspace:*",
+    "@upstash/ratelimit": "^2.0.8",
+    "@upstash/redis": "^1.38.0",
+    "next": "^15.5.18",
+    "posthog-node": "^4.0.0",
+    "react": "^19.2.6",
+    "react-dom": "^19.2.6",
+    "svix": "^1.15.0",
+    "zod": "^3.22.4"
+  },
+  "devDependencies": {
+    "@types/node": "^20.11.0",
+    "@types/react": "^18.3.0",
+    "typescript": "^5.3.3",
+    "@cloudflare/next-on-pages": "^1.13.16"
+  }
+}

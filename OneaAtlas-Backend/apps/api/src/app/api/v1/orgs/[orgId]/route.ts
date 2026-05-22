@@ -1,0 +1,73 @@
+// =============================================================================
+// apps/api/src/app/api/v1/orgs/[orgId]/route.ts
+// GET   /api/v1/orgs/:orgId  — get org details
+// PATCH /api/v1/orgs/:orgId  — update org
+// =============================================================================
+
+export const runtime = "nodejs";
+
+import { NextRequest } from "next/server";
+import { prisma } from "@oneatlas/db";
+import { updateOrgSchema, NotFoundError } from "@oneatlas/shared";
+import { requireOrgMember, requireOrgAdmin } from "../../../../../lib/auth";
+import { ok, errorResponse } from "../../../../../lib/response";
+import { createAuditLog } from "@oneatlas/db";
+
+interface RouteContext {
+  params: Promise<{ orgId: string }>;
+}
+
+export async function GET(_req: NextRequest, { params }: RouteContext) {
+  try {
+    const { orgId } = await params;
+    await requireOrgMember(orgId);
+
+    const org = await prisma.organization.findUnique({
+      where: { id: orgId },
+      include: {
+        members: {
+          include: { user: { select: { id: true, name: true, email: true, avatarUrl: true } } },
+          orderBy: { createdAt: "asc" },
+        },
+        _count: {
+          select: { projects: true, integrations: true },
+        },
+      },
+    });
+
+    if (!org) throw new NotFoundError("Organization");
+
+    return ok(org);
+  } catch (error) {
+    return errorResponse(error);
+  }
+}
+
+export async function PATCH(req: NextRequest, { params }: RouteContext) {
+  try {
+    const { orgId } = await params;
+    const auth = await requireOrgAdmin(orgId);
+    const body = updateOrgSchema.parse(await req.json());
+
+    const updated = await prisma.organization.update({
+      where: { id: orgId },
+      data: {
+        ...(body.name && { name: body.name }),
+        ...(body.logoUrl !== undefined && { logoUrl: body.logoUrl }),
+      },
+    });
+
+    await createAuditLog({
+      orgId,
+      userId: auth.userId,
+      action: "org.updated",
+      metadata: body,
+    });
+
+    return ok(updated);
+  } catch (error) {
+    return errorResponse(error);
+  }
+}
+
+

@@ -1,0 +1,28 @@
+{
+  "name": "@oneatlas/ai",
+  "version": "0.0.1",
+  "private": true,
+  "main": "./src/index.ts",
+  "types": "./src/index.ts",
+  "scripts": {
+    "type-check": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@oneatlas/shared": "workspace:*",
+    "@oneatlas/ai-engine": "workspace:*",
+    "@oneatlas/cache-engine": "workspace:*",
+    "@oneatlas/validation-engine": "workspace:*",
+    "@oneatlas/template-engine": "workspace:*",
+    "@oneatlas/workflow-engine": "workspace:*",
+    "@upstash/redis": "^1.34.0",
+    "zod": "^3.22.4",
+    "@anthropic-ai/sdk": "^0.96.0",
+    "@google/genai": "^2.2.0",
+    "openai": "^6.37.0",
+    "dotenv": "^17.4.2"
+  },
+  "devDependencies": {
+    "@types/node": "^20.11.0",
+    "typescript": "^5.3.3"
+  }
+}

@@ -1,0 +1,33 @@
+import { ModelRouter } from '../../gateway/router/model.router';
+import { ValidationOrchestrator } from '@oneatlas/validation-engine';
+import { FAST_RETRY_CONFIG } from '@oneatlas/validation-engine';
+import { IntentSchema, type Intent } from '@oneatlas/validation-engine';
+
+export class IntentExtractor {
+  constructor(private router: ModelRouter) {}
+
+  /**
+   * Extracts the concise, overarching primary intent of the user.
+   * Useful for generating the App Name and defining global application scope.
+   */
+  async extract(prompt: string): Promise<string> {
+    const { config } = this.router.getProviderForTask('INTENT_EXTRACTION');
+    const orchestrator = new ValidationOrchestrator(this.router, 'INTENT_EXTRACTION');
+
+    // Intent is lightweight metadata. Fail fast and fallback cleanly if needed.
+    const result = await orchestrator.executeWithValidation<Intent>(
+      {
+        prompt,
+        systemPrompt: `App classification engine. Extract the primary name/title of the software application.
+Reply ONLY with EXACT JSON: {"primaryIntent": "App Name Here"} (3-7 words).`,
+        schemaName: 'IntentExtraction',
+        modelTier: config.preferredTier,
+        schema: IntentSchema
+      }, 
+      FAST_RETRY_CONFIG
+    );
+
+    if (result.success) return result.data.primaryIntent;
+    return "Custom Application";
+  }
+}

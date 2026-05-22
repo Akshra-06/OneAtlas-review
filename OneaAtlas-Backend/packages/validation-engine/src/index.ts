@@ -1,0 +1,25 @@
+// Validation Module Entry Point
+export * from './schemas/app-understanding.schema';
+export * from './schemas/app-understanding.extraction.schema';
+export * from './schemas/app-understanding.normalizer';
+export * from './schemas/feature.schema';
+export * from './schemas/intent.schema';
+export * from './schemas/mutation.schema';
+export { ResponseRecovery } from './recovery/response.recovery';
+export * from './recovery/fallback.strategies';
+export * from './recovery/preview-recovery';
+export * from './semantic/semantic-validator';
+export * from './accessibility/accessibility-validator';
+export * from './performance/performance-validator';
+export * from './repair/repair-confidence';
+export * from './repair/repair-history';
+export * from './repair/repair-suggestions';
+export * from './repair/repair-undo';
+export { ValidationOrchestrator, type OrchestrationResult } from './orchestrator/validation.orchestrator';
+export * from './orchestrator/graph.validator';
+export * from './security/prompt.guard';
+export * from './registry/safe-component.registry';
+export * from './preview/preview.validator';
+export * from './generated-output.validator';
+export * from './comprehensive-quality-scorer';
+export * from './calibration';

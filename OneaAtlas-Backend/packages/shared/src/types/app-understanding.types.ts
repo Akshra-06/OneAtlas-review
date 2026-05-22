@@ -1,0 +1,82 @@
+/**
+ * CRITICAL BOUNDARY: Authoritative AppUnderstanding contract.
+ * Intent Graph Topology.
+ */
+
+export interface FeatureNode {
+  id: string;
+  name: string;
+  description: string;
+}
+
+export interface PageNode {
+  id: string;
+  name: string;
+  route: string;
+  description: string;
+  requiredEntities: string[];
+  layoutTemplate: string;
+}
+
+export interface EntityAttribute {
+  name: string;
+  type: string;
+  isRequired: boolean;
+  enumValues?: string[];
+  semanticType?: 'email' | 'password' | 'url' | 'phone' | 'date' | 'datetime' | 'currency' | 'status' | 'priority' | 'description' | 'boolean' | 'relation' | 'generic';
+  validation?: {
+    minLength?: number;
+    maxLength?: number;
+    pattern?: string;
+  };
+  displayLabel?: string;
+  placeholder?: string;
+  helperText?: string;
+}
+
+export interface EntityRelation {
+  targetEntity: string;
+  type: string;
+  displayName?: string;
+  description?: string;
+}
+
+export interface EntityNode {
+  id: string;
+  name: string;
+  description: string;
+  attributes: EntityAttribute[];
+  relations: EntityRelation[];
+  
+  // Legacy aliases for backward compatibility with generation layer
+  fields?: string[]; 
+}
+
+export interface WorkflowNode {
+  id: string;
+  name: string;
+  description: string;
+  triggerType: 'USER_ACTION' | 'SYSTEM_EVENT' | 'SCHEDULED';
+  executionMode: 'SYNC' | 'ASYNC';
+  steps: string[];
+}
+
+export interface AppUnderstanding {
+  appName: string;
+  appType: 'dashboard' | 'e-commerce' | 'social' | 'productivity' | 'internal-tool' | 'crm' | 'saas' | 'other';
+  features: FeatureNode[];
+  pages: PageNode[];
+  entities: EntityNode[];
+  workflows: WorkflowNode[];
+  metadata?: {
+    rawPrompt?: string;
+  };
+  operationalContext?: any;
+  realisticKPIs?: any;
+  roleBasedDashboards?: any;
+  businessPriorities?: any;
+  realisticDataPatterns?: any;
+  genericPatternDetection?: any;
+}
+
+export type Entity = EntityNode;

@@ -1,0 +1,21 @@
+{
+  "name": "@oneatlas/workflow-engine",
+  "version": "0.0.1",
+  "private": true,
+  "main": "./src/index.ts",
+  "types": "./src/index.ts",
+  "scripts": {
+    "type-check": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@oneatlas/shared": "workspace:*",
+    "@oneatlas/ai-engine": "workspace:*",
+    "@oneatlas/cache-engine": "workspace:*",
+    "@oneatlas/validation-engine": "workspace:*",
+    "@upstash/redis": "^1.34.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.11.0",
+    "typescript": "^5.3.3"
+  }
+}

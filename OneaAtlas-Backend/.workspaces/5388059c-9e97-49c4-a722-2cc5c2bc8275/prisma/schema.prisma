@@ -1,0 +1,135 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+id String @id @default(cuid())
+createdAt DateTime @default(now())
+updatedAt DateTime @updatedAt
+tenantId String
+email String @unique
+fullName String
+passwordHash String
+role String
+isActive Boolean
+
+  @@index([tenantId])
+  @@map("users")
+}
+
+model Organization {
+id String @id @default(cuid())
+createdAt DateTime @default(now())
+updatedAt DateTime @updatedAt
+tenantId String
+name String
+address String
+phone String
+website String
+
+  @@index([tenantId])
+  @@map("organizations")
+}
+
+model Patient {
+id String @id @default(cuid())
+createdAt DateTime @default(now())
+updatedAt DateTime @updatedAt
+tenantId String
+firstName String
+lastName String
+dateOfBirth DateTime
+gender String
+email String @unique
+phone String
+address String
+insuranceNumber String
+isActive Boolean
+
+  @@index([tenantId])
+  @@map("patients")
+}
+
+model Provider {
+id String @id @default(cuid())
+createdAt DateTime @default(now())
+updatedAt DateTime @updatedAt
+tenantId String
+firstName String
+lastName String
+specialty String
+email String @unique
+phone String
+isActive Boolean
+
+  @@index([tenantId])
+  @@map("providers")
+}
+
+model Appointment {
+id String @id @default(cuid())
+createdAt DateTime @default(now())
+updatedAt DateTime @updatedAt
+tenantId String
+scheduledAt DateTime
+status String
+reason String
+notes String
+
+  @@index([tenantId])
+  @@map("appointments")
+}
+
+model Lead {
+id String @id @default(cuid())
+createdAt DateTime @default(now())
+updatedAt DateTime @updatedAt
+tenantId String
+firstName String
+lastName String
+contactInfo String
+source String
+status String
+name String
+email String @unique
+company String
+stage String
+value String
+
+  @@index([tenantId])
+  @@map("leads")
+}
+
+model Interaction {
+id String @id @default(cuid())
+createdAt DateTime @default(now())
+updatedAt DateTime @updatedAt
+tenantId String
+type String
+dateTime DateTime
+notes String
+outcome String
+
+  @@index([tenantId])
+  @@map("interactions")
+}
+
+model Task {
+id String @id @default(cuid())
+createdAt DateTime @default(now())
+updatedAt DateTime @updatedAt
+tenantId String
+title String
+description String
+dueDate DateTime
+status String
+priority String
+
+  @@index([tenantId])
+  @@map("tasks")
+}
