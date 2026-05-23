@@ -1,166 +1,124 @@
 "use client";
 import { StepsCanvas } from "./steps-canvas";
 
-/* ── Card 1: UI assembling from prompt ── */
-function Card1Anim() {
+const ANIM_HEIGHT = 160;
+
+function Anim1() {
   return (
-    <div style={{ background: "#fff", border: "1px solid rgba(0,0,0,0.07)", borderRadius: 14, padding: 16, boxShadow: "0 2px 12px rgba(0,0,0,0.05)", overflow: "hidden" }}>
-      {/* Top bar */}
-      <div style={{ display: "flex", gap: 5, marginBottom: 12, alignItems: "center" }}>
-        <div style={{ width: 6, height: 6, borderRadius: "50%", background: "#635BFF", animation: "dot-pulse 2s ease-in-out infinite" }} />
-        <div style={{ flex: 1, height: 5, borderRadius: 3, background: "linear-gradient(90deg,#635BFF,#a855f7)", animation: "grow-right 3s ease-in-out infinite", transformOrigin: "left" }} />
+    <div style={{ height: ANIM_HEIGHT, background: "rgba(99,91,255,0.04)", border: "1px solid rgba(99,91,255,0.1)", borderRadius: 12, display: "flex", alignItems: "center", justifyContent: "center", gap: 20, padding: "0 20px", overflow: "hidden" }}>
+      <div style={{ display: "flex", flexDirection: "column" as const, gap: 6, flex: 1 }}>
+        <div style={{ height: 6, width: "90%", borderRadius: 3, background: "rgba(99,91,255,0.2)" }} />
+        <div style={{ height: 6, width: "70%", borderRadius: 3, background: "rgba(99,91,255,0.12)" }} />
+        <div style={{ height: 6, width: "80%", borderRadius: 3, background: "rgba(99,91,255,0.08)" }} />
       </div>
-      {/* Nav row */}
-      <div style={{ display: "flex", gap: 6, marginBottom: 10 }}>
-        {[25, 15, 15, 35].map((w, i) => (
-          <div key={i} style={{ width: `${w}%`, height: 6, borderRadius: 3, background: i === 3 ? "rgba(99,91,255,0.12)" : "rgba(0,0,0,0.06)", animation: `fade-up 3s ease-out infinite`, animationDelay: `${i * 0.15}s` }} />
+      <div style={{ display: "flex", flexDirection: "column" as const, alignItems: "center", gap: 4 }}>
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" style={{ animation: "arrowPulse 2s ease-in-out infinite" }}>
+          <path d="M5 12h14M12 5l7 7-7 7" stroke="#635BFF" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+        </svg>
+        <div style={{ fontSize: 9, color: "#635BFF", fontWeight: 700, letterSpacing: "0.06em" }}>AI</div>
+      </div>
+      <div style={{ flex: 1, background: "#fff", borderRadius: 8, border: "1px solid rgba(99,91,255,0.15)", padding: 10, boxShadow: "0 4px 16px rgba(99,91,255,0.1)", animation: "fadeIn 2s ease-out infinite" }}>
+        <div style={{ height: 5, width: "60%", borderRadius: 3, background: "linear-gradient(90deg,#635BFF,#a855f7)", marginBottom: 6 }} />
+        <div style={{ height: 4, width: "90%", borderRadius: 3, background: "rgba(0,0,0,0.06)", marginBottom: 4 }} />
+        <div style={{ height: 4, width: "75%", borderRadius: 3, background: "rgba(0,0,0,0.06)", marginBottom: 4 }} />
+        <div style={{ height: 16, width: "45%", borderRadius: 6, background: "linear-gradient(90deg,#635BFF,#a855f7)", marginTop: 6 }} />
+      </div>
+    </div>
+  );
+}
+
+function Anim2() {
+  const services = [
+    { icon: "🔐", color: "#635BFF" },
+    { icon: "🗄️", color: "#a855f7" },
+    { icon: "⚡", color: "#10b981" },
+    { icon: "📦", color: "#f59e0b" },
+  ];
+  return (
+    <div style={{ height: ANIM_HEIGHT, background: "rgba(99,91,255,0.04)", border: "1px solid rgba(99,91,255,0.1)", borderRadius: 12, display: "flex", alignItems: "center", justifyContent: "center", padding: "0 16px", overflow: "hidden" }}>
+      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10, width: "100%" }}>
+        {services.map((s, i) => (
+          <div key={i} style={{ background: "#fff", border: `1px solid ${s.color}22`, borderRadius: 10, padding: "10px 12px", display: "flex", alignItems: "center", gap: 8, boxShadow: `0 2px 8px ${s.color}10`, animation: "fadeUp 3s ease-out infinite", animationDelay: `${i * 0.4}s` }}>
+            <span style={{ fontSize: 16 }}>{s.icon}</span>
+            <div>
+              <div style={{ width: 30, height: 4, borderRadius: 2, background: s.color, opacity: 0.6 }} />
+              <div style={{ width: 20, height: 3, borderRadius: 2, background: "rgba(0,0,0,0.08)", marginTop: 3 }} />
+            </div>
+            <div style={{ marginLeft: "auto", width: 8, height: 8, borderRadius: "50%", background: "#10b981", animation: "slowPulse 2s ease-in-out infinite", animationDelay: `${i * 0.3}s` }} />
+          </div>
         ))}
       </div>
-      {/* Hero block */}
-      <div style={{ height: 36, borderRadius: 8, background: "linear-gradient(90deg,rgba(99,91,255,0.08),rgba(168,85,247,0.05))", border: "1px solid rgba(99,91,255,0.08)", marginBottom: 8, animation: "fade-up 3s ease-out infinite", animationDelay: "0.5s" }} />
-      {/* Two columns */}
-      <div style={{ display: "flex", gap: 7, marginBottom: 8 }}>
-        <div style={{ flex: 1, height: 22, borderRadius: 7, background: "rgba(0,0,0,0.04)", border: "1px solid rgba(0,0,0,0.05)", animation: "fade-up 3s ease-out infinite", animationDelay: "0.7s" }} />
-        <div style={{ flex: 1, height: 22, borderRadius: 7, background: "rgba(0,0,0,0.04)", border: "1px solid rgba(0,0,0,0.05)", animation: "fade-up 3s ease-out infinite", animationDelay: "0.9s" }} />
+    </div>
+  );
+}
+
+function Anim3() {
+  return (
+    <div style={{ height: ANIM_HEIGHT, background: "rgba(99,91,255,0.04)", border: "1px solid rgba(99,91,255,0.1)", borderRadius: 12, display: "flex", flexDirection: "column" as const, alignItems: "center", justifyContent: "center", gap: 16, padding: "0 20px", overflow: "hidden" }}>
+      <div style={{ display: "flex", alignItems: "center", width: "100%", justifyContent: "center" }}>
+        <div style={{ display: "flex", flexDirection: "column" as const, alignItems: "center", gap: 6 }}>
+          <div style={{ width: 40, height: 40, borderRadius: 10, background: "#635BFF", display: "flex", alignItems: "center", justifyContent: "center", boxShadow: "0 4px 12px rgba(99,91,255,0.3)" }}>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
+          </div>
+          <div style={{ fontSize: 10, fontWeight: 600, color: "#635BFF" }}>Build</div>
+        </div>
+        <div style={{ flex: 1, height: 2, background: "linear-gradient(90deg,#635BFF,#a855f7)", margin: "0 8px", marginBottom: 18, maxWidth: 40 }} />
+        <div style={{ display: "flex", flexDirection: "column" as const, alignItems: "center", gap: 6 }}>
+          <div style={{ width: 40, height: 40, borderRadius: 10, background: "#a855f7", display: "flex", alignItems: "center", justifyContent: "center", boxShadow: "0 4px 12px rgba(168,85,247,0.3)", animation: "fadeIn 3s ease-out infinite", animationDelay: "0.8s" }}>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+          </div>
+          <div style={{ fontSize: 10, fontWeight: 600, color: "#a855f7" }}>Staging</div>
+        </div>
+        <div style={{ flex: 1, height: 2, background: "rgba(0,0,0,0.08)", margin: "0 8px", marginBottom: 18, maxWidth: 40, overflow: "hidden" }}>
+          <div style={{ height: "100%", background: "linear-gradient(90deg,#a855f7,#10b981)", animation: "grow 3s ease-in-out infinite", animationDelay: "1.5s" }} />
+        </div>
+        <div style={{ display: "flex", flexDirection: "column" as const, alignItems: "center", gap: 6 }}>
+          <div style={{ width: 40, height: 40, borderRadius: 10, background: "#10b981", display: "flex", alignItems: "center", justifyContent: "center", boxShadow: "0 4px 12px rgba(16,185,129,0.3)", animation: "fadeIn 3s ease-out infinite", animationDelay: "1.6s" }}>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round"><circle cx="12" cy="12" r="10"/><polyline points="12 8 12 12 14 14"/></svg>
+          </div>
+          <div style={{ fontSize: 10, fontWeight: 600, color: "#10b981" }}>Live</div>
+        </div>
       </div>
-      {/* Button row */}
-      <div style={{ display: "flex", gap: 6, justifyContent: "flex-end" }}>
-        <div style={{ width: "28%", height: 20, borderRadius: 20, background: "linear-gradient(135deg,#635BFF,#a855f7)", animation: "fade-up 3s ease-out infinite", animationDelay: "1.1s", boxShadow: "0 4px 10px rgba(99,91,255,0.2)" }} />
+      <div style={{ display: "flex", alignItems: "center", gap: 6, padding: "6px 14px", background: "#fff", borderRadius: 20, border: "1px solid rgba(16,185,129,0.2)", boxShadow: "0 2px 8px rgba(16,185,129,0.1)" }}>
+        <div style={{ width: 7, height: 7, borderRadius: "50%", background: "#10b981", animation: "slowPulse 2s ease-in-out infinite" }} />
+        <div style={{ width: 60, height: 4, borderRadius: 2, background: "rgba(16,185,129,0.3)" }} />
       </div>
     </div>
   );
 }
 
-/* ── Card 2: Data connections forming ── */
-function Card2Anim() {
+function Anim4() {
+  const models = [
+    { emoji: "🤖", color: "#10A37F", active: false },
+    { emoji: "✦", color: "#D97757", active: true },
+    { emoji: "💎", color: "#4285F4", active: false },
+  ];
   return (
-    <div style={{ background: "#fff", border: "1px solid rgba(0,0,0,0.07)", borderRadius: 14, padding: 16, boxShadow: "0 2px 12px rgba(0,0,0,0.05)", overflow: "hidden" }}>
-      <svg viewBox="0 0 240 110" fill="none" style={{ width: "100%", height: 110 }}>
-        {/* Left node — client */}
-        <rect x="8" y="42" width="32" height="26" rx="6" fill="rgba(99,91,255,0.08)" stroke="rgba(99,91,255,0.3)" strokeWidth="1.2"/>
-        <rect x="14" y="49" width="20" height="3" rx="1.5" fill="rgba(99,91,255,0.4)" />
-        <rect x="14" y="56" width="14" height="3" rx="1.5" fill="rgba(99,91,255,0.2)" />
-
-        {/* Center orchestrator */}
-        <rect x="84" y="38" width="32" height="34" rx="8" fill="rgba(99,91,255,0.1)" stroke="#635BFF" strokeWidth="1.5"/>
-        <circle cx="100" cy="55" r="8" fill="rgba(99,91,255,0.15)" stroke="#635BFF" strokeWidth="1.2"/>
-        <circle cx="100" cy="55" r="3.5" fill="#635BFF" style={{ animation: "dot-pulse 1.5s ease-in-out infinite" }}/>
-
-        {/* Right nodes */}
-        <rect x="192" y="14" width="28" height="20" rx="5" fill="rgba(168,85,247,0.08)" stroke="rgba(168,85,247,0.3)" strokeWidth="1"/>
-        <rect x="192" y="44" width="28" height="20" rx="5" fill="rgba(16,185,129,0.08)" stroke="rgba(16,185,129,0.3)" strokeWidth="1"/>
-        <rect x="192" y="74" width="28" height="20" rx="5" fill="rgba(245,158,11,0.08)" stroke="rgba(245,158,11,0.3)" strokeWidth="1"/>
-
-        {/* Left → center line */}
-        <line x1="40" y1="55" x2="84" y2="55" stroke="rgba(99,91,255,0.3)" strokeWidth="1.2" strokeDasharray="4 3" style={{ animation: "dash-flow 2s linear infinite" }}/>
-
-        {/* Center → right lines */}
-        <line x1="116" y1="50" x2="158" y2="24" stroke="rgba(168,85,247,0.3)" strokeWidth="1.2" strokeDasharray="4 3" style={{ animation: "dash-flow 2s linear infinite", animationDelay: "0.2s" }}/>
-        <line x1="116" y1="55" x2="158" y2="54" stroke="rgba(16,185,129,0.3)" strokeWidth="1.2" strokeDasharray="4 3" style={{ animation: "dash-flow 2s linear infinite", animationDelay: "0.5s" }}/>
-        <line x1="116" y1="60" x2="158" y2="84" stroke="rgba(245,158,11,0.3)" strokeWidth="1.2" strokeDasharray="4 3" style={{ animation: "dash-flow 2s linear infinite", animationDelay: "0.8s" }}/>
-
-        {/* Traveling dots */}
-        <circle r="3" fill="#635BFF" style={{ offsetPath: "path('M40,55 L84,55')", animation: "travel 2s linear infinite", offsetDistance: "0%" }}/>
-        <circle r="2.5" fill="#a855f7" style={{ offsetPath: "path('M116,50 L158,24')", animation: "travel 2.5s linear infinite", animationDelay: "0.3s", offsetDistance: "0%" }}/>
-        <circle r="2.5" fill="#10b981" style={{ offsetPath: "path('M116,55 L158,54')", animation: "travel 2s linear infinite", animationDelay: "0.8s", offsetDistance: "0%" }}/>
-        <circle r="2.5" fill="#f59e0b" style={{ offsetPath: "path('M116,60 L158,84')", animation: "travel 2.5s linear infinite", animationDelay: "1.2s", offsetDistance: "0%" }}/>
-      </svg>
+    <div style={{ height: ANIM_HEIGHT, background: "rgba(99,91,255,0.04)", border: "1px solid rgba(99,91,255,0.1)", borderRadius: 12, display: "flex", flexDirection: "column" as const, alignItems: "center", justifyContent: "center", gap: 10, padding: "0 16px", overflow: "hidden" }}>
+      <div style={{ width: 44, height: 44, borderRadius: 12, background: "linear-gradient(135deg,#635BFF,#a855f7)", display: "flex", alignItems: "center", justifyContent: "center", boxShadow: "0 4px 16px rgba(99,91,255,0.3)", animation: "slowPulse 2.5s ease-in-out infinite" }}>
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <path d="M12 2a5 5 0 0 1 5 5c0 1-.3 2-.8 2.8A4 4 0 0 1 20 13a4 4 0 0 1-4 4h-1v3h-6v-3H8a4 4 0 0 1-4-4 4 4 0 0 1 3.8-3.2A5 5 0 0 1 7 7a5 5 0 0 1 5-5z"/>
+        </svg>
+      </div>
+      <div style={{ display: "flex", gap: 8, width: "100%" }}>
+        {models.map((m, i) => (
+          <div key={i} style={{ flex: 1, background: m.active ? "#fff" : "rgba(255,255,255,0.5)", border: `1.5px solid ${m.active ? m.color + "50" : "rgba(0,0,0,0.07)"}`, borderRadius: 10, padding: "8px 6px", display: "flex", flexDirection: "column" as const, alignItems: "center", gap: 5, boxShadow: m.active ? `0 4px 14px ${m.color}20` : "none", animation: m.active ? "selectedGlow 2.5s ease-in-out infinite" : "none" }}>
+            <span style={{ fontSize: 16 }}>{m.emoji}</span>
+            <div style={{ width: "70%", height: 3, borderRadius: 2, background: m.active ? m.color : "rgba(0,0,0,0.08)" }} />
+            {m.active && <div style={{ width: 8, height: 8, borderRadius: "50%", background: m.color, animation: "slowPulse 1.5s ease-in-out infinite" }} />}
+          </div>
+        ))}
+      </div>
     </div>
   );
 }
 
-/* ── Card 3: Deployment pipeline ── */
-function Card3Anim() {
-  return (
-    <div style={{ background: "#fff", border: "1px solid rgba(0,0,0,0.07)", borderRadius: 14, padding: 16, boxShadow: "0 2px 12px rgba(0,0,0,0.05)", overflow: "hidden" }}>
-      <svg viewBox="0 0 200 110" fill="none" style={{ width: "100%", height: 110 }}>
-        {/* Pipeline track */}
-        <line x1="20" y1="55" x2="180" y2="55" stroke="rgba(0,0,0,0.06)" strokeWidth="2"/>
-        {/* Animated fill */}
-        <line x1="20" y1="55" x2="180" y2="55" stroke="url(#pipeGrad)" strokeWidth="2" style={{ animation: "pipe-fill 3s ease-in-out infinite" }}/>
-        <defs>
-          <linearGradient id="pipeGrad" x1="0" y1="0" x2="1" y2="0">
-            <stop offset="0%" stopColor="#635BFF"/>
-            <stop offset="100%" stopColor="#a855f7"/>
-          </linearGradient>
-        </defs>
-
-        {/* Stage 1 — Build (done) */}
-        <circle cx="48" cy="55" r="14" fill="linear-gradient(135deg,#635BFF,#a855f7)" style={{ animation: "none" }}/>
-        <circle cx="48" cy="55" r="14" fill="#635BFF"/>
-        <polyline points="42,55 47,60 55,50" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-        <rect x="33" y="74" width="30" height="4" rx="2" fill="rgba(0,0,0,0.07)"/>
-
-        {/* Stage 2 — Staging (done) */}
-        <circle cx="100" cy="55" r="14" fill="#a855f7"/>
-        <polyline points="94,55 99,60 107,50" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-        <rect x="85" y="74" width="30" height="4" rx="2" fill="rgba(0,0,0,0.07)"/>
-
-        {/* Stage 3 — Production (active) */}
-        <circle cx="152" cy="55" r="14" fill="rgba(99,91,255,0.08)" stroke="#635BFF" strokeWidth="1.5" style={{ animation: "ring-pulse 2s ease-in-out infinite" }}/>
-        <circle cx="152" cy="55" r="6" fill="rgba(99,91,255,0.3)" style={{ animation: "dot-pulse 1.5s ease-in-out infinite" }}/>
-        <circle cx="152" cy="55" r="3" fill="#635BFF"/>
-        <rect x="137" y="74" width="30" height="4" rx="2" fill="rgba(99,91,255,0.15)"/>
-
-        {/* Moving deploy dot */}
-        <circle r="4" fill="white" stroke="#635BFF" strokeWidth="1.5" style={{ offsetPath: "path('M20,55 L180,55')", animation: "travel 3s ease-in-out infinite", offsetDistance: "0%", filter: "drop-shadow(0 0 4px rgba(99,91,255,0.5))" }}/>
-
-        {/* Status indicator top right */}
-        <circle cx="185" cy="18" r="5" fill="#10b981" style={{ animation: "dot-pulse 2s ease-in-out infinite" }}/>
-        <rect x="168" y="28" width="24" height="3" rx="1.5" fill="rgba(16,185,129,0.3)"/>
-        <rect x="172" y="34" width="16" height="3" rx="1.5" fill="rgba(16,185,129,0.2)"/>
-      </svg>
-    </div>
-  );
-}
-
-/* ── Card 4: AI model routing ── */
-function Card4Anim() {
-  return (
-    <div style={{ background: "#fff", border: "1px solid rgba(0,0,0,0.07)", borderRadius: 14, padding: 16, boxShadow: "0 2px 12px rgba(0,0,0,0.05)", overflow: "hidden" }}>
-      <svg viewBox="0 0 200 110" fill="none" style={{ width: "100%", height: 110 }}>
-        {/* Central router */}
-        <circle cx="100" cy="55" r="18" fill="rgba(99,91,255,0.08)" stroke="#635BFF" strokeWidth="1.5"/>
-        <circle cx="100" cy="55" r="10" fill="rgba(99,91,255,0.15)" style={{ animation: "ring-pulse 2s ease-in-out infinite" }}/>
-        <circle cx="100" cy="55" r="5" fill="#635BFF"/>
-
-        {/* Outer model nodes */}
-        {/* GPT — top left */}
-        <circle cx="36" cy="25" r="12" fill="rgba(16,163,127,0.08)" stroke="rgba(16,163,127,0.4)" strokeWidth="1.2"/>
-        <circle cx="36" cy="25" r="5" fill="rgba(16,163,127,0.5)" style={{ animation: "dot-pulse 2.2s ease-in-out infinite", animationDelay: "0s" }}/>
-
-        {/* Claude — right */}
-        <circle cx="172" cy="38" r="14" fill="rgba(217,119,87,0.12)" stroke="rgba(217,119,87,0.5)" strokeWidth="1.8"/>
-        <circle cx="172" cy="38" r="6" fill="#D97757" style={{ animation: "dot-pulse 1.8s ease-in-out infinite", animationDelay: "0.3s" }}/>
-        {/* Selected glow */}
-        <circle cx="172" cy="38" r="18" fill="none" stroke="rgba(217,119,87,0.2)" strokeWidth="1" style={{ animation: "ring-pulse 1.8s ease-in-out infinite" }}/>
-
-        {/* Gemini — bottom left */}
-        <circle cx="36" cy="85" r="12" fill="rgba(66,133,244,0.08)" stroke="rgba(66,133,244,0.4)" strokeWidth="1.2"/>
-        <circle cx="36" cy="85" r="5" fill="rgba(66,133,244,0.5)" style={{ animation: "dot-pulse 2.4s ease-in-out infinite", animationDelay: "0.6s" }}/>
-
-        {/* Llama — bottom right */}
-        <circle cx="164" cy="84" r="11" fill="rgba(8,102,255,0.08)" stroke="rgba(8,102,255,0.3)" strokeWidth="1"/>
-        <circle cx="164" cy="84" r="4.5" fill="rgba(8,102,255,0.4)" style={{ animation: "dot-pulse 2.6s ease-in-out infinite", animationDelay: "0.9s" }}/>
-
-        {/* Mistral — top right */}
-        <circle cx="164" cy="22" r="10" fill="rgba(250,82,15,0.08)" stroke="rgba(250,82,15,0.3)" strokeWidth="1"/>
-        <circle cx="164" cy="22" r="4" fill="rgba(250,82,15,0.4)" style={{ animation: "dot-pulse 2s ease-in-out infinite", animationDelay: "0.5s" }}/>
-
-        {/* Connection lines */}
-        <line x1="48" y1="30" x2="82" y2="48" stroke="rgba(16,163,127,0.2)" strokeWidth="1" strokeDasharray="3 3" style={{ animation: "dash-flow 2s linear infinite" }}/>
-        <line x1="158" y1="42" x2="118" y2="52" stroke="rgba(217,119,87,0.4)" strokeWidth="1.5" strokeDasharray="3 3" style={{ animation: "dash-flow 1.8s linear infinite" }}/>
-        <line x1="48" y1="80" x2="82" y2="62" stroke="rgba(66,133,244,0.2)" strokeWidth="1" strokeDasharray="3 3" style={{ animation: "dash-flow 2.2s linear infinite", animationDelay: "0.5s" }}/>
-        <line x1="153" y1="80" x2="118" y2="62" stroke="rgba(8,102,255,0.15)" strokeWidth="1" strokeDasharray="3 3" style={{ animation: "dash-flow 2.4s linear infinite", animationDelay: "0.8s" }}/>
-        <line x1="154" y1="26" x2="118" y2="48" stroke="rgba(250,82,15,0.15)" strokeWidth="1" strokeDasharray="3 3" style={{ animation: "dash-flow 2s linear infinite", animationDelay: "0.3s" }}/>
-
-        {/* Signal traveling to Claude (selected) */}
-        <circle r="3.5" fill="#D97757" style={{ offsetPath: "path('M100,55 L158,42')", animation: "travel 1.8s ease-in-out infinite", offsetDistance: "0%", filter: "drop-shadow(0 0 4px rgba(217,119,87,0.7))" }}/>
-        <circle r="2.5" fill="#635BFF" style={{ offsetPath: "path('M48,30 L82,48')", animation: "travel 2.5s linear infinite", animationDelay: "0.4s", offsetDistance: "0%" }}/>
-      </svg>
-    </div>
-  );
-}
+const STEPS = [
+  { n: "01 / 04", cls: "s1", title: "From idea to working software", desc: "Describe what to build. OneAtlas generates it instantly.", Anim: Anim1 },
+  { n: "02 / 04", cls: "s2", title: "Backend, already in motion", desc: "Auth, database, APIs and storage — auto-structured from day one.", Anim: Anim2 },
+  { n: "03 / 04", cls: "s3", title: "Built to go live fast", desc: "Hosting, deployment, and scaling — all built in.", Anim: Anim3 },
+  { n: "04 / 04", cls: "s4", title: "AI-native by default", desc: "AI models route and run inside your product automatically.", Anim: Anim4 },
+];
 
 export function Steps() {
   return (
@@ -174,40 +132,25 @@ export function Steps() {
           </h2>
         </div>
         <div className="steps-grid">
-          <div className="step-item s1">
-            <div className="step-eyebrow"><span className="step-counter s1-counter">01 / 04</span></div>
-            <h3 className="step-title">From idea to working software</h3>
-            <p className="step-desc">Describe what you want to build. OneAtlas generates the full product foundation instantly.</p>
-            <Card1Anim />
-          </div>
-          <div className="step-item s2">
-            <div className="step-eyebrow"><span className="step-counter s2-counter">02 / 04</span></div>
-            <h3 className="step-title" style={{ whiteSpace: "nowrap", fontSize: "clamp(14px, 1.4vw, 18px)" }}>Your backend, already in motion</h3>
-            <p className="step-desc">Auth, databases, APIs, and storage are auto-structured behind the scenes from day one.</p>
-            <Card2Anim />
-          </div>
-          <div className="step-item s3">
-            <div className="step-eyebrow"><span className="step-counter s3-counter">03 / 04</span></div>
-            <h3 className="step-title">Built to go live fast</h3>
-            <p className="step-desc">Hosting, deployment, domains, and scaling are built in — go from building to live instantly.</p>
-            <Card3Anim />
-          </div>
-          <div className="step-item s4">
-            <div className="step-eyebrow"><span className="step-counter s4-counter">04 / 04</span></div>
-            <h3 className="step-title">AI-native by default</h3>
-            <p className="step-desc">AI models, agents, and workflows run inside your product automatically — no configuration needed.</p>
-            <Card4Anim />
-          </div>
+          {STEPS.map(({ n, cls, title, desc, Anim }) => (
+            <div key={n} className={`step-item ${cls}`}>
+              <div style={{ display: "flex", justifyContent: "flex-end", marginBottom: 10 }}>
+                <span className={`step-counter ${cls}-counter`}>{n}</span>
+              </div>
+              <h3 className="step-title">{title}</h3>
+              <p className="step-desc" style={{ marginBottom: 14 }}>{desc}</p>
+              <Anim />
+            </div>
+          ))}
         </div>
       </div>
       <style>{`
-        @keyframes dot-pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:0.5;transform:scale(1.3)} }
-        @keyframes ring-pulse { 0%,100%{opacity:0.6;transform:scale(1)} 50%{opacity:1;transform:scale(1.1)} }
-        @keyframes grow-right { 0%{transform:scaleX(0);opacity:0} 30%{opacity:1} 70%{transform:scaleX(1);opacity:1} 100%{transform:scaleX(1);opacity:0.7} }
-        @keyframes fade-up { 0%{opacity:0;transform:translateY(5px)} 30%{opacity:1;transform:translateY(0)} 80%{opacity:1} 100%{opacity:0.7} }
-        @keyframes dash-flow { to{stroke-dashoffset:-14} }
-        @keyframes travel { 0%{offset-distance:0%;opacity:1} 80%{opacity:1} 100%{offset-distance:100%;opacity:0} }
-        @keyframes pipe-fill { 0%{stroke-dasharray:0 200} 60%{stroke-dasharray:160 200} 100%{stroke-dasharray:160 200} }
+        @keyframes arrowPulse { 0%,100%{transform:translateX(0)} 50%{transform:translateX(4px)} }
+        @keyframes fadeIn { 0%{opacity:0} 40%{opacity:1} 100%{opacity:0.9} }
+        @keyframes fadeUp { 0%{opacity:0;transform:translateY(6px)} 30%{opacity:1;transform:translateY(0)} 100%{opacity:0.9} }
+        @keyframes slowPulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:0.6;transform:scale(1.1)} }
+        @keyframes grow { 0%{width:0%} 100%{width:100%} }
+        @keyframes selectedGlow { 0%,100%{box-shadow:0 4px 10px rgba(217,119,87,0.15)} 50%{box-shadow:0 4px 20px rgba(217,119,87,0.35)} }
       `}</style>
     </section>
   );

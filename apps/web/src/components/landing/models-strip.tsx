@@ -187,10 +187,10 @@ export function ModelsStrip() {
                 position: "absolute",
                 left: `${pos.xp}%`,
                 top: `${pos.yp}%`,
-                transform: `translate(-50%, -50%) translate(${dx}px, ${dy}px)`,
+                transform: `translate(-50%, -50%)`,
                 zIndex: 2,
                 cursor: "pointer",
-                animation: `csFloat 7s ease-in-out infinite alternate`,
+                animation: `none`,
                 animationDelay: `${idx * 0.4}s`,
                 animationDirection: idx % 2 === 0 ? "alternate" : "alternate-reverse",
                 filter: "none",
@@ -251,13 +251,13 @@ export function ModelsStrip() {
       <style>{`
         @keyframes csDrift {
           0%   { transform: translate(0, 0) scale(1); }
-          50%  { transform: translate(40px, -30px) scale(1.08); }
-          100% { transform: translate(-30px, 50px) scale(.95); }
+          50%  { transform: translate(0, 0) scale(1); }
+          100% { transform: translate(0, 0) scale(1); }
         }
         @keyframes csDash { to { stroke-dashoffset: -36; } }
         @keyframes csFloat {
-          from { translate: 0 -6px; }
-          to   { translate: 0 6px; }
+          from { translate: 0 0; }
+          to   { translate: 0 0; }
         }
       `}</style>
     </section>
