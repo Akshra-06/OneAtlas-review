@@ -5,6 +5,7 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build && rm -rf .next/cache/webpack",
+    "pages:build": "next build && npx --yes @cloudflare/next-on-pages@1",
     "start": "next start",
     "lint": "next lint"
   },
