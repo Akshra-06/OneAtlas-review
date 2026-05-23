@@ -1,3 +1,5 @@
+export const runtime = 'edge';
+
 // This file is a placeholder for NextAuth routes
 // The application uses Clerk for authentication instead
 
