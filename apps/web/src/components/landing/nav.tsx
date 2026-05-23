@@ -29,7 +29,6 @@ export function Nav() {
 
           {/* Desktop right */}
           <div className="nav-right nav-right-desktop">
-            <Link className="signin" href="/login">Sign In</Link>
             <Link className="cta-primary" href="/signup">Start Building Free</Link>
           </div>
 
@@ -67,7 +66,7 @@ export function Nav() {
               <a href="#" onClick={() => setMenuOpen(false)}>Docs</a>
             </div>
             <div className="nav-mobile-ctas">
-              <Link href="/login" className="nav-mobile-signin" onClick={() => setMenuOpen(false)}>
+              <Link href="/signup" className="nav-mobile-signin" onClick={() => setMenuOpen(false)}>
                 Sign In
               </Link>
               <Link href="/signup" className="nav-mobile-cta" onClick={() => setMenuOpen(false)}>

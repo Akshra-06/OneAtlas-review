@@ -693,9 +693,9 @@ export function Templates() {
           </span>
 
           {/* Head */}
-          <div style={{ display:"grid", gridTemplateColumns:"1.4fr 1fr", gap:48, alignItems:"end", margin:"18px 0 40px" }}>
+          <div style={{ display:"grid", gridTemplateColumns:"clamp(1fr, 1.4fr, 1.4fr) 1fr", gap:48, alignItems:"end", margin:"18px 0 40px" }} className="tpl-head-grid">
             <div>
-              <h2 style={{ fontSize:"clamp(32px,3.8vw,56px)", fontWeight:700, letterSpacing:"-.035em", lineHeight:1.02, margin:"18px 0 0", color:"#0A2540", whiteSpace:"nowrap" }}>
+              <h2 style={{ fontSize:"clamp(28px,3.8vw,56px)", fontWeight:700, letterSpacing:"-.035em", lineHeight:1.02, margin:"18px 0 0", color:"#0A2540" }}>
                 Ship faster from a <span style={{ background:"linear-gradient(90deg,#635BFF 0%, #7A73FF 35%, #FF5996 100%)", WebkitBackgroundClip:"text", backgroundClip:"text", WebkitTextFillColor:"transparent" }}>proven base</span>
               </h2>
             </div>
@@ -705,8 +705,8 @@ export function Templates() {
           </div>
 
           {/* Filters */}
-          <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", gap:24, marginBottom:32, flexWrap:"wrap" }}>
-            <div style={{ display:"flex", gap:8, flexWrap:"wrap", background:"#fff", border:"1px solid #E3E8EE", padding:5, borderRadius:999, boxShadow:"0 1px 2px rgba(10,37,64,.04)" }}>
+          <div style={{ display:"flex", flexDirection:"column", gap:12, marginBottom:32 }}>
+            <div style={{ display:"flex", gap:8, flexWrap:"nowrap", background:"#fff", border:"1px solid #E3E8EE", padding:5, borderRadius:999, boxShadow:"0 1px 2px rgba(10,37,64,.04)", overflowX:"auto", maxWidth:"100%", scrollbarWidth:"none" }}>
               {FILTERS.map(f => (
                 <button key={f} onClick={()=>setActiveFilter(f)} style={{ padding:"9px 18px", borderRadius:999, fontSize:14, fontWeight:500, color: activeFilter===f?"#fff":"#697386", background: activeFilter===f?"#0A2540":"transparent", transition:"color .15s, background .15s", whiteSpace:"nowrap" }}>{f}</button>
               ))}
@@ -715,7 +715,7 @@ export function Templates() {
           </div>
 
           {/* Grid */}
-          <div style={{ display:"grid", gridTemplateColumns:"repeat(3,1fr)", gap:24 }}>
+          <div className="tpl-grid-resp" style={{ display:"grid", gridTemplateColumns:"repeat(3,1fr)", gap:24 }}>
             {visible.slice(0, 6).map(t => <TemplateCard key={t.id} t={t} onLaunch={setLaunchTmpl}/>)}
           </div>
         </div>
@@ -740,6 +740,10 @@ export function Templates() {
         @keyframes tplSaasTip { to { opacity: 1; } }
         @media (max-width:1100px) { .tpl-grid-resp { grid-template-columns: repeat(2,1fr) !important; } }
         @media (max-width:720px)  { .tpl-grid-resp { grid-template-columns: 1fr !important; } }
+        @media (max-width:768px) {
+        .tpl-head-grid { grid-template-columns: 1fr !important; }
+         .tpl-grid-resp { grid-template-columns: 1fr !important; }
+}
       `}</style>
 
       {launchTmpl && <LaunchModal tmpl={launchTmpl} onClose={()=>setLaunchTmpl(null)}/>}

@@ -7,16 +7,19 @@ import { ModelData } from "./model-data";
 const VB_W = 1000;
 const VB_H = 480;
 
+const isMobile = false;
+const scale = isMobile ? 0.65 : 1;
+
 const layout = [
-  { i: 0, xp:  8, yp: 38, r: 38, z: 0.6 },
-  { i: 1, xp: 20, yp: 70, r: 44, z: 1.0 },
-  { i: 2, xp: 29, yp: 18, r: 34, z: 0.45 },
-  { i: 3, xp: 40, yp: 56, r: 40, z: 0.8 },
-  { i: 4, xp: 56, yp: 80, r: 32, z: 0.4 },
-  { i: 5, xp: 58, yp: 22, r: 42, z: 0.9 },
-  { i: 6, xp: 72, yp: 62, r: 36, z: 0.55 },
-  { i: 7, xp: 82, yp: 24, r: 40, z: 0.75 },
-  { i: 8, xp: 90, yp: 72, r: 34, z: 0.5 },
+  { i: 0, xp:  8, yp: 38, r: 38 * scale, z: 0.6 },
+  { i: 1, xp: 20, yp: 70, r: 44 * scale, z: 1.0 },
+  { i: 2, xp: 29, yp: 18, r: 34 * scale, z: 0.45 },
+  { i: 3, xp: 40, yp: 56, r: 40 * scale, z: 0.8 },
+  { i: 4, xp: 56, yp: 80, r: 32 * scale, z: 0.4 },
+  { i: 5, xp: 58, yp: 22, r: 42 * scale, z: 0.9 },
+  { i: 6, xp: 72, yp: 62, r: 36 * scale, z: 0.55 },
+  { i: 7, xp: 82, yp: 24, r: 40 * scale, z: 0.75 },
+  { i: 8, xp: 90, yp: 72, r: 34 * scale, z: 0.5 },
 ];
 
 // SVG x/y derived from the same percentages × viewBox size
@@ -190,7 +193,7 @@ export function ModelsStrip() {
                 animation: `csFloat 7s ease-in-out infinite alternate`,
                 animationDelay: `${idx * 0.4}s`,
                 animationDirection: idx % 2 === 0 ? "alternate" : "alternate-reverse",
-                filter: hovered !== null && !isHover ? "saturate(.55) opacity(.55)" : "none",
+                filter: "none",
                 transition: "filter .3s",
               }}
               onMouseEnter={() => setHovered(idx)}
@@ -221,19 +224,22 @@ export function ModelsStrip() {
                 {m.mark(Math.round(pos.r * 0.85))}
               </div>
               <div style={{
-                position: "absolute",
-                left: "50%",
-                top: "calc(100% + 8px)",
-                transform: `translateX(-50%) translateY(${isHover ? "2px" : "0"})`,
-                whiteSpace: "nowrap",
+              position: "absolute",
+              left: "50%",
+              top: "calc(100% + 8px)",
+               transform: `translateX(-50%) translateY(${isHover ? "2px" : "0"})`,
+                 whiteSpace: "nowrap",
+            maxWidth: "80px",
+              
+                  textOverflow: "ellipsis",
                 textAlign: "center",
                 transition: "opacity .25s, transform .25s",
-                opacity: hovered !== null && !isHover ? 0.5 : 1,
+                opacity: hovered !== null && !isHover ? 0.75 : 1,
               }}>
-                <div style={{ fontSize: 13, fontWeight: 700, color: isHover ? "#635BFF" : "#0A2540", letterSpacing: "-.01em", lineHeight: 1.1 }}>
-                  {m.name}
+                <div style={{ fontSize: "clamp(9px, 2.2vw, 13px)", fontWeight: 700, color: isHover ? "#635BFF" : "#0A2540", letterSpacing: "-.01em", lineHeight: 1.1, maxWidth: 120, textAlign: "center" }}>
+                {m.name}
                 </div>
-                <div style={{ fontSize: 11, color: "#697386", marginTop: 2, fontWeight: 500 }}>
+                <div style={{ fontSize: "clamp(8px, 1.8vw, 11px)", color: "#697386", marginTop: 2, fontWeight: 500 }}>
                   {m.vendor}
                 </div>
               </div>

@@ -2,7 +2,9 @@ const Img = ({ src, size }: { src: string; size: number }) => (
   <img
     src={src}
     alt=""
-    style={{ width: size, height: size, objectFit: "contain", borderRadius: 4 }}
+    width={size}
+    height={size}
+    style={{ objectFit: "contain", borderRadius: 4 }}
   />
 );
 

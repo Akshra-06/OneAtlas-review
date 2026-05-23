@@ -292,9 +292,10 @@
   .prompt-input::placeholder { color: var(--ink-mute); }
   .prompt-row {
     display: flex; align-items: center; justify-content: space-between;
-    margin-top: 10px; gap: 12px;
+    margin-top: 10px; gap: 8px;
   }
-  .prompt-row-left, .prompt-row-right { display: flex; align-items: center; gap: 8px; }
+  .prompt-row-left { display: flex; align-items: center; gap: 8px; }
+  .prompt-row-right { display: flex; align-items: center; gap: 8px; margin-left: auto; }
   .icon-btn {
     width: 36px; height: 36px;
     display: grid; place-items: center;
@@ -1382,9 +1383,11 @@
   .hero-inner { max-width: 100%; }
   h1.hero-title { font-size: clamp(26px, 7vw, 44px); white-space: normal; letter-spacing: -.03em; line-height: 1.1; }
   .hero-sub { font-size: 14px; white-space: normal; max-width: 100%; }
-  .prompt-card { max-width: 100%; padding: 16px 16px 12px; border-radius: 18px; }
+  /* .prompt-card { max-width: 100%; padding: 16px 16px 12px; border-radius: 18px; overflow: hidden; } */
+  .prompt-card { max-width: 100%; padding: 16px 16px 12px; border-radius: 18px; overflow: visible; }
   .prompt-input { font-size: 14px; min-height: 60px; }
-  .prompt-row { flex-wrap: wrap; gap: 8px; }
+  .prompt-row { flex-wrap: nowrap; gap: 3px; justify-content: space-between; padding-right: 4px; }
+  .prompt-row-right { flex-wrap: nowrap; }
   .model-chip { font-size: 12px; padding: 7px 11px; }
   .hero-grid { max-width: 100%; grid-template-columns: repeat(2, 1fr); gap: 10px; }
   .hero-grid-ico { width: 38px; height: 38px; }
@@ -1465,8 +1468,8 @@
   .hero { padding: 32px 16px 48px; }
   h1.hero-title { font-size: clamp(24px, 8vw, 36px); letter-spacing: -.025em; }
   .hero-sub { font-size: 13.5px; }
-  .prompt-card { padding: 14px 14px 10px; border-radius: 16px; }
-  .prompt-row-left { flex-wrap: wrap; gap: 6px; }
+  .prompt-card { padding: 14px 14px 10px; border-radius: 16px; overflow: visible !important; }
+  .prompt-row-left { flex-wrap: nowrap; gap: 6px; }
   .hero-grid { grid-template-columns: repeat(2, 1fr); gap: 8px; max-width: 100%; }
   .hero-grid-item { padding: 14px 10px 12px; gap: 8px; }
   .hero-grid-ico { width: 34px; height: 34px; border-radius: 10px; }
@@ -1614,4 +1617,44 @@
   .nav-hamburger { display: none !important; }
   .nav-mobile-menu { display: none !important; }
   .nav-right-desktop { display: flex !important; }
+}
+/* 1. Add this to handle the header grid in Templates.tsx */
+.templates-header-grid {
+  display: grid;
+  grid-template-columns: 1.4fr 1fr;
+  gap: 48px;
+  align-items: end;
+  margin: 18px 0 40px;
+}
+
+/* 2. Ensure the Templates Grid responds to mobile */
+.templates-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 24px;
+}
+
+/* 3. Crucial: This fixes the mobile header and grid */
+@media (max-width: 768px) {
+  .templates-header-grid {
+    grid-template-columns: 1fr;
+    gap: 24px;
+    text-align: center;
+  }
+  
+  .templates-grid {
+    grid-template-columns: 1fr !important; /* Forces 1 column on mobile */
+  }
+}
+
+/* 4. Prevent all potential text leaks */
+h1, h2, h3, p, span {
+  max-width: 100%;
+  overflow-wrap: break-word;
+}
+@media (max-width: 480px) {
+  .send-btn { width: 32px !important; height: 32px !important; min-width: 32px !important; }
+  .icon-btn { width: 30px !important; height: 30px !important; min-width: 30px !important; }
+  .model-chip { padding: 4px 8px !important; font-size: 11px !important; gap: 4px !important; }
+  .prompt-row { gap: 3px !important; }
 }
