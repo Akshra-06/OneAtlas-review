@@ -9,7 +9,7 @@
 // Security: protected by CRON_SECRET header (set in vercel.json).
 // =============================================================================
 
-export const runtime = "nodejs";
+export const runtime = "edge";
 
 import { NextRequest } from "next/server";
 import { runWorker } from "../../../../../../lib/queue";

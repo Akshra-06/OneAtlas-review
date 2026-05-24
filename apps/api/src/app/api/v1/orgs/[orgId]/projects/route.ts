@@ -4,7 +4,7 @@
 // POST /api/v1/orgs/:orgId/projects  — create project (triggers AI generation)
 // =============================================================================
 
-export const runtime = "nodejs";
+export const runtime = "edge";
 
 import { NextRequest } from "next/server";
 import { prisma } from "@oneatlas/db";

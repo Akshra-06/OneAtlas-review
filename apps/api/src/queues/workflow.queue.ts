@@ -3,7 +3,7 @@
 // Workflow execution queue adapter.
 // =============================================================================
 
-import { getQueue, type QueueJobRecord } from "../lib/queue/client";
+import { getQueue, type QueueJobRecord } from "../lib/queue/bullmq";
 
 export const WORKFLOW_QUEUE_NAME = "workflow" as const;
 

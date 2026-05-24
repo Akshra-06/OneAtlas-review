@@ -6,7 +6,7 @@
 // DELETE /deployments/:id          — undeploy (take offline)
 // =============================================================================
 
-export const runtime = "nodejs";
+export const runtime = "edge";
 
 import { NextRequest } from "next/server";
 import { prisma } from "@oneatlas/db";

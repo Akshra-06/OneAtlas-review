@@ -5,7 +5,7 @@
 
 import { appEvents } from "../events/emitter";
 import { logger } from "../lib/logger";
-import { getWorker } from "../lib/queue/client";
+import { getWorker } from "../lib/queue/bullmq";
 import { ProjectService } from "../services/project.service";
 import {
   drainPreviewJobs,

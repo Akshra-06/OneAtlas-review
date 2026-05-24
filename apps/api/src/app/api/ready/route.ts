@@ -13,7 +13,7 @@
 //   - Public — no auth required (added to isPublicRoute in middleware)
 // =============================================================================
 
-export const runtime = "nodejs";
+export const runtime = "edge";
 
 import { NextResponse } from "next/server";
 import { checkDatabase, checkRedis } from "../../../lib/health";

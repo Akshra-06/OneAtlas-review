@@ -5,7 +5,7 @@
 
 import { appEvents } from "../events/emitter";
 import { logger } from "../lib/logger";
-import { getWorker } from "../lib/queue/client";
+import { getWorker } from "../lib/queue/bullmq";
 import { WorkflowService } from "../services/workflow.service";
 import {
   drainWorkflowJobs,

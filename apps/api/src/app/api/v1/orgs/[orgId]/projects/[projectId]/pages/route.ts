@@ -4,7 +4,7 @@
 // POST /pages — add a generated page entry
 // =============================================================================
 
-export const runtime = "nodejs";
+export const runtime = "edge";
 
 import { randomUUID } from "node:crypto";
 import { NextRequest } from "next/server";

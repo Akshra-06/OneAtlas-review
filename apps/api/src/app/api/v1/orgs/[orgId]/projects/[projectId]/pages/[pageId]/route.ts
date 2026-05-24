@@ -5,7 +5,7 @@
 // DELETE /pages/:id
 // =============================================================================
 
-export const runtime = "nodejs";
+export const runtime = "edge";
 
 import { NextRequest } from "next/server";
 import { z } from "zod";

@@ -4,7 +4,7 @@
 // POST /functions — add a generated function entry
 // =============================================================================
 
-export const runtime = "nodejs";
+export const runtime = "edge";
 
 import { randomUUID } from "node:crypto";
 import { NextRequest } from "next/server";

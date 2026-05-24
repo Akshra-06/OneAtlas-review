@@ -3,7 +3,7 @@
 // Preview job queue adapter.
 // =============================================================================
 
-import { getQueue, type QueueJobRecord } from "../lib/queue/client";
+import { getQueue, type QueueJobRecord } from "../lib/queue/bullmq";
 
 export const PREVIEW_QUEUE_NAME = "preview" as const;
 

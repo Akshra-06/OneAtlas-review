@@ -4,7 +4,7 @@
 // PATCH /api/v1/me — update display name / avatar
 // =============================================================================
 
-export const runtime = "nodejs";
+export const runtime = "edge";
 
 import { NextRequest } from "next/server";
 import { prisma } from "@oneatlas/db";

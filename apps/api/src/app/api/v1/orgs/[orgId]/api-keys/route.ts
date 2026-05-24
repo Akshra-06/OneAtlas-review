@@ -5,7 +5,7 @@
 // POST /api/v1/orgs/:orgId/api-keys   — create a new API key (returns key once)
 // =============================================================================
 
-export const runtime = "nodejs";
+export const runtime = "edge";
 
 import { NextRequest } from "next/server";
 import { z } from "zod";

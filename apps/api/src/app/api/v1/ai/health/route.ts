@@ -3,7 +3,7 @@
  * GET /api/v1/ai/health
  */
 
-export const runtime = "nodejs";
+export const runtime = "edge";
 
 import { NextResponse } from "next/server";
 

@@ -4,7 +4,7 @@
 // DELETE /api/v1/orgs/:orgId/api-keys/:keyId  — revoke (delete) an API key
 // =============================================================================
 
-export const runtime = "nodejs";
+export const runtime = "edge";
 
 import { NextRequest } from "next/server";
 import { prisma } from "@oneatlas/db";

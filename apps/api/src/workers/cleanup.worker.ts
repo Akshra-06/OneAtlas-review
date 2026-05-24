@@ -7,7 +7,7 @@ import { prisma } from "@oneatlas/db";
 import { appEvents } from "../events/emitter";
 import { logger } from "../lib/logger";
 import { deleteWorker, removeDnsRecord, buildWorkerName } from "../lib/cloudflare";
-import { getWorker, type QueueJobRecord } from "../lib/queue/client";
+import { getWorker, type QueueJobRecord } from "../lib/queue/bullmq";
 import { DeploymentService } from "../services/deployment.service";
 import { ProjectService } from "../services/project.service";
 

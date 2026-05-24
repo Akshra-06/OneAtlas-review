@@ -4,7 +4,7 @@
 // POST /observability — log an event through the observability service
 // =============================================================================
 
-export const runtime = "nodejs";
+export const runtime = "edge";
 
 import { NextRequest } from "next/server";
 import { z } from "zod";

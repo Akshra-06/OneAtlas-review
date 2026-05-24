@@ -4,7 +4,7 @@
 // Returns DB connectivity status without exposing sensitive info.
 // =============================================================================
 
-export const runtime = "nodejs";
+export const runtime = "edge";
 
 import { NextResponse } from "next/server";
 import { prisma } from "@oneatlas/db";

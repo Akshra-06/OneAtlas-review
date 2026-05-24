@@ -8,7 +8,7 @@ import { appEvents } from "../events/emitter";
 import { logger } from "../lib/logger";
 import { addDnsRecord, deleteWorker, deployWorker, removeDnsRecord, buildWorkerName } from "../lib/cloudflare";
 import type { DeploymentResult } from "../lib/deploymentService";
-import { getWorker } from "../lib/queue/client";
+import { getWorker } from "../lib/queue/bullmq";
 import { DeploymentService } from "../services/deployment.service";
 import {
   drainDeployJobs,
