@@ -41,16 +41,18 @@ async function getRedis(): Promise<any | null> {
     return null;
   }
   try {
-    // Use the cloud client for Edge compatibility. Dynamic import prevents
-    // Node-only builds from being pulled into the Edge bundle at module load.
-    const mod = await import("@upstash/redis/cloud");
-    const RedisCloud = mod.Redis ?? mod.default ?? mod;
-    return new RedisCloud({
+    // Dynamic import of the public package entry to avoid pulling Node-only
+    // code into the Edge bundle at module load. The package may still contain
+    // Node-specific branches, but importing dynamically delays execution to
+    // runtime and avoids static bundling issues.
+    const mod = await import("@upstash/redis");
+    const RedisClient = (mod as any).Redis ?? (mod as any).default ?? mod;
+    return new RedisClient({
       url: process.env.UPSTASH_REDIS_REST_URL,
       token: process.env.UPSTASH_REDIS_REST_TOKEN,
     });
   } catch (err) {
-    console.warn("getRedis: failed to load @upstash/redis/cloud", err);
+    console.warn("getRedis: failed to dynamically import @upstash/redis", err);
     return null;
   }
 }
