@@ -8,7 +8,6 @@
 import { clerkMiddleware, createRouteMatcher, createClerkClient } from "@clerk/nextjs/server";
 import { NextResponse, type NextRequest } from "next/server";
 import { Ratelimit } from "@upstash/ratelimit";
-import { Redis } from "@upstash/redis";
 import { RATE_LIMITS } from "@oneatlas/shared";
 import { extractBearerToken, verifyApiKey } from "./lib/apiKeys";
 import { withCors } from "./lib/cors";
@@ -37,18 +36,27 @@ let defaultLimiter: Ratelimit | null = null;
 let aiLimiter: Ratelimit | null = null;
 let deployLimiter: Ratelimit | null = null;
 
-function getRedis(): Redis | null {
+async function getRedis(): Promise<any | null> {
   if (!process.env.UPSTASH_REDIS_REST_URL || !process.env.UPSTASH_REDIS_REST_TOKEN) {
     return null;
   }
-  return new Redis({
-    url: process.env.UPSTASH_REDIS_REST_URL,
-    token: process.env.UPSTASH_REDIS_REST_TOKEN,
-  });
+  try {
+    // Use the cloud client for Edge compatibility. Dynamic import prevents
+    // Node-only builds from being pulled into the Edge bundle at module load.
+    const mod = await import("@upstash/redis/cloud");
+    const RedisCloud = mod.Redis ?? mod.default ?? mod;
+    return new RedisCloud({
+      url: process.env.UPSTASH_REDIS_REST_URL,
+      token: process.env.UPSTASH_REDIS_REST_TOKEN,
+    });
+  } catch (err) {
+    console.warn("getRedis: failed to load @upstash/redis/cloud", err);
+    return null;
+  }
 }
 
-function getLimiters() {
-  const redis = getRedis();
+async function getLimiters() {
+  const redis = await getRedis();
   if (!redis) return { defaultLimiter: null, aiLimiter: null, deployLimiter: null };
 
   if (!defaultLimiter) {
@@ -256,7 +264,7 @@ export default clerkMiddleware(async (auth, req: NextRequest) => {
   }
 
   // ── Rate limiting ─────────────────────────────────────────────────────────
-  const { defaultLimiter: dl, aiLimiter: al, deployLimiter: depl } = getLimiters();
+  const { defaultLimiter: dl, aiLimiter: al, deployLimiter: depl } = await getLimiters();
 
   if (dl || al || depl) {
     // Key: per-user + per-org (extracted from path segment)
