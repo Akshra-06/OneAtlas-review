@@ -10,7 +10,7 @@
 export const runtime = "edge";
 
 import { NextRequest } from "next/server";
-import { getQueueStats, getJobStatus } from "../../../../../lib/queue";
+import { getQueueStats, getJobStatus } from "../../../../../lib/queue/client";
 
 function verifyCronSecret(req: NextRequest): boolean {
   const secret = process.env.CRON_SECRET;

@@ -12,7 +12,6 @@
 export const runtime = "edge";
 
 import { NextRequest } from "next/server";
-import { runWorker } from "../../../../../../lib/queue";
 
 function verifyCronSecret(req: NextRequest): boolean {
   const secret = process.env.CRON_SECRET;
@@ -32,22 +31,10 @@ export async function POST(req: NextRequest) {
     });
   }
 
-  const body = await req.json().catch(() => ({})) as { batchSize?: number };
-  const batchSize = Math.min(body.batchSize ?? 5, 20);
-
-  // Run both queues in parallel
-  const [deployResult, aiResult] = await Promise.all([
-    runWorker("deploy", batchSize),
-    runWorker("ai_generation", batchSize),
-  ]);
-
   return new Response(
     JSON.stringify({
       ok: true,
-      results: {
-        deploy: deployResult,
-        ai_generation: aiResult,
-      },
+      message: "Queue processing is disabled on Cloudflare Pages edge runtime.",
       processedAt: new Date().toISOString(),
     }),
     { status: 200, headers: { "Content-Type": "application/json" } }

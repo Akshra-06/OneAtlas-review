@@ -16,5 +16,3 @@ export {
   type JobStatus,
   type QueueStats,
 } from "./client";
-
-export { runWorker, type WorkerRunResult } from "./workers";

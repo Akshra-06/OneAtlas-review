@@ -17,8 +17,8 @@
 export const runtime = "edge";
 
 import { NextRequest } from "next/server";
-import { gateway, type AIProvider, type ModelTier } from "@oneatlas/ai";
 import { z } from "zod";
+import { completeText, inferProviderFromModel, type AIProvider, type ModelTier } from "../../../../../lib/ai/edge-client";
 
 const providerSchema = z.enum(["anthropic", "openai", "google", "deepseek"]);
 const tierSchema = z.enum(["fast", "smart"]);
@@ -32,15 +32,6 @@ const CompletionRequestSchema = z.object({
   maxTokens: z.number().int().min(1).max(32_768).optional().default(2048),
   jsonMode: z.boolean().optional().default(false),
 });
-
-function inferProviderFromModel(model?: string): AIProvider {
-  const value = model?.toLowerCase() ?? "";
-  if (value.includes("gemini") || value.includes("google")) return "google";
-  if (value.includes("deepseek")) return "deepseek";
-  if (value.includes("claude") || value.includes("anthropic")) return "anthropic";
-  if (value.includes("gpt") || value.includes("o1") || value.includes("openai")) return "openai";
-  return "google";
-}
 
 function sseHeaders() {
   return {
@@ -94,11 +85,12 @@ export async function POST(request: NextRequest) {
             model: body.model ?? `${provider}:${body.tier}`,
           });
 
-          const result = await gateway.complete({
-            messages: [{ role: "user", content: body.prompt }],
+          const result = await completeText({
+            prompt: body.prompt,
             provider,
             model: body.model,
             tier: body.tier as ModelTier,
+            systemPrompt: "You are OneAtlas, a concise, production-oriented coding assistant.",
             temperature: body.temperature,
             maxTokens: body.maxTokens,
             jsonMode: body.jsonMode,
