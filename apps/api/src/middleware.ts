@@ -37,10 +37,22 @@ let aiLimiter: Ratelimit | null = null;
 let deployLimiter: Ratelimit | null = null;
 
 async function getRedis(): Promise<any | null> {
-  // Temporarily disable Redis to diagnose Edge runtime issues.
-  // Will re-enable after verifying basic site functionality.
-  console.warn("getRedis: Redis disabled for diagnostics");
-  return null;
+  if (!process.env.UPSTASH_REDIS_REST_URL || !process.env.UPSTASH_REDIS_REST_TOKEN) {
+    return null;
+  }
+  try {
+    // Dynamically import to defer Node-only code. Works on Node runtime;
+    // gracefully fails on Edge (rate limiting will be skipped).
+    const mod = await import("@upstash/redis");
+    const RedisClient = (mod as any).Redis ?? (mod as any).default ?? mod;
+    return new RedisClient({
+      url: process.env.UPSTASH_REDIS_REST_URL,
+      token: process.env.UPSTASH_REDIS_REST_TOKEN,
+    });
+  } catch (err) {
+    console.warn("getRedis: Redis unavailable (expected on Edge runtime)", err);
+    return null;
+  }
 }
 
 async function getLimiters() {
