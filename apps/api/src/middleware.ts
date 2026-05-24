@@ -108,7 +108,8 @@ function log(fields: Record<string, unknown>) {
 // ── Middleware ────────────────────────────────────────────────────────────────
 
 export default clerkMiddleware(async (auth, req: NextRequest) => {
-  const startMs = Date.now();
+  try {
+    const startMs = Date.now();
   const requestId = crypto.randomUUID();
 
   // Attach request ID so route handlers can read it from headers
@@ -341,7 +342,18 @@ export default clerkMiddleware(async (auth, req: NextRequest) => {
     latencyMs: Date.now() - startMs,
   });
 
-  return res;
+    return res;
+  } catch (err) {
+    try {
+      console.error('[middleware] uncaught error', err);
+    } catch (e) {
+      // ignore
+    }
+    return new NextResponse(JSON.stringify({ success: false, error: String(err) }), {
+      status: 500,
+      headers: { 'content-type': 'application/json' },
+    });
+  }
 });
 
 export const config = {
