@@ -4,9 +4,8 @@
 // POST /pages — add a generated page entry
 // =============================================================================
 
-export const runtime = "nodejs";
+export const runtime = "edge";
 
-import { randomUUID } from "node:crypto";
 import { NextRequest } from "next/server";
 import { z } from "zod";
 import { NotFoundError } from "@oneatlas/shared";
@@ -27,6 +26,10 @@ interface PageRecord {
   description: string;
   createdAt: string;
   updatedAt: string;
+}
+
+function createId(): string {
+  return globalThis.crypto.randomUUID();
 }
 
 const createPageSchema = z.object({
@@ -57,7 +60,7 @@ function readPages(project: Awaited<ReturnType<ProjectService["getById"]>>): Pag
   return pages.map((page) => {
     const record = page as Partial<PageRecord> & { path?: string; component?: string; description?: string };
     return {
-      id: record.id ?? record.path ?? randomUUID(),
+      id: record.id ?? record.path ?? createId(),
       path: record.path ?? "/",
       component: record.component ?? "",
       description: record.description ?? "",
@@ -102,7 +105,7 @@ export async function POST(req: NextRequest, { params }: RouteContext) {
     const pages = readPages(project);
     const now = new Date().toISOString();
     const pageRecord: PageRecord = {
-      id: randomUUID(),
+      id: createId(),
       path: body.path,
       component: body.component,
       description: body.description,

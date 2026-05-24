@@ -3,7 +3,7 @@
 // Deploy job queue adapter.
 // =============================================================================
 
-import { getQueue, type QueueJobRecord } from "../lib/queue/client";
+import { getQueue, type QueueJobRecord } from "../lib/queue/bullmq";
 
 export const DEPLOY_QUEUE_NAME = "deploy" as const;
 

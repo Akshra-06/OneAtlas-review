@@ -4,9 +4,8 @@
 // POST /functions — add a generated function entry
 // =============================================================================
 
-export const runtime = "nodejs";
+export const runtime = "edge";
 
-import { randomUUID } from "node:crypto";
 import { NextRequest } from "next/server";
 import { z } from "zod";
 import { NotFoundError } from "@oneatlas/shared";
@@ -28,6 +27,10 @@ interface FunctionRecord {
   code: string;
   createdAt: string;
   updatedAt: string;
+}
+
+function createId(): string {
+  return globalThis.crypto.randomUUID();
 }
 
 const projectService = new ProjectService();
@@ -54,7 +57,7 @@ function readFunctions(project: Awaited<ReturnType<ProjectService["getById"]>>):
   return functionsValue.map((item) => {
     const fn = item as Partial<FunctionRecord>;
     return {
-      id: fn.id ?? fn.name ?? randomUUID(),
+      id: fn.id ?? fn.name ?? createId(),
       name: fn.name ?? "",
       description: fn.description,
       language: fn.language ?? "typescript",
@@ -99,7 +102,7 @@ export async function POST(req: NextRequest, { params }: RouteContext) {
     const functionsList = readFunctions(project);
     const now = new Date().toISOString();
     const functionRecord: FunctionRecord = {
-      id: randomUUID(),
+      id: createId(),
       name: body.name,
       description: body.description,
       language: body.language,

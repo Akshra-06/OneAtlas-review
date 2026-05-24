@@ -3,8 +3,6 @@
 // Lightweight request tracing helpers.
 // =============================================================================
 
-import { randomUUID } from "node:crypto";
-
 export interface TraceContext {
   traceId: string;
   parentTraceId?: string;
@@ -18,7 +16,7 @@ export interface TraceSpan extends TraceContext {
 }
 
 export function createTraceId(): string {
-  return randomUUID();
+  return globalThis.crypto.randomUUID();
 }
 
 export function startTrace(name: string, parentTraceId?: string): TraceSpan {

@@ -12,22 +12,20 @@
 export const runtime = "nodejs";
 
 import { NextRequest } from "next/server";
-import { prisma } from "@oneatlas/db";
+import { prisma, createAuditLog } from "@oneatlas/db";
 import { z } from "zod";
-import {
-  NotFoundError,
-  ConflictError,
-} from "@oneatlas/shared";
-import { diagnoseError, ModelRouter, UnderstandingOrchestrator, PIPELINE_STEPS, type PipelineContext, retryService } from "@oneatlas/ai";
+import { ConflictError, NotFoundError, type GenerationResult } from "@oneatlas/shared";
 import { requireOrgMember } from "../../../../../../../../lib/auth";
 import { errorResponse, ok } from "../../../../../../../../lib/response";
-import { createAuditLog } from "@oneatlas/db";
 import { captureGenerationCompleted } from "../../../../../../../../lib/analytics";
-import * as crypto from "node:crypto";
-import { materializeWorkspace } from "../../../../../../../../lib/materializer";
+import { completeJson, type AIProvider } from "../../../../../../../../lib/ai/edge-client";
 
 interface RouteContext {
   params: Promise<{ orgId: string; projectId: string }>;
+}
+
+function createId(): string {
+  return globalThis.crypto.randomUUID();
 }
 
 const generateSchema = z.object({
@@ -38,6 +36,76 @@ const generateSchema = z.object({
     .array(z.enum(["schema", "pages", "api", "workflows", "all"]))
     .default(["all"]),
 });
+
+const GENERATION_SYSTEM_PROMPT = `You are OneAtlas, an expert full-stack code generator.
+Generate a complete, production-ready web application based on the user's prompt.
+
+Respond ONLY with a JSON object matching this schema — no markdown, no explanation:
+{
+  "appId": string,
+  "appName": string,
+  "prismaSchema": string,
+  "files": [{ "filePath": string, "content": string, "fileType": string, "entityName"?: string }],
+  "routeConfig": { "appId": string, "appName": string, "defaultRoute": string, "routes": [], "sidebarNav": [] },
+  "entitySchemas": [],
+  "generatedAt": string,
+  "validation": { "valid": true, "issues": [] }
+}`;
+
+function providerFromEnv(): AIProvider {
+  const value = (process.env.AI_DEFAULT_PROVIDER || process.env.AI_FALLBACK_PROVIDER || "google").toLowerCase();
+  if (value === "anthropic" || value === "openai" || value === "google" || value === "deepseek" || value === "groq" || value === "openrouter" || value === "mistral") {
+    return value;
+  }
+  return "google";
+}
+
+function buildPrompt(prompt: string, regenerateParts: string[], appName: string): string {
+  return [
+    `App name: ${appName}`,
+    `Regenerate parts: ${regenerateParts.join(", ")}`,
+    "",
+    prompt,
+  ].join("\n");
+}
+
+function normalizeGeneratedResult(result: Partial<GenerationResult>, projectId: string, prompt: string): GenerationResult {
+  const appId = typeof result.appId === "string" && result.appId.trim() ? result.appId.trim() : projectId;
+  const appName = typeof result.appName === "string" && result.appName.trim() ? result.appName.trim() : prompt.slice(0, 60) || "OneAtlas App";
+  const files = Array.isArray(result.files) ? result.files : [];
+  const entitySchemas = Array.isArray(result.entitySchemas) ? result.entitySchemas : [];
+  const routeConfig =
+    result.routeConfig && typeof result.routeConfig === "object"
+      ? result.routeConfig
+      : { appId, appName, defaultRoute: "/", routes: [], sidebarNav: [] };
+
+  return {
+    appId,
+    appName,
+    prismaSchema: typeof result.prismaSchema === "string" ? result.prismaSchema : "",
+    files,
+    routeConfig,
+    entitySchemas,
+    generatedAt: typeof result.generatedAt === "string" ? result.generatedAt : new Date().toISOString(),
+    validation:
+      result.validation && typeof result.validation === "object"
+        ? result.validation
+        : { valid: true, issues: [] },
+  };
+}
+
+function countFiles(files: Array<{ fileType?: string }>, fileType: string): number {
+  return files.filter((file) => file.fileType === fileType).length;
+}
+
+function sseHeaders() {
+  return {
+    "Content-Type": "text/event-stream; charset=utf-8",
+    "Cache-Control": "no-cache, no-transform",
+    Connection: "keep-alive",
+    "X-Accel-Buffering": "no",
+  };
+}
 
 // ── GET — fetch current status/metadata ───────────────────────────────────────
 export async function GET(req: NextRequest, { params }: RouteContext) {
@@ -84,7 +152,6 @@ export async function POST(req: NextRequest, { params }: RouteContext) {
     const auth = await requireOrgMember(orgId, "MEMBER");
     const body = generateSchema.parse(await req.json());
 
-    // Verify project
     const project = await prisma.project.findUnique({
       where: { id: projectId },
       select: { id: true, orgId: true, status: true, metadata: true },
@@ -98,15 +165,11 @@ export async function POST(req: NextRequest, { params }: RouteContext) {
       throw new NotFoundError("Project");
     }
 
-    // Guard: only one generation at a time
     const meta = (project.metadata as Record<string, unknown>) ?? {};
     if (meta.generationStatus === "running") {
-      throw new ConflictError(
-        "Generation is already in progress for this project."
-      );
+      throw new ConflictError("Generation is already in progress for this project.");
     }
 
-    // Mark as running before streaming starts
     await prisma.project.update({
       where: { id: projectId },
       data: {
@@ -128,123 +191,45 @@ export async function POST(req: NextRequest, { params }: RouteContext) {
       metadata: { model: body.model, parts: body.regenerateParts },
     });
 
-    // ── Build the SSE stream ─────────────────────────────────────────────────
     const encoder = new TextEncoder();
+    const provider = providerFromEnv();
+    const tier = body.model === "FAST" ? "fast" : "smart";
+    const appId = projectId;
 
-    const stream = new ReadableStream({
+    const stream = new ReadableStream<Uint8Array>({
       async start(controller) {
-        const startTime = Date.now();
         let controllerClosed = false;
-        
         const send = (event: string, data: unknown) => {
-          if (controllerClosed) {
-            return;
-          }
+          if (controllerClosed) return;
           try {
-            controller.enqueue(
-              encoder.encode(
-                `event: ${event}\ndata: ${JSON.stringify(data)}\n\n`
-              )
-            );
-          } catch (error) {
-            // Controller is already closed, ignore the error
+            controller.enqueue(encoder.encode(`event: ${event}\ndata: ${JSON.stringify(data)}\n\n`));
+          } catch {
             controllerClosed = true;
           }
         };
 
+        const startTime = Date.now();
+
         try {
           send("status", { step: "init", message: "Starting AI generation…" });
-          send("progress", { phase: "init", completed: 0, total: 10 });
+          send("progress", { phase: "init", completed: 0, total: 3 });
+          send("status", { step: "generation", message: `Generating application blueprint with ${provider}…` });
+          send("progress", { phase: "generation", completed: 1, total: 3 });
 
-          // 1. Analyze prompt & security rules using the new Team 3 Orchestrator
-          send("status", { step: "understanding", message: "Analyzing application scope and specifications..." });
-          send("progress", { phase: "understanding", completed: 1, total: 10 });
+          const generated = await completeJson<Partial<GenerationResult>>({
+            prompt: buildPrompt(body.prompt, body.regenerateParts, appId),
+            provider,
+            tier,
+            systemPrompt: GENERATION_SYSTEM_PROMPT,
+            maxTokens: 12_000,
+            temperature: 0.2,
+          });
 
-          // Create the model router & orchestrator
-          const router = new ModelRouter();
-          
-          // Wire up the callback to stream provider selection back to the client
-          router.onProviderSelected = (providerName, attempt, modelName) => {
-            const friendlyModel = modelName ? modelName.split("/").pop() : "";
-            const modelSuffix = friendlyModel ? ` (${friendlyModel})` : "";
-            send("provider", {
-              provider: providerName,
-              attempt,
-              message: `Using ${providerName}${modelSuffix} (Attempt ${attempt})`,
-            });
-          };
+          const generatedCode = normalizeGeneratedResult(generated, projectId, body.prompt);
 
-          const orchestrator = new UnderstandingOrchestrator(router);
-          
-          // Run the modular app understanding process
-          const understandingResult = await orchestrator.process(body.prompt);
-          const understanding = understandingResult.data;
+          send("status", { step: "saving", message: "Saving files to project…" });
+          send("progress", { phase: "saving", completed: 2, total: 3 });
 
-          send("status", { step: "understanding_done", message: `Identified archetype: ${understanding.appType.toUpperCase()} (${understanding.appName})` });
-          send("progress", { phase: "understanding_done", completed: 2, total: 10 });
-
-          // 2. Initialize the pipeline context
-          let context: PipelineContext = {
-            runId: crypto.randomUUID(),
-            projectId,
-            orgId,
-            rawPrompt: body.prompt,
-            understanding,
-            generatedFiles: [],
-          };
-
-          // Step count mapping for progress UI
-          const stageStepMapping: Record<string, { completed: number, label: string }> = {
-            'entity_schema_gen': { completed: 3, label: 'Entity Schemas' },
-            'prisma_schema_gen': { completed: 4, label: 'Database Schema' },
-            'page_generation': { completed: 5, label: 'Next.js Pages' },
-            'api_generation': { completed: 6, label: 'API Routes' },
-            'support_generation': { completed: 7, label: 'Runtime Support' },
-            'workflow_generation': { completed: 8, label: 'Business Workflows' },
-            'component_generation': { completed: 8, label: 'UI Components' },
-            'layout_generation': { completed: 9, label: 'Routing & Layout' },
-            'packaging': { completed: 9, label: 'Final Packaging' },
-            'compile_validation': { completed: 9, label: 'Compile Validation' },
-          };
-
-          // 3. Execute each pipeline step sequentially and stream progress to the frontend
-          for (const step of PIPELINE_STEPS) {
-            // Skip deployment handoff if not needed
-            if (step.stage === 'deployment_handoff') {
-              continue;
-            }
-
-            const stepInfo = stageStepMapping[step.stage];
-            if (stepInfo) {
-              send("status", { 
-                step: step.stage, 
-                message: `Synthesizing ${stepInfo.label}...` 
-              });
-              send("progress", { 
-                phase: step.stage, 
-                completed: stepInfo.completed, 
-                total: 10 
-              });
-            }
-
-            if (step.shouldSkip?.(context)) {
-              continue;
-            }
-
-            context = await retryService.withRetry(async () => {
-              return step.run(context);
-            });
-          }
-
-          const generatedCode = context.result;
-          if (!generatedCode) {
-            throw new Error("Pipeline completed but failed to package the final code generation result.");
-          }
-
-          send("status", { step: "saving", message: "Saving files to project..." });
-          send("progress", { phase: "saving", completed: 10, total: 10 });
-
-          // Persist generated code
           await prisma.project.update({
             where: { id: projectId },
             data: {
@@ -253,12 +238,10 @@ export async function POST(req: NextRequest, { params }: RouteContext) {
               metadata: {
                 ...(meta as object),
                 generationStatus: "done",
-                generatedAt: new Date().toISOString(),
+                generatedAt: generatedCode.generatedAt,
                 generationPrompt: body.prompt,
-                generationProvider: "GROQ",
-                generationModel: "llama3", 
-                title: generatedCode.appName,
-                description: `A full-stack ${understanding.appType} application featuring ${understanding.features.map(f => f.name).join(', ')}.`,
+                generationProvider: provider,
+                generationModel: tier,
               } as any,
             },
           });
@@ -269,9 +252,9 @@ export async function POST(req: NextRequest, { params }: RouteContext) {
             projectId,
             action: "project.generation.completed",
             metadata: {
-              model: "llama3",
-              provider: "GROQ",
-              pageCount: (generatedCode.files as any[]).filter(f => f.fileType === 'page').length ?? 0,
+              provider,
+              model: tier,
+              pageCount: countFiles(generatedCode.files as Array<{ fileType?: string }>, "page"),
             },
           });
 
@@ -279,80 +262,58 @@ export async function POST(req: NextRequest, { params }: RouteContext) {
             distinctId: auth.userId,
             orgId: auth.orgId,
             projectId,
-            model: "llama3",
-            provider: "GROQ",
+            model: tier,
+            provider,
             cached: false,
             latencyMs: Date.now() - startTime,
-            pageCount: (generatedCode.files as any[]).filter(f => f.fileType === 'page').length ?? 0,
-            apiRouteCount: (generatedCode.files as any[]).filter(f => f.fileType === 'api-route').length ?? 0,
-            tier: body.model === "FAST" ? "fast" : "smart",
+            pageCount: countFiles(generatedCode.files as Array<{ fileType?: string }>, "page"),
+            apiRouteCount: countFiles(generatedCode.files as Array<{ fileType?: string }>, "api-route"),
+            tier,
           });
-
-          send("status", { step: "materialize", message: "Starting workspace materialization..." });
-
-          const appId = generatedCode.appId || projectId;
-          const { workspacePath, buildStatus, previewStartupStatus, previewUrl } = await materializeWorkspace(
-            appId,
-            generatedCode.files as any[],
-            (message: string) => {
-              send("status", { step: "materialize", message });
-            }
-          );
 
           send("done", {
             projectId,
-            generatedAt: new Date().toISOString(),
-            provider: "GROQ",
-            model: "llama3",
+            generatedAt: generatedCode.generatedAt,
+            provider,
+            model: tier,
             generationStatus: "done",
             summary: {
-              pages: (generatedCode.files as any[]).filter(f => f.fileType === 'page').length ?? 0,
-              apiRoutes: (generatedCode.files as any[]).filter(f => f.fileType === 'api-route').length ?? 0,
+              pages: countFiles(generatedCode.files as Array<{ fileType?: string }>, "page"),
+              apiRoutes: countFiles(generatedCode.files as Array<{ fileType?: string }>, "api-route"),
             },
-            workspacePath,
-            buildStatus,
-            previewStartupStatus,
-            previewUrl,
+            workspacePath: undefined,
+            buildStatus: "skipped",
+            previewStartupStatus: "skipped",
+            previewUrl: undefined,
           });
-          send("progress", { phase: "complete", completed: 10, total: 10 });
-        } catch (err) {
-          const diagnosis = diagnoseError(err);
-          // Mark generation as failed
+          send("progress", { phase: "complete", completed: 3, total: 3 });
+        } catch (error) {
+          const message = error instanceof Error ? error.message : "Unknown error";
+
           await prisma.project.update({
             where: { id: projectId },
             data: {
               metadata: {
                 ...(meta as object),
                 generationStatus: "failed",
-                generationError: diagnosis.message,
-                generationErrorCode: diagnosis.code,
+                generationError: message,
               } as any,
             },
           });
 
-          send("error", {
-            message: diagnosis.message,
-            diagnostic: diagnosis,
-          });
+          send("error", { message });
         } finally {
           controllerClosed = true;
           try {
             controller.close();
-          } catch (error) {
-            // Controller already closed, ignore
+          } catch {
+            // Ignore double-close.
           }
         }
       },
     });
 
-    return new Response(stream, {
-      headers: {
-        "Content-Type": "text/event-stream",
-        "Cache-Control": "no-cache, no-transform",
-        Connection: "keep-alive",
-        "X-Accel-Buffering": "no", // disable Nginx buffering
-      },
-    });
+    return new Response(stream, { headers: sseHeaders() });
   } catch (error) {
     return errorResponse(error);
   }

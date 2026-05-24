@@ -6,7 +6,7 @@
 import type { AppUnderstanding } from "@oneatlas/shared";
 import { appEvents } from "../events/emitter";
 import { logger } from "../lib/logger";
-import { getWorker } from "../lib/queue/client";
+import { getWorker } from "../lib/queue/bullmq";
 import { AIService } from "../services/ai.service";
 import { DeploymentService } from "../services/deployment.service";
 import { ProjectService } from "../services/project.service";

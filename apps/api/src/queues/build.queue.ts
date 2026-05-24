@@ -3,7 +3,7 @@
 // Build job queue adapter.
 // =============================================================================
 
-import { getQueue, type QueueJobRecord } from "../lib/queue/client";
+import { getQueue, type QueueJobRecord } from "../lib/queue/bullmq";
 
 export const BUILD_QUEUE_NAME = "build" as const;
 

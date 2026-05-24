@@ -7,10 +7,10 @@
 // Admin-only. Requires CRON_SECRET or a future admin auth check.
 // =============================================================================
 
-export const runtime = "nodejs";
+export const runtime = "edge";
 
 import { NextRequest } from "next/server";
-import { getQueueStats, getJobStatus } from "../../../../../lib/queue";
+import { getQueueStats, getJobStatus } from "../../../../../lib/queue/client";
 
 function verifyCronSecret(req: NextRequest): boolean {
   const secret = process.env.CRON_SECRET;

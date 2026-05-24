@@ -6,7 +6,7 @@
 // =============================================================================
 
 import { Redis } from "@upstash/redis";
-import { getRedis } from "../../lib/queue/client";
+import { getRedis } from "../../lib/queue/bullmq";
 import type { RealtimeChannelName, RealtimeEnvelope } from "../server";
 
 type RedisLike = Redis & {

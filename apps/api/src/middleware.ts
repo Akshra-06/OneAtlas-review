@@ -8,7 +8,6 @@
 import { clerkMiddleware, createRouteMatcher, createClerkClient } from "@clerk/nextjs/server";
 import { NextResponse, type NextRequest } from "next/server";
 import { Ratelimit } from "@upstash/ratelimit";
-import { Redis } from "@upstash/redis";
 import { RATE_LIMITS } from "@oneatlas/shared";
 import { extractBearerToken, verifyApiKey } from "./lib/apiKeys";
 import { withCors } from "./lib/cors";
@@ -37,18 +36,27 @@ let defaultLimiter: Ratelimit | null = null;
 let aiLimiter: Ratelimit | null = null;
 let deployLimiter: Ratelimit | null = null;
 
-function getRedis(): Redis | null {
+async function getRedis(): Promise<any | null> {
   if (!process.env.UPSTASH_REDIS_REST_URL || !process.env.UPSTASH_REDIS_REST_TOKEN) {
     return null;
   }
-  return new Redis({
-    url: process.env.UPSTASH_REDIS_REST_URL,
-    token: process.env.UPSTASH_REDIS_REST_TOKEN,
-  });
+  try {
+    // Dynamically import to defer Node-only code. Works on Node runtime;
+    // gracefully fails on Edge (rate limiting will be skipped).
+    const mod = await import("@upstash/redis");
+    const RedisClient = (mod as any).Redis ?? (mod as any).default ?? mod;
+    return new RedisClient({
+      url: process.env.UPSTASH_REDIS_REST_URL,
+      token: process.env.UPSTASH_REDIS_REST_TOKEN,
+    });
+  } catch (err) {
+    console.warn("getRedis: Redis unavailable (expected on Edge runtime)", err);
+    return null;
+  }
 }
 
-function getLimiters() {
-  const redis = getRedis();
+async function getLimiters() {
+  const redis = await getRedis();
   if (!redis) return { defaultLimiter: null, aiLimiter: null, deployLimiter: null };
 
   if (!defaultLimiter) {
@@ -98,7 +106,8 @@ function log(fields: Record<string, unknown>) {
 // ── Middleware ────────────────────────────────────────────────────────────────
 
 export default clerkMiddleware(async (auth, req: NextRequest) => {
-  const startMs = Date.now();
+  try {
+    const startMs = Date.now();
   const requestId = crypto.randomUUID();
 
   // Attach request ID so route handlers can read it from headers
@@ -256,7 +265,7 @@ export default clerkMiddleware(async (auth, req: NextRequest) => {
   }
 
   // ── Rate limiting ─────────────────────────────────────────────────────────
-  const { defaultLimiter: dl, aiLimiter: al, deployLimiter: depl } = getLimiters();
+  const { defaultLimiter: dl, aiLimiter: al, deployLimiter: depl } = await getLimiters();
 
   if (dl || al || depl) {
     // Key: per-user + per-org (extracted from path segment)
@@ -331,7 +340,18 @@ export default clerkMiddleware(async (auth, req: NextRequest) => {
     latencyMs: Date.now() - startMs,
   });
 
-  return res;
+    return res;
+  } catch (err) {
+    try {
+      console.error('[middleware] uncaught error', err);
+    } catch (e) {
+      // ignore
+    }
+    return new NextResponse(JSON.stringify({ success: false, error: String(err) }), {
+      status: 500,
+      headers: { 'content-type': 'application/json' },
+    });
+  }
 });
 
 export const config = {

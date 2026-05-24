@@ -601,10 +601,10 @@ async function findRepoRoot(startDir: string): Promise<string> {
 
 async function findNodeModules(repoRoot: string): Promise<string | null> {
   const paths = [
-    path.join(repoRoot, 'OneaAtlas-Backend', 'node_modules'),
     path.join(repoRoot, 'node_modules'),
-    path.join(repoRoot, 'OneaAtlas-Backend', 'apps', 'web', 'node_modules'),
-    path.join(repoRoot, 'OneaAtlas-Backend', 'apps', 'executor', '.templates', 'base', 'node_modules'),
+    path.join(repoRoot, 'apps', 'web', 'node_modules'),
+    path.join(repoRoot, 'apps', 'api', 'node_modules'),
+    path.join(repoRoot, 'apps', 'executor', '.templates', 'base', 'node_modules'),
   ];
   for (const p of paths) {
     try {

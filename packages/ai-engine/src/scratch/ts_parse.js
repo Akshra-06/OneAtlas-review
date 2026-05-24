@@ -1,7 +1,7 @@
 const ts = require('typescript');
 const fs = require('fs');
 
-const filePath = 'c:/Users/aayan/OneAtlas.dev_Team3/OneaAtlas-Backend/packages/ai-engine/src/generators/intelligence/archetype-page-generator.ts';
+const filePath = 'c:/Users/aayan/OneAtlas.dev_Team3/packages/ai-engine/src/generators/intelligence/archetype-page-generator.ts';
 const fileContent = fs.readFileSync(filePath, 'utf8');
 
 const sourceFile = ts.createSourceFile(

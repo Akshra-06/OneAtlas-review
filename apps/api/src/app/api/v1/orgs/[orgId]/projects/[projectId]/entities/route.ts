@@ -4,7 +4,7 @@
 // POST /entities — upsert an entity definition
 // =============================================================================
 
-export const runtime = "nodejs";
+export const runtime = "edge";
 
 import { NextRequest } from "next/server";
 import { NotFoundError } from "@oneatlas/shared";
