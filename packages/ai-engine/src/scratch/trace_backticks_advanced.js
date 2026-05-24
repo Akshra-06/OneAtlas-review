@@ -1,6 +1,6 @@
 const fs = require('fs');
 
-const filePath = 'c:/Users/aayan/OneAtlas.dev_Team3/OneaAtlas-Backend/packages/ai-engine/src/generators/intelligence/archetype-page-generator.ts';
+const filePath = 'c:/Users/aayan/OneAtlas.dev_Team3/packages/ai-engine/src/generators/intelligence/archetype-page-generator.ts';
 const content = fs.readFileSync(filePath, 'utf8');
 
 let modeStack = ['code'];
