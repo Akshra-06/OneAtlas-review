@@ -4,7 +4,7 @@
 // PATCH /api/v1/orgs/:orgId  — update org
 // =============================================================================
 
-export const runtime = "edge";
+export const runtime = "nodejs";
 
 import { NextRequest } from "next/server";
 import { prisma } from "@oneatlas/db";

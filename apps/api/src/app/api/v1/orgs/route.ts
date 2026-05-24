@@ -4,7 +4,7 @@
 // POST /api/v1/orgs  — create a new organisation
 // =============================================================================
 
-export const runtime = "edge";
+export const runtime = "nodejs";
 
 import { NextRequest } from "next/server";
 import { prisma } from "@oneatlas/db";

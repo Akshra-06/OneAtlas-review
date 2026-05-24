@@ -9,7 +9,7 @@
 //   Returns the current generation status (for polling fallback).
 // =============================================================================
 
-export const runtime = "edge";
+export const runtime = "nodejs";
 
 import { NextRequest } from "next/server";
 import { prisma, createAuditLog } from "@oneatlas/db";

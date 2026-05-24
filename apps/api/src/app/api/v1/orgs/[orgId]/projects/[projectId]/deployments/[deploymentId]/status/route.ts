@@ -11,7 +11,7 @@
 // BUILDING/DEPLOYING for more than 5 minutes (safety net for lost jobs).
 // =============================================================================
 
-export const runtime = "edge";
+export const runtime = "nodejs";
 
 import { NextRequest } from "next/server";
 import { prisma } from "@oneatlas/db";

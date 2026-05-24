@@ -4,7 +4,7 @@
 // Returns DB connectivity status without exposing sensitive info.
 // =============================================================================
 
-export const runtime = "edge";
+export const runtime = "nodejs";
 
 import { NextResponse } from "next/server";
 

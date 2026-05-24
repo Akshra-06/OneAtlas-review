@@ -5,7 +5,7 @@
 // DELETE /api/v1/orgs/:orgId/projects/:projectId
 // =============================================================================
 
-export const runtime = "edge";
+export const runtime = "nodejs";
 
 import { NextRequest } from "next/server";
 import { prisma } from "@oneatlas/db";

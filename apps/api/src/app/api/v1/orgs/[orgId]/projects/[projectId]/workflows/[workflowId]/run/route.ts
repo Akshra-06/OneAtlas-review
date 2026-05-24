@@ -5,7 +5,7 @@
 // GET  /workflows/:id/run — list runs for a workflow (paginated)
 // =============================================================================
 
-export const runtime = "edge";
+export const runtime = "nodejs";
 
 import { NextRequest } from "next/server";
 import { prisma } from "@oneatlas/db";

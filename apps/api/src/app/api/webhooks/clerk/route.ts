@@ -5,7 +5,7 @@
 //                 organizationMembership.created, organizationMembership.deleted
 // =============================================================================
 
-export const runtime = "edge";
+export const runtime = "nodejs";
 
 import { NextRequest, NextResponse } from "next/server";
 import { Webhook } from "svix";
