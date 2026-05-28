@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Logo } from "@/components/landing/logo";
+import { Logo } from "@/components/landing/nav/logo";
 import { Button } from "@/components/ui/button";
 
 export default function DashboardPage() {

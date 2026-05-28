@@ -1,4 +1,4 @@
-import { Logo } from "./logo";
+import { Logo } from "./nav/logo";
 
 const COLS = [
   { h: "Product", links: ["Features", "Integrations", "Pricing", "Changelog", "Roadmap"] },
@@ -13,7 +13,9 @@ export function Footer() {
     <footer className="site-footer">
       <div className="foot-grid">
         <div className="foot-brand">
-          <Logo />
+          <div style={{ color: "#ffffff" }}>
+            <Logo />
+          </div>
           <p>Build, deploy, and manage internal tools in minutes with AI. No code required.</p>
         </div>
         {COLS.map((col) => (

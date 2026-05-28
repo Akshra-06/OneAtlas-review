@@ -1,6 +1,5 @@
 "use client";
 import { useState, useRef, useEffect } from "react";
-import { HeroCanvas } from "./hero-canvas";
 
 const MODELS = [
   "Automatic","GPT-5.5","GPT-5.4 Mini","Claude Sonnet 4.6","Claude Opus 4.6",
@@ -15,7 +14,7 @@ const CHIPS = [
 const MODES = ["Build", "Plan"];
 
 const MODEL_META: Record<string, { color: string; bg: string; vendor: string; logo: string }> = {
-  "Automatic":        { color: "#635BFF", bg: "#F1F0FF", vendor: "OneAtlas",   logo: "/models/anthropic1.png" },
+  "Automatic":        { color: "#635BFF", bg: "#F1F0FF", vendor: "OneAtlas",   logo: "/models/Hexagram.png" },
   "GPT-5.5":          { color: "#10A37F", bg: "#D9F0E8", vendor: "OpenAI",    logo: "/models/openai.png" },
   "GPT-5.4 Mini":     { color: "#10A37F", bg: "#D9F0E8", vendor: "OpenAI",    logo: "/models/openai.png" },
   "Claude Sonnet 4.6":{ color: "#D97757", bg: "#FBE5DA", vendor: "Anthropic", logo: "/models/anthropic1.png" },
@@ -76,7 +75,6 @@ export function Hero() {
 
   return (
     <section className="hero">
-      <HeroCanvas />
       <div className="hero-inner">
         <div className="pill">
           <span className="dot" />
@@ -117,7 +115,7 @@ export function Hero() {
                 {showAttach && (
                   <div style={{
                     position: "absolute", top: "calc(100% + 8px)", left: 0,
-                    background: "white", border: "1px solid rgba(99,91,255,.15)",
+                    background: "white", border: "1px solid #E5E7EB",
                     borderRadius: 12, boxShadow: "0 8px 24px rgba(10,37,64,.12)",
                     zIndex: 50, overflow: "hidden", minWidth: 160,
                     animation: "dropIn .2s cubic-bezier(.22,1,.36,1)",
@@ -128,19 +126,19 @@ export function Hero() {
                       onMouseEnter={e => (e.currentTarget.style.background = "#F8F8FF")}
                       onMouseLeave={e => (e.currentTarget.style.background = "transparent")}
                     >
-                      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#635BFF" strokeWidth="2">
+                      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#FF6600" strokeWidth="2">
                         <path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48" />
                       </svg>
                       Attach File
                     </button>
-                    <div style={{ height: 1, background: "#F1F0FF", margin: "0 8px" }} />
+                    <div style={{ height: 1, background: "#E5E7EB", margin: "0 8px" }} />
                     <button
                       onClick={() => setShowAttach(false)}
                       style={{ width: "100%", padding: "10px 16px", display: "flex", alignItems: "center", gap: 10, background: "transparent", border: "none", cursor: "pointer", fontSize: 13, fontWeight: 500, color: "#0A2540", textAlign: "left" }}
                       onMouseEnter={e => (e.currentTarget.style.background = "#F8F8FF")}
                       onMouseLeave={e => (e.currentTarget.style.background = "transparent")}
                     >
-                      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#635BFF" strokeWidth="2">
+                      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#FF6600" strokeWidth="2">
                         <rect x="3" y="3" width="18" height="18" rx="2"/>
                         <circle cx="8.5" cy="8.5" r="1.5"/>
                         <polyline points="21 15 16 10 5 21"/>
@@ -167,15 +165,15 @@ export function Hero() {
                 {showModels && (
                   <div style={{
                     position: "absolute", top: "calc(100% + 8px)", left: 0,
-                    background: "white", border: "1px solid rgba(99,91,255,.15)",
+                    background: "white", border: "1px solid #E5E7EB",
                     borderRadius: 16, boxShadow: "0 16px 40px rgba(10,37,64,.14), 0 0 0 1px rgba(99,91,255,.08)",
                     zIndex: 50, width: 220, overflow: "hidden",
                     animation: "dropIn .2s cubic-bezier(.22,1,.36,1)",
                   }}>
-                    <div style={{ padding: "10px 14px 8px", borderBottom: "1px solid #F1F0FF", fontSize: 10, fontWeight: 700, letterSpacing: ".12em", color: "#635BFF" }}>
+                    <div style={{ padding: "10px 14px 8px", borderBottom: "1px solid #F1F0FF", fontSize: 10, fontWeight: 700, letterSpacing: ".12em", color: "#FF6600" }}>
                       SELECT MODEL
                     </div>
-                    <div style={{ maxHeight: 260, overflowY: "auto", padding: "6px 6px" }}>
+                    <div style={{ maxHeight: 180, overflowY: "auto", padding: "6px 6px" }}>
                       {MODELS.map((m) => {
                         const isSelected = selectedModel === m;
                         const mi = MODEL_META[m] ?? MODEL_META["Automatic"];
@@ -183,11 +181,11 @@ export function Hero() {
                           <button
                             key={m}
                             onClick={() => { setSelectedModel(m); setShowModels(false); }}
-                            style={{ width: "100%", padding: "8px 10px", display: "flex", alignItems: "center", gap: 10, borderRadius: 10, background: isSelected ? mi.bg : "transparent", border: "none", cursor: "pointer", transition: "background .15s" }}
+                            style={{ width: "100%", padding: "5px 8px", display: "flex", alignItems: "center", gap: 8, borderRadius: 10, background: isSelected ? mi.bg : "transparent", border: "none", cursor: "pointer", transition: "background .15s" }}
                             onMouseEnter={e => { if (!isSelected) (e.currentTarget as HTMLButtonElement).style.background = "#F8F8FF"; }}
                             onMouseLeave={e => { if (!isSelected) (e.currentTarget as HTMLButtonElement).style.background = "transparent"; }}
                           >
-                            <div style={{ width: 30, height: 30, borderRadius: 8, background: mi.bg, display: "grid", placeItems: "center", flexShrink: 0, boxShadow: `0 0 0 1px ${mi.color}22`, padding: 5 }}>
+                            <div style={{ width: 24, height: 24, borderRadius: 6, background: mi.bg, display: "grid", placeItems: "center", flexShrink: 0, boxShadow: `0 0 0 1px ${mi.color}22`, padding: 4 }}>
                               <img src={mi.logo} alt={m} style={{ width: "100%", height: "100%", objectFit: "contain" }} />
                             </div>
                             <div style={{ textAlign: "left", flex: 1 }}>
@@ -212,7 +210,7 @@ export function Hero() {
             <div className="prompt-row-right">
 
               {/* Mode Toggle */}
-              <div style={{ display: "flex", background: "#F1F0FF", borderRadius: 8, padding: 2, gap: 2 }}>
+              <div style={{ display: "flex", background: "#F5F5EE", borderRadius: 8, padding: 2, gap: 2 }}>
                 {MODES.map((m) => (
                   <button
                     key={m}
@@ -220,7 +218,7 @@ export function Hero() {
                     style={{
                       padding: "4px 12px", borderRadius: 6, fontSize: 12, fontWeight: 600,
                       background: mode === m ? "white" : "transparent",
-                      color: mode === m ? "#635BFF" : "#697386",
+                      color: mode === m ? "#FF6600" : "#6B7280",
                       boxShadow: mode === m ? "0 1px 4px rgba(99,91,255,.15)" : "none",
                       transition: "all .15s", border: "none", cursor: "pointer",
                     }}

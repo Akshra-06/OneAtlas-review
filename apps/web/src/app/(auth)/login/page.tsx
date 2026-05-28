@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { LoginForm } from "@/components/auth/login-form";
-import { Logo } from "@/components/landing/logo";
+import { Logo } from "@/components/landing/nav/logo";
 
 export default function LoginPage() {
   return (

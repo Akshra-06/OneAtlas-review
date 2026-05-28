@@ -11,15 +11,15 @@ const isMobile = false;
 const scale = isMobile ? 0.65 : 1;
 
 const layout = [
-  { i: 0, xp:  8, yp: 38, r: 38 * scale, z: 0.6 },
-  { i: 1, xp: 20, yp: 70, r: 44 * scale, z: 1.0 },
-  { i: 2, xp: 29, yp: 18, r: 34 * scale, z: 0.45 },
-  { i: 3, xp: 40, yp: 56, r: 40 * scale, z: 0.8 },
-  { i: 4, xp: 56, yp: 80, r: 32 * scale, z: 0.4 },
-  { i: 5, xp: 58, yp: 22, r: 42 * scale, z: 0.9 },
-  { i: 6, xp: 72, yp: 62, r: 36 * scale, z: 0.55 },
-  { i: 7, xp: 82, yp: 24, r: 40 * scale, z: 0.75 },
-  { i: 8, xp: 90, yp: 72, r: 34 * scale, z: 0.5 },
+  { i: 0, xp:  8, yp: 38, r: 30 * scale, z: 0.6 },
+  { i: 1, xp: 20, yp: 70, r: 30 * scale, z: 1.0 },
+  { i: 2, xp: 29, yp: 18, r: 30 * scale, z: 0.45 },
+  { i: 3, xp: 40, yp: 56, r: 30 * scale, z: 0.8 },
+  { i: 4, xp: 56, yp: 80, r: 30 * scale, z: 0.4 },
+  { i: 5, xp: 58, yp: 22, r: 30 * scale, z: 0.9 },
+  { i: 6, xp: 72, yp: 62, r: 30 * scale, z: 0.55 },
+  { i: 7, xp: 82, yp: 24, r: 30 * scale, z: 0.75 },
+  { i: 8, xp: 90, yp: 72, r: 30 * scale, z: 0.5 },
 ];
 
 // SVG x/y derived from the same percentages × viewBox size
@@ -62,75 +62,28 @@ export function ModelsStrip() {
       style={{
         position: "relative",
         width: "100%",
-        background: "#FAFBFF",
+        background: "#F5F5EE",
         overflow: "hidden",
         isolation: "isolate",
-        padding: "64px 0 72px",
+        padding: "64px 0",
       }}
     >
-      {/* Aurora blobs */}
-      {[
-        { style: { width: 520, height: 520, left: -120, top: -180, background: `radial-gradient(circle, ${palette[0]}4D, transparent 70%)` } },
-        { style: { width: 460, height: 460, right: -100, top: 40, background: `radial-gradient(circle, ${palette[2]}42, transparent 70%)` } },
-        { style: { width: 420, height: 420, left: "40%", bottom: -160, background: `radial-gradient(circle, rgba(0,212,177,.22), transparent 70%)` } },
-      ].map((b, i) => (
-        <div key={i} style={{
-          position: "absolute",
-          borderRadius: "50%",
-          filter: "blur(80px)",
-          pointerEvents: "none",
-          zIndex: 0,
-          animation: `csDrift ${18 + i * 4}s ease-in-out infinite alternate`,
-          animationDelay: `${-i * 4}s`,
-          ...b.style,
-        }} />
-      ))}
 
-      {/* Grid background */}
-      <div style={{
-        position: "absolute", inset: 0,
-        backgroundImage: "linear-gradient(rgba(10,37,64,.045) 1px, transparent 1px), linear-gradient(90deg, rgba(10,37,64,.045) 1px, transparent 1px)",
-        backgroundSize: "64px 64px",
-        WebkitMaskImage: "radial-gradient(ellipse 70% 55% at 50% 55%, black, transparent 75%)",
-        maskImage: "radial-gradient(ellipse 70% 55% at 50% 55%, black, transparent 75%)",
-        zIndex: 0,
-        opacity: 0.85,
-      }} />
 
       {/* Header */}
       <div style={{ position: "relative", zIndex: 3, textAlign: "center", marginBottom: 28, padding: "0 24px" }}>
-        <div style={{
-          display: "inline-flex", alignItems: "center", gap: 8,
-          fontSize: 11.5, fontWeight: 700, letterSpacing: ".18em",
-          color: "#635BFF", padding: "7px 14px 7px 10px",
-          background: "white", border: "1px solid rgba(99,91,255,.18)",
-          borderRadius: 999, boxShadow: "0 4px 14px rgba(99,91,255,.10)",
-          whiteSpace: "nowrap",
-        }}>
+        <div style={{ display: "inline-flex", alignItems: "center", gap: 8, background: "white", border: "1px solid #E5E7EB", padding: "7px 14px 7px 12px", borderRadius: 999, fontSize: 13, fontWeight: 500, color: "#FF6600" }}>
+  <span style={{ width: 7, height: 7, borderRadius: "50%", background: "#FF6600", boxShadow: "0 0 0 4px rgba(255,102,0,.18)", animation: "pulse 2s ease-in-out infinite", display: "inline-block" }} />
+  The Model Universe
+</div>
+        <h2 style={{ margin: "18px 0 0", fontSize: "clamp(32px, 4vw, 44px)", fontWeight: 800, letterSpacing: "-.035em", lineHeight: 1.05, color: "#111111" }}>
+          Every frontier model{" "}
           <span style={{
-            width: 7, height: 7, borderRadius: "50%",
-            background: "#635BFF",
-            boxShadow: "0 0 0 4px rgba(99,91,255,.18)",
-            display: "inline-block",
-          }} />
-          THE MODEL UNIVERSE
-        </div>
-        <h2 style={{
-          margin: "18px 0 0",
-          fontSize: "clamp(32px, 4vw, 44px)",
-          fontWeight: 800,
-          letterSpacing: "-.035em",
-          lineHeight: 1.05,
-          color: "#0A2540",
-        }}>
-          Every frontier model.{" "}
-          <span style={{
-            background: "linear-gradient(95deg, #635BFF 0%, #9B6CFB 40%, #FF5996 75%, #FF9173 100%)",
-            WebkitBackgroundClip: "text",
-            backgroundClip: "text",
-            WebkitTextFillColor: "transparent",
+            color: "#FF6600",
+            WebkitTextFillColor: "#FF6600",
+          
           }}>
-            One atlas.
+            OneAtlas.
           </span>
         </h2>
       </div>
@@ -141,7 +94,7 @@ export function ModelsStrip() {
         style={{
           position: "relative",
           width: "100%",
-          height: "clamp(240px, 32vw, 380px)",
+          height: "clamp(200px, 24vw, 280px)",
           zIndex: 2,
         }}
       >
@@ -236,7 +189,7 @@ export function ModelsStrip() {
                 transition: "opacity .25s, transform .25s",
                 opacity: hovered !== null && !isHover ? 0.75 : 1,
               }}>
-                <div style={{ fontSize: "clamp(9px, 2.2vw, 13px)", fontWeight: 700, color: isHover ? "#635BFF" : "#0A2540", letterSpacing: "-.01em", lineHeight: 1.1, maxWidth: 120, textAlign: "center" }}>
+                <div style={{ fontSize: "clamp(9px, 2.2vw, 13px)", fontWeight: 700, color: isHover ? "#FF6600" : "#111111", letterSpacing: "-.01em", lineHeight: 1.1, maxWidth: 120, textAlign: "center" }}>
                 {m.name}
                 </div>
                 <div style={{ fontSize: "clamp(8px, 1.8vw, 11px)", color: "#697386", marginTop: 2, fontWeight: 500 }}>

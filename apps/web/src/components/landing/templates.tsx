@@ -1,5 +1,6 @@
 "use client";
 import { useState, useEffect, useRef } from "react";
+import TEMPLATE_SVGS from "./template-svgs";
 
 /* ─── DATA ─────────────────────────────────────────────── */
 interface Template {
@@ -8,18 +9,75 @@ interface Template {
   filters: string[]; preview: string; glow: string;
 }
 
-const FILTERS = ["All","AI Apps","Dashboards","CRM","Internal Tools","Ecommerce","Productivity","Client Apps"];
+const FILTERS = ["All","AI Apps","Dashboards","CRM","Internal Tools","Ecommerce","Productivity","Client Apps","Marketplaces"];
 
 const TEMPLATES: Template[] = [
-  { id:"ai-support", cat:"AI APPS",        catCls:"sky",    accent:"linear-gradient(90deg,#00C2E8,#635BFF)", title:"AI Support Agent",         desc:"Resolves tickets autonomously — queue, live status, priority, and AI replies.",                    time:"~2 min", team:"2–20", filters:["AI Apps"],        preview:"support",   glow:"radial-gradient(40% 50% at 50% 30%, rgba(0,194,232,.16), transparent 70%)" },
-  { id:"kpi",        cat:"DASHBOARDS",     catCls:"coral",  accent:"linear-gradient(90deg,#FF5996,#FF9173)", title:"KPI Dashboard",            desc:"Live charts, KPI tiles, and date-range filters — MAU, growth %, and revenue.",                   time:"~1 min", team:"Any",  filters:["Dashboards"],     preview:"bars",      glow:"radial-gradient(40% 50% at 50% 30%, rgba(255,89,150,.16), transparent 70%)" },
-  { id:"crm",        cat:"CRM",            catCls:"indigo", accent:"linear-gradient(90deg,#635BFF,#9B6CFB)", title:"Sales Pipeline CRM",       desc:"Kanban pipeline with contacts, deal values, and AI lead scoring built in.",                      time:"~2 min", team:"2–50", filters:["CRM"],             preview:"kanban",    glow:"radial-gradient(40% 50% at 20% 80%, rgba(99,91,255,.18), transparent 70%)" },
-  { id:"admin",      cat:"INTERNAL TOOLS", catCls:"gold",   accent:"linear-gradient(90deg,#F8BC42,#FFB17A)", title:"Admin Panel",              desc:"Manage users, roles, and permissions with live toggles and search filtering.",                   time:"~2 min", team:"IT",   filters:["Internal Tools"], preview:"admin",     glow:"radial-gradient(40% 50% at 70% 30%, rgba(248,188,66,.18), transparent 70%)" },
-  { id:"inventory",  cat:"ECOMMERCE",      catCls:"mint",   accent:"linear-gradient(90deg,#00D4B1,#00A37A)", title:"Inventory Manager",        desc:"Track SKUs, monitor stock levels, and trigger reorder alerts automatically.",                   time:"~2 min", team:"5+",   filters:["Ecommerce"],      preview:"inventory", glow:"radial-gradient(40% 50% at 50% 30%, rgba(0,212,177,.14), transparent 70%)" },
-  { id:"approval",   cat:"INTERNAL TOOLS", catCls:"peach",  accent:"linear-gradient(90deg,#FFB17A,#FF5996)", title:"Approval Workflow",        desc:"Multi-step approvals with escalation rules, Slack alerts, and SLA timers.",                     time:"~3 min", team:"Any",  filters:["Internal Tools"], preview:"flow",      glow:"radial-gradient(40% 50% at 80% 20%, rgba(255,177,122,.18), transparent 70%)" },
-  { id:"pm",         cat:"PRODUCTIVITY",   catCls:"violet", accent:"linear-gradient(90deg,#7A73FF,#9B6CFB)", title:"Project Management Tool",  desc:"Sprints, tasks, deadlines, and assignees — keep the team aligned and shipping.",                time:"~2 min", team:"3–30", filters:["Productivity"],    preview:"checklist", glow:"radial-gradient(40% 50% at 50% 30%, rgba(122,115,255,.16), transparent 70%)" },
-  { id:"portal",     cat:"CLIENT APPS",    catCls:"sky",    accent:"linear-gradient(90deg,#00C2E8,#00D4B1)", title:"Customer Portal",          desc:"Self-serve hub for clients — order tracking, document access, and requests.",                   time:"~2 min", team:"Any",  filters:["Client Apps"],    preview:"portal",    glow:"radial-gradient(40% 50% at 30% 30%, rgba(0,194,232,.14), transparent 70%)" },
-  { id:"saas",       cat:"DASHBOARDS",     catCls:"coral",  accent:"linear-gradient(90deg,#FF5996,#9B6CFB)", title:"SaaS Analytics Dashboard", desc:"Track MRR, churn, active users, and growth metrics in one live view.",                          time:"~1 min", team:"Any",  filters:["Dashboards"],     preview:"saas",      glow:"radial-gradient(40% 50% at 80% 60%, rgba(155,108,251,.16), transparent 70%)" },
+  // ── EXISTING 9 ──
+  { id:"ai-support",  cat:"AI APPS",        catCls:"sky",    accent:"#FF6600", title:"AI Support Agent",          desc:"Resolves tickets autonomously — queue, live status, priority, and AI replies.",         time:"~2 min", team:"2–20", filters:["AI Apps"],        preview:"support",   glow:"" },
+  { id:"kpi",         cat:"DASHBOARDS",     catCls:"coral",  accent:"#FF6600", title:"KPI Dashboard",             desc:"Live charts, KPI tiles, and date-range filters — MAU, growth %, and revenue.",          time:"~1 min", team:"Any",  filters:["Dashboards"],     preview:"bars",      glow:"" },
+  { id:"crm",         cat:"CRM",            catCls:"indigo", accent:"#FF6600", title:"Sales Pipeline CRM",        desc:"Kanban pipeline with contacts, deal values, and AI lead scoring built in.",               time:"~2 min", team:"2–50", filters:["CRM"],             preview:"kanban",    glow:"" },
+  { id:"admin",       cat:"INTERNAL TOOLS", catCls:"gold",   accent:"#FF6600", title:"Admin Panel",               desc:"Manage users, roles, and permissions with live toggles and search filtering.",            time:"~2 min", team:"IT",   filters:["Internal Tools"], preview:"admin",     glow:"" },
+  { id:"inventory",   cat:"ECOMMERCE",      catCls:"mint",   accent:"#FF6600", title:"Inventory Manager",         desc:"Track SKUs, monitor stock levels, and trigger reorder alerts automatically.",            time:"~2 min", team:"5+",   filters:["Ecommerce"],      preview:"inventory", glow:"" },
+  { id:"approval",    cat:"INTERNAL TOOLS", catCls:"peach",  accent:"#FF6600", title:"Approval Workflow",         desc:"Multi-step approvals with escalation rules, Slack alerts, and SLA timers.",              time:"~3 min", team:"Any",  filters:["Internal Tools"], preview:"flow",      glow:"" },
+  { id:"pm",          cat:"PRODUCTIVITY",   catCls:"violet", accent:"#FF6600", title:"Project Management Tool",   desc:"Sprints, tasks, deadlines, and assignees — keep the team aligned and shipping.",         time:"~2 min", team:"3–30", filters:["Productivity"],    preview:"checklist", glow:"" },
+  { id:"portal",      cat:"CLIENT APPS",    catCls:"sky",    accent:"#FF6600", title:"Customer Portal",           desc:"Self-serve hub for clients — order tracking, document access, and requests.",            time:"~2 min", team:"Any",  filters:["Client Apps"],    preview:"portal",    glow:"" },
+  // { id:"saas",        cat:"DASHBOARDS",     catCls:"coral",  accent:"#FF6600", title:"SaaS Analytics Dashboard",  desc:"Track MRR, churn, active users, and growth metrics in one live view.",                   time:"~1 min", team:"Any",  filters:["Dashboards"],     preview:"saas",      glow:"" },
+
+  // ── AI APPS ──
+  { id:"ai-chatbot",      cat:"AI APPS", catCls:"sky",   accent:"#FF6600", title:"AI Chatbot",              desc:"Conversational AI with flow builder, NLP routing, and live handoff.",           time:"~2 min", team:"Any",  filters:["AI Apps"], preview:"dashboard", glow:"" },
+  { id:"ai-research",     cat:"AI APPS", catCls:"sky",   accent:"#FF6600", title:"AI Research Assistant",   desc:"Search knowledge bases, academic papers, and internal docs with AI.",            time:"~2 min", team:"Any",  filters:["AI Apps"], preview:"dashboard", glow:"" },
+  { id:"ai-workflow",     cat:"AI APPS", catCls:"sky",   accent:"#FF6600", title:"AI Workflow Copilot",     desc:"Automate data pipelines, content generation, and AI task queues.",               time:"~3 min", team:"Any",  filters:["AI Apps"], preview:"dashboard", glow:"" },
+  { id:"ai-document",     cat:"AI APPS", catCls:"sky",   accent:"#FF6600", title:"AI Document Analyzer",    desc:"OCR, entity extraction, risk flags, and compliance checks on any document.",     time:"~2 min", team:"Any",  filters:["AI Apps"], preview:"dashboard", glow:"" },
+  { id:"ai-content",      cat:"AI APPS", catCls:"sky",   accent:"#FF6600", title:"AI Content Generator",    desc:"Write blog posts, emails, social posts, and scripts with AI assistance.",        time:"~1 min", team:"Any",  filters:["AI Apps"], preview:"dashboard", glow:"" },
+
+  // ── DASHBOARDS ──
+  { id:"saas-analytics",  cat:"DASHBOARDS", catCls:"coral", accent:"#FF6600", title:"SaaS Analytics",        desc:"MRR, churn rate, NPS, active users, and feature adoption in one view.",         time:"~1 min", team:"Any",  filters:["Dashboards"], preview:"dashboard", glow:"" },
+  { id:"revenue-tracker", cat:"DASHBOARDS", catCls:"coral", accent:"#FF6600", title:"Revenue Tracker",       desc:"Total revenue, quarterly breakdown, invoices, and channel performance.",        time:"~1 min", team:"Any",  filters:["Dashboards"], preview:"dashboard", glow:"" },
+  { id:"marketing-ana",   cat:"DASHBOARDS", catCls:"coral", accent:"#FF6600", title:"Marketing Analytics",   desc:"Campaign ROI, audience growth, social channels, and marketing KPIs.",          time:"~1 min", team:"Any",  filters:["Dashboards"], preview:"dashboard", glow:"" },
+  { id:"exec-reports",    cat:"DASHBOARDS", catCls:"coral", accent:"#FF6600", title:"Executive Reports",     desc:"Net revenue, gross margin, EBITDA, and department performance at a glance.",    time:"~1 min", team:"Any",  filters:["Dashboards"], preview:"dashboard", glow:"" },
+  { id:"live-monitor",    cat:"DASHBOARDS", catCls:"coral", accent:"#FF6600", title:"Live Monitoring",        desc:"Real-time activity, weekly trends, completion rate, and active users.",         time:"~1 min", team:"Any",  filters:["Dashboards"], preview:"dashboard", glow:"" },
+
+  // ── CRM ──
+  { id:"lead-tracker",    cat:"CRM", catCls:"indigo", accent:"#FF6600", title:"Lead Tracker",              desc:"Score, track, and manage leads through your sales funnel automatically.",       time:"~2 min", team:"2–50", filters:["CRM"], preview:"dashboard", glow:"" },
+  { id:"client-mgmt",     cat:"CRM", catCls:"indigo", accent:"#FF6600", title:"Client Management",         desc:"Manage contacts, accounts, and relationships with full CRM functionality.",     time:"~2 min", team:"2–50", filters:["CRM"], preview:"dashboard", glow:"" },
+  { id:"cs-dashboard",    cat:"CRM", catCls:"indigo", accent:"#FF6600", title:"Customer Success Dashboard", desc:"Track NPS, health scores, renewals, and customer success metrics.",            time:"~2 min", team:"CS",   filters:["CRM"], preview:"dashboard", glow:"" },
+  { id:"deal-mgmt",       cat:"CRM", catCls:"indigo", accent:"#FF6600", title:"Deal Management Tool",      desc:"Forecast deals, track pipeline stages, and manage sales operations.",           time:"~2 min", team:"Sales",filters:["CRM"], preview:"dashboard", glow:"" },
+  { id:"proposal-gen",    cat:"CRM", catCls:"indigo", accent:"#FF6600", title:"Proposal Generator",        desc:"Create, send, and track proposals and quotes with e-signature support.",        time:"~2 min", team:"Sales",filters:["CRM"], preview:"dashboard", glow:"" },
+
+  // ── INTERNAL TOOLS ──
+  { id:"team-workspace",  cat:"INTERNAL TOOLS", catCls:"gold", accent:"#FF6600", title:"Team Workspace",       desc:"Shared workspace for collaboration, wikis, tasks, and team communication.",   time:"~2 min", team:"Any",  filters:["Internal Tools"], preview:"dashboard", glow:"" },
+  { id:"ops-tracker",     cat:"INTERNAL TOOLS", catCls:"gold", accent:"#FF6600", title:"Operations Tracker",   desc:"Track ops KPIs, workflows, and business processes in real time.",              time:"~2 min", team:"Ops",  filters:["Internal Tools"], preview:"dashboard", glow:"" },
+  { id:"resource-plan",   cat:"INTERNAL TOOLS", catCls:"gold", accent:"#FF6600", title:"Resource Planner",     desc:"Plan, allocate, and schedule resources across projects and teams.",           time:"~2 min", team:"Any",  filters:["Internal Tools"], preview:"dashboard", glow:"" },
+  { id:"knowledge-base",  cat:"INTERNAL TOOLS", catCls:"gold", accent:"#FF6600", title:"Company Knowledge Base",desc:"Centralized wiki, docs, and knowledge management for your team.",           time:"~2 min", team:"Any",  filters:["Internal Tools"], preview:"dashboard", glow:"" },
+
+  // ── ECOMMERCE ──
+  { id:"order-tracking",  cat:"ECOMMERCE", catCls:"mint", accent:"#FF6600", title:"Order Tracking System",   desc:"Track orders, shipments, and logistics with real-time status updates.",        time:"~2 min", team:"5+",   filters:["Ecommerce"], preview:"dashboard", glow:"" },
+  { id:"product-catalog", cat:"ECOMMERCE", catCls:"mint", accent:"#FF6600", title:"Product Catalog",          desc:"Manage products, categories, pricing, and inventory in one place.",           time:"~2 min", team:"5+",   filters:["Ecommerce"], preview:"dashboard", glow:"" },
+  { id:"supplier-portal", cat:"ECOMMERCE", catCls:"mint", accent:"#FF6600", title:"Supplier Portal",          desc:"B2B portal for suppliers to manage orders, invoices, and communications.",    time:"~2 min", team:"5+",   filters:["Ecommerce"], preview:"dashboard", glow:"" },
+  { id:"retail-dash",     cat:"ECOMMERCE", catCls:"mint", accent:"#FF6600", title:"Retail Dashboard",         desc:"Sales analytics, inventory levels, and retail performance metrics.",          time:"~1 min", team:"Any",  filters:["Ecommerce"], preview:"dashboard", glow:"" },
+  { id:"subscription",    cat:"ECOMMERCE", catCls:"mint", accent:"#FF6600", title:"Subscription Storefront",  desc:"Manage subscriptions, billing cycles, and SaaS storefronts.",                 time:"~2 min", team:"Any",  filters:["Ecommerce"], preview:"dashboard", glow:"" },
+
+  // ── PRODUCTIVITY ──
+  { id:"task-tracker",    cat:"PRODUCTIVITY", catCls:"violet", accent:"#FF6600", title:"Task Tracker",          desc:"Track tasks, goals, and progress across teams and projects.",                time:"~1 min", team:"Any",  filters:["Productivity"], preview:"dashboard", glow:"" },
+  { id:"sprint-planner",  cat:"PRODUCTIVITY", catCls:"violet", accent:"#FF6600", title:"Sprint Planner",        desc:"Plan agile sprints, manage backlogs, and track velocity.",                   time:"~2 min", team:"3–20", filters:["Productivity"], preview:"dashboard", glow:"" },
+  { id:"notes-workspace", cat:"PRODUCTIVITY", catCls:"violet", accent:"#FF6600", title:"Notes Workspace",       desc:"Personal and team notes, wikis, and knowledge management.",                  time:"~1 min", team:"Any",  filters:["Productivity"], preview:"dashboard", glow:"" },
+  { id:"calendar-mgr",    cat:"PRODUCTIVITY", catCls:"violet", accent:"#FF6600", title:"Calendar Manager",      desc:"Schedule events, manage calendars, and coordinate team availability.",       time:"~1 min", team:"Any",  filters:["Productivity"], preview:"dashboard", glow:"" },
+  { id:"collab-hub",      cat:"PRODUCTIVITY", catCls:"violet", accent:"#FF6600", title:"Team Collaboration Hub", desc:"Centralized hub for team communication, files, and project updates.",      time:"~2 min", team:"Any",  filters:["Productivity"], preview:"dashboard", glow:"" },
+
+  // ── CLIENT APPS ──
+  { id:"employee-dash",   cat:"CLIENT APPS", catCls:"sky", accent:"#FF6600", title:"Employee Dashboard",      desc:"HR portal for employees — payslips, leave, tasks, and announcements.",       time:"~2 min", team:"HR",   filters:["Client Apps"], preview:"dashboard", glow:"" },
+  { id:"vendor-workspace",cat:"CLIENT APPS", catCls:"sky", accent:"#FF6600", title:"Vendor Workspace",        desc:"B2B workspace for vendors to manage orders, docs, and communications.",      time:"~2 min", team:"Any",  filters:["Client Apps"], preview:"dashboard", glow:"" },
+  { id:"member-app",      cat:"CLIENT APPS", catCls:"sky", accent:"#FF6600", title:"Member App",              desc:"Membership portal with profiles, benefits, and community features.",         time:"~2 min", team:"Any",  filters:["Client Apps"], preview:"dashboard", glow:"" },
+  { id:"partner-hub",     cat:"CLIENT APPS", catCls:"sky", accent:"#FF6600", title:"Partner Hub",             desc:"Collaboration hub for partners — deals, resources, and communications.",     time:"~2 min", team:"Any",  filters:["Client Apps"], preview:"dashboard", glow:"" },
+  { id:"onboarding-app",  cat:"CLIENT APPS", catCls:"sky", accent:"#FF6600", title:"Client Onboarding App",   desc:"Streamlined onboarding workflow for new clients with tasks and docs.",        time:"~2 min", team:"Any",  filters:["Client Apps"], preview:"dashboard", glow:"" },
+
+  // ── MARKETPLACES ──
+  { id:"job-marketplace",  cat:"MARKETPLACES", catCls:"mint", accent:"#FF6600", title:"Job Marketplace",       desc:"Post jobs, manage applications, and hire candidates in one platform.",        time:"~2 min", team:"Any",  filters:["Marketplaces"], preview:"dashboard", glow:"" },
+  { id:"freelancer-platform",cat:"MARKETPLACES",catCls:"mint", accent:"#FF6600", title:"Freelancer Platform",  desc:"Connect freelancers with clients — gigs, proposals, and payments.",           time:"~2 min", team:"Any",  filters:["Marketplaces"], preview:"dashboard", glow:"" },
+  { id:"vendor-marketplace",cat:"MARKETPLACES", catCls:"mint", accent:"#FF6600", title:"Vendor Marketplace",   desc:"B2B marketplace for vendors, buyers, and product listings.",                  time:"~2 min", team:"Any",  filters:["Marketplaces"], preview:"dashboard", glow:"" },
+  { id:"booking-platform", cat:"MARKETPLACES", catCls:"mint", accent:"#FF6600", title:"Booking Platform",      desc:"Schedule and manage bookings, availability, and service listings.",           time:"~2 min", team:"Any",  filters:["Marketplaces"], preview:"dashboard", glow:"" },
+  { id:"service-directory",cat:"MARKETPLACES", catCls:"mint", accent:"#FF6600", title:"Service Directory",     desc:"Searchable directory of services, providers, and listings.",                  time:"~1 min", team:"Any",  filters:["Marketplaces"], preview:"dashboard", glow:"" },
+  { id:"community-mkt",    cat:"MARKETPLACES", catCls:"mint", accent:"#FF6600", title:"Community Marketplace", desc:"Peer-to-peer marketplace for community buying, selling, and trading.",       time:"~2 min", team:"Any",  filters:["Marketplaces"], preview:"dashboard", glow:"" },
 ];
 
 const LAUNCH_STEPS = [
@@ -540,11 +598,83 @@ function SaasPreview({ hover }: { hover: boolean }) {
   );
 }
 
+function DashboardPreview({ hover }: { hover: boolean }) {
+  const [active, setActive] = useState(0);
+  useEffect(() => {
+    const interval = setInterval(() => setActive(p => (p+1)%3), hover ? 1200 : 2000);
+    return () => clearInterval(interval);
+  }, [hover]);
+  const stats = [42, 18, "94%", "Active"];
+  const bars = [60,80,45,90,55,75,85];
+  return (
+    <div style={{ height:"100%", display:"flex", flexDirection:"column", gap:8, fontSize:11 }}>
+      <div style={{ display:"flex", gap:6 }}>
+        <div style={{ width:80, display:"flex", flexDirection:"column", gap:4 }}>
+          {["Dashboard","Overview","Analytics","Settings","Reports"].map((l,i) => (
+            <div key={l} style={{ fontSize:9.5, color: i===0?"#FF6600":"#697386", fontWeight: i===0?600:400, padding:"3px 8px", borderRadius:5, background: i===0?"rgba(255,102,0,.08)":"transparent", cursor:"pointer" }}>{l}</div>
+          ))}
+        </div>
+        <div style={{ flex:1, display:"flex", flexDirection:"column", gap:6 }}>
+          <div style={{ display:"flex", gap:5 }}>
+            {stats.map((s,i) => (
+              <div key={i} style={{ flex:1, background: i===active?"#FF6600":"#fff", border:`1px solid ${i===active?"#FF6600":"#E5E7EB"}`, borderRadius:8, padding:"5px 8px", textAlign:"center", transition:"all .3s" }}>
+                <div style={{ fontSize:12, fontWeight:700, color: i===active?"#fff":"#111111" }}>{s}</div>
+              </div>
+            ))}
+          </div>
+          <div style={{ background:"#fff", border:"1px solid #E5E7EB", borderRadius:8, padding:"8px 10px" }}>
+            <div style={{ fontSize:9.5, fontWeight:600, color:"#697386", marginBottom:6 }}>Recent Activity</div>
+            {["Item one — updated just now","Item two — 5 minutes ago","Item three — 30 minutes ago"].map((item,i) => (
+              <div key={i} style={{ display:"flex", alignItems:"center", gap:6, padding:"3px 0", fontSize:9.5, color:"#425466" }}>
+                <span style={{ width:5, height:5, borderRadius:"50%", background: i===0?"#FF6600":"#E5E7EB", flexShrink:0 }}/>
+                {item}
+              </div>
+            ))}
+          </div>
+          <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:6 }}>
+            <div style={{ background:"#fff", border:"1px solid #E5E7EB", borderRadius:8, padding:"8px 10px" }}>
+              <div style={{ fontSize:9, fontWeight:600, color:"#697386", marginBottom:6 }}>Weekly Trend</div>
+              <div style={{ display:"flex", alignItems:"flex-end", gap:2, height:28 }}>
+                {bars.map((h,i) => (
+                  <div key={i} style={{ flex:1, height:`${h}%`, borderRadius:2, background: i===bars.length-2?"#FF6600":"#FFD4B8", transition:"height .6s" }}/>
+                ))}
+              </div>
+            </div>
+            <div style={{ background:"#fff", border:"1px solid #E5E7EB", borderRadius:8, padding:"8px 10px" }}>
+              <div style={{ fontSize:9, fontWeight:600, color:"#697386", marginBottom:6 }}>Quick Stats</div>
+              {["Completion rate","Active users","Tasks closed"].map((s,i) => (
+                <div key={s} style={{ marginBottom:4 }}>
+                  <div style={{ fontSize:8.5, color:"#697386", marginBottom:2 }}>{s}</div>
+                  <div style={{ height:3, background:"#F5F5EE", borderRadius:99, overflow:"hidden" }}>
+                    <div style={{ height:"100%", width:`${[72,58,45][i]}%`, background:"#FF6600", borderRadius:99 }}/>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function SvgPreview({ id }: { id: string }) {
+  const svg = TEMPLATE_SVGS[id] || "";
+  if (!svg) return null;
+  return (
+    <div
+      style={{ width:"100%", height:"100%", overflow:"hidden" }}
+      dangerouslySetInnerHTML={{ __html: svg }}
+    />
+  );
+}
+
 const PREVIEW_MAP: Record<string, React.FC<{hover:boolean}>> = {
   kanban: KanbanPreview, flow: FlowPreview, bars: BarsPreview,
   inventory: InventoryPreview, checklist: ChecklistPreview,
   support: SupportPreview, admin: AdminPreview,
   portal: PortalPreview, saas: SaasPreview,
+  dashboard: DashboardPreview,
 };
 
 /* ─── LAUNCH MODAL ──────────────────────────────────────── */
@@ -621,42 +751,28 @@ function TemplateCard({ t, onLaunch }: { t: Template; onLaunch: (t: Template) =>
   const PreviewComp = PREVIEW_MAP[t.preview];
   return (
     <div
-      style={{ position:"relative", background:"#fff", border: hover?"1px solid rgba(99,91,255,.18)":"1px solid #E3E8EE", borderRadius:28, overflow:"hidden", transition:"transform .35s cubic-bezier(.22,1,.36,1), box-shadow .35s, border-color .35s", boxShadow: hover?"0 1px 0 #fff inset, 0 2px 6px rgba(10,37,64,.05), 0 28px 60px -20px rgba(10,37,64,.16)":"0 1px 0 #fff inset, 0 2px 4px rgba(10,37,64,.03), 0 8px 22px -10px rgba(10,37,64,.06)", display:"flex", flexDirection:"column", isolation:"isolate", minHeight:480, transform: hover?"translateY(-4px)":"none" }}
+      style={{ position:"relative", background:"#fff", border: hover?"1px solid rgba(255,102,0,.18)":"1px solid #E5E7EB", borderRadius:28, overflow:"hidden", transition:"transform .35s cubic-bezier(.22,1,.36,1), box-shadow .35s, border-color .35s", boxShadow: hover?"0 1px 0 #fff inset, 0 2px 6px rgba(10,37,64,.05), 0 28px 60px -20px rgba(10,37,64,.16)":"0 1px 0 #fff inset, 0 2px 4px rgba(10,37,64,.03), 0 8px 22px -10px rgba(10,37,64,.06)", display:"flex", flexDirection:"column", isolation:"isolate", minHeight:"auto", transform: hover?"translateY(-4px)":"none" }}
       onMouseEnter={()=>setHover(true)} onMouseLeave={()=>setHover(false)}
     >
-      <div style={{ position:"absolute", top:0, left:0, width:64, height:4, borderRadius:"0 0 4px 0", zIndex:3, background:t.accent }}/>
-      <div style={{ position:"absolute", inset:0, zIndex:0, pointerEvents:"none", opacity: hover?1:0, transition:"opacity .4s", background:t.glow }}/>
-      {/* Preview */}
-      <div style={{ position:"relative", height:220, background:"linear-gradient(180deg,#fbfaff 0%,#f6f9ff 100%)", borderBottom:"1px solid #EDF1F6", overflow:"hidden", flexShrink:0 }}>
-        <div style={{ position:"absolute", inset:0, pointerEvents:"none", background:"radial-gradient(circle at 12% 18%, rgba(99,91,255,.08), transparent 40%),radial-gradient(circle at 88% 82%, rgba(255,89,150,.06), transparent 40%)" }}/>
-        <div style={{ position:"absolute", inset:0, pointerEvents:"none", background:"linear-gradient(125deg, transparent 30%, rgba(255,255,255,.55) 50%, transparent 70%)", transform: hover?"translateX(130%)":"translateX(-130%)", transition:"transform .9s cubic-bezier(.22,1,.36,1)" }}/>
-        <div style={{ position:"relative", zIndex:1, height:"100%", padding:14 }}>
-          {PreviewComp && <PreviewComp hover={hover} />}
-        </div>
-      </div>
-      {/* Body */}
-      <div style={{ padding:"22px 24px 24px", display:"flex", flexDirection:"column", gap:10, flex:1 }}>
-        <div style={{ display:"flex", alignItems:"center", gap:10 }}>
-          <span className={`tplv2-cat ${t.catCls}`}>{t.cat}</span>
-        </div>
-        <h3 style={{ fontSize:20, fontWeight:700, letterSpacing:"-.02em", color:"#0A2540", margin:"2px 0 0", lineHeight:1.25 }}>{t.title}</h3>
-        <p style={{ fontSize:13.5, color:"#425466", lineHeight:1.55, margin:0 }}>{t.desc}</p>
-        <div style={{ marginTop:"auto", paddingTop:14, display:"flex", alignItems:"center", justifyContent:"space-between", gap:12 }}>
-          <div style={{ display:"flex", gap:14, fontSize:12.5, color:"#697386" }}>
-            <span style={{ display:"inline-flex", alignItems:"center", gap:5 }}>
-              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>{t.time}
-            </span>
-            <span style={{ display:"inline-flex", alignItems:"center", gap:5 }}>
-              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>{t.team}
-            </span>
-          </div>
-          <button onClick={()=>onLaunch(t)} style={{ display:"inline-flex", alignItems:"center", gap: hover?10:6, background:"#0A2540", color:"#fff", padding:"9px 16px", borderRadius:999, fontSize:13, fontWeight:600, transition:"transform .2s, box-shadow .2s, gap .2s", boxShadow:"0 4px 12px rgba(10,37,64,.18)", transform: hover?"translateY(-1px)":"none" }}>
-            Use template
-            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><polyline points="9 18 15 12 9 6"/></svg>
-          </button>
-        </div>
-      </div>
-    </div>
+      <div style={{ position:"absolute", top:0, left:0, width:64, height:4, borderRadius:"0 0 4px 0", zIndex:3, background:"#FF6600" }}/>
+      <div style={{ position:"absolute", inset:0, zIndex:0, pointerEvents:"none", opacity: hover?1:0, transition:"opacity .4s", background:"transparent" }}/>
+  {/* Preview */}
+  <div style={{ padding:"16px 24px 12px", display:"flex", alignItems:"center", justifyContent:"space-between" }}>
+    <h3 style={{ fontSize:18, fontWeight:700, letterSpacing:"-.02em", color:"#0A2540", margin:0, lineHeight:1.25 }}>{t.title}</h3>
+    <span className={`tplv2-cat ${t.catCls}`}>{t.cat}</span>
+  </div>
+  <div style={{ position:"relative", height:220, background:"#0F0A2E", borderBottom:"1px solid #EDF1F6", overflow:"hidden", flexShrink:0 }}>
+    <div className="tpl-svg-wrap" style={{ width:"100%", height:"100%", lineHeight:0 }} dangerouslySetInnerHTML={{ __html: TEMPLATE_SVGS[t.id] || "" }} />
+  </div>
+  {/* Body */}
+  <div style={{ marginTop:"auto", padding:"12px 24px 20px", display:"flex", alignItems:"center", justifyContent:"space-between", gap:12 }}>
+  <a href="#" style={{ fontSize:13, fontWeight:600, color:"#FF6600", display:"inline-flex", alignItems:"center", gap:4 }}>View App →</a>
+  <button onClick={()=>onLaunch(t)} style={{ display:"inline-flex", alignItems:"center", gap: hover?10:6, background:"#0A2540", color:"#fff", padding:"9px 16px", borderRadius:999, fontSize:13, fontWeight:600, transition:"transform .2s, box-shadow .2s, gap .2s", boxShadow:"0 4px 12px rgba(10,37,64,.18)", transform: hover?"translateY(-1px)":"none" }}>
+      Use template
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><polyline points="9 18 15 12 9 6"/></svg>
+    </button>
+  </div>
+</div>
   );
 }
 
@@ -668,51 +784,35 @@ export function Templates() {
 
   return (
     <>
-      <section style={{ padding:"56px 32px 72px", position:"relative", background:"#fff", overflow:"hidden" }}>
-        {/* Grid bg */}
-        <div aria-hidden="true" style={{ position:"absolute", inset:0, pointerEvents:"none", zIndex:0, backgroundImage:"linear-gradient(rgba(10,37,64,.03) 1px, transparent 1px),linear-gradient(90deg, rgba(10,37,64,.03) 1px, transparent 1px)", backgroundSize:"56px 56px", WebkitMaskImage:"radial-gradient(ellipse 80% 60% at 50% 30%, black, transparent 75%)", maskImage:"radial-gradient(ellipse 80% 60% at 50% 30%, black, transparent 75%)" }}/>
-        {/* Orbs */}
-        <div aria-hidden="true" style={{ position:"absolute", inset:0, pointerEvents:"none", zIndex:0, overflow:"hidden" }}>
-          {[
-            { style:{ width:460, height:460, left:-120, top:-80,  background:"radial-gradient(circle,rgba(99,91,255,.32),transparent 70%)",  animation:"tplOrb1 22s ease-in-out infinite alternate" } },
-            { style:{ width:380, height:380, right:-100, top:60,  background:"radial-gradient(circle,rgba(255,89,150,.26),transparent 70%)", animation:"tplOrb2 26s ease-in-out infinite alternate" } },
-            { style:{ width:420, height:420, left:"30%", bottom:-160, background:"radial-gradient(circle,rgba(0,212,177,.22),transparent 70%)", animation:"tplOrb3 28s ease-in-out infinite alternate" } },
-            { style:{ width:300, height:300, right:"18%", bottom:-100, background:"radial-gradient(circle,rgba(248,188,66,.22),transparent 70%)", animation:"tplOrb4 30s ease-in-out infinite alternate" } },
-          ].map((b,i) => (
-            <div key={i} style={{ position:"absolute", borderRadius:"50%", filter:"blur(70px)", opacity:.55, ...b.style as React.CSSProperties }}/>
-          ))}
-        </div>
-        {/* Dots */}
-        <div aria-hidden="true" style={{ position:"absolute", inset:0, pointerEvents:"none", zIndex:0, backgroundImage:"radial-gradient(circle, rgba(99,91,255,.18) 1px, transparent 1.5px),radial-gradient(circle, rgba(255,89,150,.14) 1px, transparent 1.5px)", backgroundSize:"140px 140px, 200px 200px", backgroundPosition:"0 0, 70px 90px", animation:"tplDotDrift 60s linear infinite", WebkitMaskImage:"radial-gradient(ellipse 70% 60% at 50% 50%, black, transparent 80%)", maskImage:"radial-gradient(ellipse 70% 60% at 50% 50%, black, transparent 80%)", opacity:.6 }}/>
-
+      <section style={{ padding:"64px 32px", position:"relative", background:"#F5F5EE", overflow:"hidden" }}>
         <div style={{ maxWidth:1240, margin:"0 auto", position:"relative", zIndex:1 }}>
           {/* Eyebrow */}
-          <span style={{ display:"inline-flex", alignItems:"center", gap:8, background:"#fff", border:"1px solid #E3E8EE", color:"#635BFF", padding:"7px 14px 7px 10px", borderRadius:999, fontSize:12.5, fontWeight:600, letterSpacing:".06em", boxShadow:"0 4px 14px rgba(99,91,255,.08)" }}>
-            <span style={{ width:7, height:7, borderRadius:"50%", background:"#635BFF", boxShadow:"0 0 0 4px rgba(99,91,255,.18)", animation:"tplPulse 2s ease-in-out infinite", display:"inline-block" }}/>
-            Templates · v2026.5
-          </span>
+          <div style={{ textAlign:"center", marginBottom:8 }}>
+            <span style={{ display:"inline-flex", alignItems:"center", gap:8, background:"white", border:"1px solid #E5E7EB", padding:"7px 14px 7px 12px", borderRadius:999, fontSize:13, fontWeight:500, color:"#FF6600" }}>
+              <span style={{ width:7, height:7, borderRadius:"50%", background:"#FF6600", boxShadow:"0 0 0 4px rgba(255,102,0,.18)", animation:"tplPulse 2s ease-in-out infinite", display:"inline-block" }}/>
+                Templates
+              </span>
+          </div>
 
           {/* Head */}
-          <div style={{ display:"grid", gridTemplateColumns:"clamp(1fr, 1.4fr, 1.4fr) 1fr", gap:48, alignItems:"end", margin:"18px 0 40px" }} className="tpl-head-grid">
-            <div>
-              <h2 style={{ fontSize:"clamp(28px,3.8vw,56px)", fontWeight:700, letterSpacing:"-.035em", lineHeight:1.02, margin:"18px 0 0", color:"#0A2540" }}>
-                Ship faster from a <span style={{ background:"linear-gradient(90deg,#635BFF 0%, #7A73FF 35%, #FF5996 100%)", WebkitBackgroundClip:"text", backgroundClip:"text", WebkitTextFillColor:"transparent" }}>proven base</span>
-              </h2>
-            </div>
-            <div style={{ justifySelf:"end", textAlign:"right" }}>
-              <a href="#" style={{ display:"inline-flex", alignItems:"center", gap:6, color:"#635BFF", fontWeight:600, fontSize:15, transition:"gap .2s" }}>Browse all 9 templates →</a>
-            </div>
+          <div style={{ textAlign:"center", margin:"18px 0 24px" }}>
+            <h2 style={{ fontSize:"clamp(32px,4vw,44px)", fontWeight:800, letterSpacing:"-.035em", lineHeight:1.05, margin:"0", color:"#111111" }}>
+              Ship faster from a <span style={{ color:"#FF6600", WebkitTextFillColor:"#FF6600" }}>proven base</span>
+            </h2>
           </div>
 
           {/* Filters */}
-          <div style={{ display:"flex", flexDirection:"column", gap:12, marginBottom:32 }}>
-            <div style={{ display:"flex", gap:8, flexWrap:"nowrap", background:"#fff", border:"1px solid #E3E8EE", padding:5, borderRadius:999, boxShadow:"0 1px 2px rgba(10,37,64,.04)", overflowX:"auto", maxWidth:"100%", scrollbarWidth:"none" }}>
-              {FILTERS.map(f => (
-                <button key={f} onClick={()=>setActiveFilter(f)} style={{ padding:"9px 18px", borderRadius:999, fontSize:14, fontWeight:500, color: activeFilter===f?"#fff":"#697386", background: activeFilter===f?"#0A2540":"transparent", transition:"color .15s, background .15s", whiteSpace:"nowrap" }}>{f}</button>
+          <div style={{ display:"flex", flexDirection:"column", gap:10, marginBottom:16 }}>
+            <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between", gap:12 }}>
+            <div style={{ display:"inline-flex", background:"#fff", border:"1px solid #E3E8EE", padding:5, borderRadius:999, boxShadow:"0 1px 2px rgba(10,37,64,.04)" }}>
+            {FILTERS.map(f => (
+            <button key={f} onClick={()=>setActiveFilter(f)} style={{ padding:"9px 18px", borderRadius:999, fontSize:14, fontWeight:500, color: activeFilter===f?"#fff":"#697386", background: activeFilter===f?"#111111":"transparent", transition:"color .15s, background .15s", whiteSpace:"nowrap" }}>{f}</button>
               ))}
             </div>
-            <div style={{ fontSize:13, color:"#697386", fontWeight:500 }}>Showing <strong style={{ color:"#0A2540", fontWeight:700 }}>{Math.min(visible.length, 6)}</strong> templates</div>
-          </div>
+    <a href="#" style={{ display:"inline-flex", alignItems:"center", gap:6, color:"#FF6600", fontWeight:600, fontSize:15, whiteSpace:"nowrap", transition:"gap .2s" }}>Browse all {TEMPLATES.length} templates →</a>
+  </div>
+  <div style={{ fontSize:13, color:"#697386", fontWeight:500 }}>Showing <strong style={{ color:"#111111", fontWeight:700 }}>{Math.min(visible.length, 6)}</strong> templates</div>
+</div>
 
           {/* Grid */}
           <div className="tpl-grid-resp" style={{ display:"grid", gridTemplateColumns:"repeat(3,1fr)", gap:24 }}>
@@ -723,6 +823,7 @@ export function Templates() {
 
       {/* Animations */}
       <style>{`
+        .tpl-svg-wrap svg { width: 100% !important; height: 100% !important; display: block !important; }
         @keyframes tplPulse { 50% { box-shadow: 0 0 0 7px rgba(99,91,255,.06); } }
         @keyframes tplOrb1  { from{transform:translate(0,0) scale(1)} to{transform:translate(80px,60px) scale(1.15)} }
         @keyframes tplOrb2  { from{transform:translate(0,0) scale(1)} to{transform:translate(-90px,50px) scale(.9)} }
