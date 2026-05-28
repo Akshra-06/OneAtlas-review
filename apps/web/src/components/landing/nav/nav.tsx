@@ -11,29 +11,35 @@ import { CommunityMegaMenu } from "./community-mega-menu";
 
 export function Nav() {
   const [menuOpen, setMenuOpen] = useState(false);
-  const [openMega, setOpenMega] = useState<"product" | "usecases" | "templates" | "resources" |"community" | null>(null);
+  const [openMega, setOpenMega] = useState<"product" | "usecases" | "templates" | "resources" | "community" | null>(null);
   const megaRef = useRef<HTMLDivElement>(null);
   const useCasesRef = useRef<HTMLDivElement>(null);
   const templatesRef = useRef<HTMLDivElement>(null);
   const resourcesRef = useRef<HTMLDivElement>(null);
   const communityRef = useRef<HTMLDivElement>(null);
 
-
   useEffect(() => {
     function handleClick(e: MouseEvent) {
       if (
-  megaRef.current && !megaRef.current.contains(e.target as Node) &&
-  useCasesRef.current && !useCasesRef.current.contains(e.target as Node) &&
-  templatesRef.current && !templatesRef.current.contains(e.target as Node) &&
-  resourcesRef.current && !resourcesRef.current.contains(e.target as Node) &&
-  communityRef.current && !communityRef.current.contains(e.target as Node)
-) {
-  setOpenMega(null);
-}
+        megaRef.current && !megaRef.current.contains(e.target as Node) &&
+        useCasesRef.current && !useCasesRef.current.contains(e.target as Node) &&
+        templatesRef.current && !templatesRef.current.contains(e.target as Node) &&
+        resourcesRef.current && !resourcesRef.current.contains(e.target as Node) &&
+        communityRef.current && !communityRef.current.contains(e.target as Node)
+      ) {
+        setOpenMega(null);
+      }
     }
     document.addEventListener("mousedown", handleClick);
     return () => document.removeEventListener("mousedown", handleClick);
   }, []);
+
+  const chevron = (isOpen: boolean) => (
+    <svg className="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"
+      style={{ transition: "transform .2s", transform: isOpen ? "rotate(180deg)" : "rotate(0deg)" }}>
+      <polyline points="6 9 12 15 18 9" />
+    </svg>
+  );
 
   return (
     <>
@@ -44,115 +50,91 @@ export function Nav() {
           </Link>
 
           <div className="nav-links">
+
+            {/* Product */}
             <div ref={megaRef} style={{ position: "relative" }}>
-              <a href="#" onClick={(e) => { e.preventDefault(); setOpenMega(openMega === "product" ? null : "product"); }} style={{ display: "inline-flex", alignItems: "center", gap: 4 }}>
-                Product
-                <svg className="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" style={{ transition: "transform .2s", transform: openMega === "product" ? "rotate(180deg)" : "rotate(0deg)" }}>
-                  <polyline points="6 9 12 15 18 9" />
-                </svg>
+              <a href="#" onClick={(e) => { e.preventDefault(); setOpenMega(openMega === "product" ? null : "product"); }}
+                style={{ display: "inline-flex", alignItems: "center", gap: 4 }}>
+                Product {chevron(openMega === "product")}
               </a>
               <AnimatePresence>
                 {openMega === "product" && (
-                  <motion.div
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: 10 }}
-                    transition={{ duration: 0.18 }}
-                    style={{ position: "fixed", top: 64, left: 0, right: 0, display: "flex", justifyContent: "center", zIndex: 100 }}
-                  >
+                  <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 10 }} transition={{ duration: 0.18 }}
+                    style={{ position: "absolute", top: "calc(100% + 12px)", left: -100, transform: "translateX(-10%)", zIndex: 100 }}>
                     <ProductMegaMenu />
                   </motion.div>
                 )}
               </AnimatePresence>
             </div>
 
+            {/* Use Cases */}
             <div ref={useCasesRef} style={{ position: "relative" }}>
-  <a href="#" onClick={(e) => { e.preventDefault(); setOpenMega(openMega === "usecases" ? null : "usecases"); }} style={{ display: "inline-flex", alignItems: "center", gap: 4, whiteSpace: "nowrap" }}>
-    Use Cases
-    <svg className="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" style={{ transition: "transform .2s", transform: openMega === "usecases" ? "rotate(180deg)" : "rotate(0deg)" }}>
-      <polyline points="6 9 12 15 18 9" />
-    </svg>
-  </a>
-  <AnimatePresence>
-    {openMega === "usecases" && (
-      <motion.div
-        initial={{ opacity: 0, y: 10 }}
-        animate={{ opacity: 1, y: 0 }}
-        exit={{ opacity: 0, y: 10 }}
-        transition={{ duration: 0.18 }}
-        style={{ position: "fixed", top: 64, left: 0, right: 0, display: "flex", justifyContent: "center", zIndex: 100 }}
-      >
-        <UseCasesMegaMenu />
-      </motion.div>
-    )}
-  </AnimatePresence>
-</div>
+              <a href="#" onClick={(e) => { e.preventDefault(); setOpenMega(openMega === "usecases" ? null : "usecases"); }}
+                style={{ display: "inline-flex", alignItems: "center", gap: 4, whiteSpace: "nowrap" }}>
+                Use Cases {chevron(openMega === "usecases")}
+              </a>
+              <AnimatePresence>
+                {openMega === "usecases" && (
+                  <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 10 }} transition={{ duration: 0.18 }}
+                    style={{ position: "absolute", top: "calc(100% + 12px)", left: -100, transform: "translateX(-15%)", zIndex: 100 }}>
+                    <UseCasesMegaMenu />
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </div>
+
+            {/* Templates */}
             <div ref={templatesRef} style={{ position: "relative" }}>
-            <a href="#" onClick={(e) => { e.preventDefault(); setOpenMega(openMega === "templates" ? null : "templates"); }} style={{ display: "inline-flex", alignItems: "center", gap: 4, whiteSpace: "nowrap" }}>
-              Templates
-              <svg className="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" style={{ transition: "transform .2s", transform: openMega === "templates" ? "rotate(180deg)" : "rotate(0deg)" }}>
-                <polyline points="6 9 12 15 18 9" />
-              </svg>
-            </a>
-            <AnimatePresence>
-              {openMega === "templates" && (
-                <motion.div
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: 10 }}
-                  transition={{ duration: 0.18 }}
-                  style={{ position: "fixed", top: 64, left: 0, right: 0, display: "flex", justifyContent: "center", zIndex: 100 }}
-                >
-                  <TemplatesMegaMenu />
-                </motion.div>
-              )}
-            </AnimatePresence>
-          </div>
+              <a href="#" onClick={(e) => { e.preventDefault(); setOpenMega(openMega === "templates" ? null : "templates"); }}
+                style={{ display: "inline-flex", alignItems: "center", gap: 4, whiteSpace: "nowrap" }}>
+                Templates {chevron(openMega === "templates")}
+              </a>
+              <AnimatePresence>
+                {openMega === "templates" && (
+                  <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 10 }} transition={{ duration: 0.18 }}
+                    style={{ position: "absolute", top: "calc(100% + 12px)", left: -100, transform: "translateX(-20%)", zIndex: 100 }}>
+                    <TemplatesMegaMenu />
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </div>
+
             <a href="#">Enterprise</a>
             <a href="#">Security</a>
             <a href="#">Pricing</a>
+
+            {/* Resources */}
             <div ref={resourcesRef} style={{ position: "relative" }}>
-  <a href="#" onClick={(e) => { e.preventDefault(); setOpenMega(openMega === "resources" ? null : "resources"); }} style={{ display: "inline-flex", alignItems: "center", gap: 4, whiteSpace: "nowrap" }}>
-    Resources
-    <svg className="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" style={{ transition: "transform .2s", transform: openMega === "resources" ? "rotate(180deg)" : "rotate(0deg)" }}>
-      <polyline points="6 9 12 15 18 9" />
-    </svg>
-  </a>
-  <AnimatePresence>
-    {openMega === "resources" && (
-      <motion.div
-        initial={{ opacity: 0, y: 10 }}
-        animate={{ opacity: 1, y: 0 }}
-        exit={{ opacity: 0, y: 10 }}
-        transition={{ duration: 0.18 }}
-        style={{ position: "fixed", top: 64, left: 0, right: 0, display: "flex", justifyContent: "center", zIndex: 100 }}
-      >
-        <ResourcesMegaMenu />
-      </motion.div>
-    )}
-  </AnimatePresence>
-</div>
+              <a href="#" onClick={(e) => { e.preventDefault(); setOpenMega(openMega === "resources" ? null : "resources"); }}
+                style={{ display: "inline-flex", alignItems: "center", gap: 4, whiteSpace: "nowrap" }}>
+                Resources {chevron(openMega === "resources")}
+              </a>
+              <AnimatePresence>
+                {openMega === "resources" && (
+                  <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 10 }} transition={{ duration: 0.18 }}
+                    style={{ position: "absolute", top: "calc(100% + 12px)", left: -50, transform: "translateX(-40%)", zIndex: 100 }}>
+                    <ResourcesMegaMenu />
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </div>
+
+            {/* Community */}
             <div ref={communityRef} style={{ position: "relative" }}>
-  <a href="#" onClick={(e) => { e.preventDefault(); setOpenMega(openMega === "community" ? null : "community"); }} style={{ display: "inline-flex", alignItems: "center", gap: 4, whiteSpace: "nowrap" }}>
-    Community
-    <svg className="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" style={{ transition: "transform .2s", transform: openMega === "community" ? "rotate(180deg)" : "rotate(0deg)" }}>
-      <polyline points="6 9 12 15 18 9" />
-    </svg>
-  </a>
-  <AnimatePresence>
-    {openMega === "community" && (
-      <motion.div
-        initial={{ opacity: 0, y: 10 }}
-        animate={{ opacity: 1, y: 0 }}
-        exit={{ opacity: 0, y: 10 }}
-        transition={{ duration: 0.18 }}
-        style={{ position: "fixed", top: 64, left: 0, right: 0, display: "flex", justifyContent: "center", zIndex: 100 }}
-      >
-        <CommunityMegaMenu />
-      </motion.div>
-    )}
-  </AnimatePresence>
-</div>
+              <a href="#" onClick={(e) => { e.preventDefault(); setOpenMega(openMega === "community" ? null : "community"); }}
+                style={{ display: "inline-flex", alignItems: "center", gap: 4, whiteSpace: "nowrap" }}>
+                Community {chevron(openMega === "community")}
+              </a>
+              <AnimatePresence>
+                {openMega === "community" && (
+                  <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 10 }} transition={{ duration: 0.18 }}
+                   style={{ position: "absolute", top: "calc(100% + 12px)", left: -50, transform: "translateX(-50%)", zIndex: 100 }}>
+                    <CommunityMegaMenu />
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </div>
+
           </div>
 
           <div className="nav-right nav-right-desktop">
@@ -162,14 +144,11 @@ export function Nav() {
           <button className="nav-hamburger" onClick={() => setMenuOpen((o) => !o)} aria-label="Toggle menu">
             {menuOpen ? (
               <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-                <line x1="18" y1="6" x2="6" y2="18" />
-                <line x1="6" y1="6" x2="18" y2="18" />
+                <line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" />
               </svg>
             ) : (
               <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-                <line x1="3" y1="6" x2="21" y2="6" />
-                <line x1="3" y1="12" x2="21" y2="12" />
-                <line x1="3" y1="18" x2="21" y2="18" />
+                <line x1="3" y1="6" x2="21" y2="6" /><line x1="3" y1="12" x2="21" y2="12" /><line x1="3" y1="18" x2="21" y2="18" />
               </svg>
             )}
           </button>

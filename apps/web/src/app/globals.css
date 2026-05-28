@@ -4,6 +4,22 @@
 
 @layer base {
   :root {
+    /* Nav variables */
+    --nav-primary: #FF6600;
+    --nav-primary-hover: #E65C00;
+    --nav-text-primary: #111111;
+    --nav-text-secondary: #6B7280;
+    --nav-text-muted: #9CA3AF;
+    --nav-bg-primary: #F5F5EE;
+    --nav-bg-secondary: #FFFFFF;
+    --nav-bg-warm: #FFF8F3;
+    --nav-border: #E5E7EB;
+    --nav-icon-orange: #FFF4EC;
+    --nav-icon-mint: #ECFFF8;
+    --nav-icon-blue: #EEF8FF;
+    --nav-icon-gold: #FFF7E8;
+    --nav-icon-coral: #FFF0F3;
+    --nav-icon-gray: #F5F5F5;
     --border: var(--line);
     --input: var(--line);
     --background: #F5F5EE;

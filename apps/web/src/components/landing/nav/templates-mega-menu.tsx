@@ -2,119 +2,100 @@
 import {
   Bot, Users, BarChart3, ShoppingCart, FileText, Sparkles,
   TrendingUp, Package, MessageSquare, User, LayoutDashboard,
-  Store, Monitor, Workflow, Rocket, Video, ArrowRight,
+  Store, Monitor, Workflow, Rocket, Video, ArrowRight, ChevronRight,
 } from "lucide-react";
 
 const IconContainer = ({ icon: Icon, bgColor, iconColor }: { icon: any; bgColor: string; iconColor: string }) => (
-  <div style={{ width: 44, height: 44, borderRadius: 12, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, background: bgColor }}>
-    <Icon size={20} strokeWidth={1.7} style={{ color: iconColor }} />
+  <div style={{ width: 22, height: 22, borderRadius: 6, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, background: bgColor }}>
+    <Icon size={12} strokeWidth={1.6} style={{ color: iconColor }} />
   </div>
 );
 
 export function TemplatesMegaMenu() {
   const business = [
-    ["Productivity", "Workflows, task systems and business operations", BarChart3, "#FFF2EB", "#FF6600"],
-    ["AI Agents", "Autonomous assistants and AI-powered workflows", Bot, "#E9FFF5", "#10B981"],
-    ["Internal Tools", "Admin panels, dashboards and company systems", Package, "#EEF5FF", "#2563EB"],
-    ["CRM & Sales", "Lead management, outreach and automation", Users, "#FFF1F1", "#F97316"],
-    ["Finance", "Billing, analytics and financial management", TrendingUp, "#E9FFF5", "#10B981"],
-    ["Ecommerce", "Stores, inventory and marketplace platforms", ShoppingCart, "#FFF2EB", "#FF6600"],
-    ["Content & Media", "AI content generation and publishing apps", FileText, "#EEF5FF", "#2563EB"],
-    ["Community & Social", "Communities, memberships and engagement platforms", Users, "#FFF7E8", "#F59E0B"],
+    ["Productivity", BarChart3, "#FFF2EB", "#FF6600"],
+    ["AI Agents", Bot, "#E9FFF5", "#10B981"],
+    ["Internal Tools", Package, "#EEF5FF", "#2563EB"],
+    ["CRM & Sales", Users, "#FFF1F1", "#F97316"],
+    ["Finance", TrendingUp, "#E9FFF5", "#10B981"],
+    ["Ecommerce", ShoppingCart, "#FFF2EB", "#FF6600"],
+    ["Content & Media", FileText, "#EEF5FF", "#2563EB"],
+    ["Community & Social", Users, "#FFF7E8", "#F59E0B"],
   ];
 
   const builds = [
-    ["AI Chat Apps", "ChatGPT-style assistants and copilots", MessageSquare, "#FFF2EB", "#FF6600"],
-    ["Client Portals", "Customer-facing management systems", User, "#E9FFF5", "#10B981"],
-    ["Admin Dashboards", "Analytics and operations interfaces", LayoutDashboard, "#EEF5FF", "#2563EB"],
-    ["Marketplace Apps", "Two-sided marketplaces and listings", Store, "#FFF1F1", "#F97316"],
-    ["Landing Pages", "Marketing sites and startup launch pages", Monitor, "#FFF7E8", "#F59E0B"],
-    ["Automation Systems", "Business workflow automation tools", Workflow, "#F3F4F6", "#6B7280"],
-    ["SaaS Starters", "Production-ready SaaS foundations", Rocket, "#FFF2EB", "#FF6600"],
-    ["Creator Platforms", "Content, creator and subscription systems", Video, "#E9FFF5", "#10B981"],
+    ["AI Chat Apps", MessageSquare, "#FFF2EB", "#FF6600"],
+    ["Client Portals", User, "#E9FFF5", "#10B981"],
+    ["Admin Dashboards", LayoutDashboard, "#EEF5FF", "#2563EB"],
+    ["Marketplace Apps", Store, "#FFF1F1", "#F97316"],
+    ["Landing Pages", Monitor, "#FFF7E8", "#F59E0B"],
+    ["Automation Systems", Workflow, "#F3F4F6", "#6B7280"],
+    ["SaaS Starters", Rocket, "#FFF2EB", "#FF6600"],
+    ["Creator Platforms", Video, "#E9FFF5", "#10B981"],
   ];
 
   return (
-    <div style={{
-      display: "grid", gridTemplateColumns: "1fr 1fr 400px", gap: 40,
-      padding: "24px 30px", width: "min(1400px, 90vw)",
-      background: "#fff", borderRadius: 20, border: "1px solid #EDF1F6",
-      boxShadow: "0 8px 40px rgba(10,37,64,.10)", overflow: "hidden",
-    }}>
+    <div style={{ background: "#fff", borderRadius: 16, boxShadow: "0 8px 40px rgba(10,37,64,.10)", border: "1px solid #f1f5f9", display: "grid", gridTemplateColumns: "180px 180px 140px", gap: 8, padding: "10px", alignItems: "stretch" }}>
       {/* Column 1 */}
-      <div>
-        <div style={{ fontSize: 12, fontWeight: 700, letterSpacing: ".1em", color: "#697386", textTransform: "uppercase", marginBottom: 24 }}>
-          BUSINESS & AI
-        </div>
-        <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
-          {business.map(([title, desc, Icon, bg, color]: any) => (
-            <a href="#" key={title} style={{ display: "flex", gap: 14, alignItems: "flex-start", textDecoration: "none", borderRadius: 12, padding: "6px 8px", transition: "background .15s" }}
+      <div style={{ display: "flex", flexDirection: "column", borderRight: "1px solid #f8fafc", paddingRight: 4 }}>
+        <div style={{ fontSize: 9.5, fontWeight: 700, letterSpacing: ".1em", color: "#94a3b8", textTransform: "uppercase", marginBottom: 6 }}>BUSINESS & AI</div>
+        <div style={{ display: "flex", flexDirection: "column", gap: 1.5 }}>
+          {business.map(([title, Icon, bg, color]: any) => (
+            <div key={title} style={{ display: "flex", gap: 6, alignItems: "center", height: 26, cursor: "pointer", borderRadius: 6, padding: "2px 4px" }}
               onMouseEnter={e => (e.currentTarget.style.background = "rgba(255,102,0,.04)")}
               onMouseLeave={e => (e.currentTarget.style.background = "transparent")}>
               <IconContainer icon={Icon} bgColor={bg} iconColor={color} />
-              <div>
-                <div style={{ fontSize: 14, fontWeight: 600, color: "#0A2540", lineHeight: 1.3 }}>{title}</div>
-                <div style={{ fontSize: 12, color: "#697386", marginTop: 2 }}>{desc}</div>
-              </div>
-            </a>
+              <div style={{ fontSize: 11.5, fontWeight: 500, color: "#0f172a", lineHeight: 1.3, whiteSpace: "normal", wordBreak: "break-word" }}>{title}</div>
+            </div>
           ))}
         </div>
       </div>
 
       {/* Column 2 */}
-      <div>
-        <div style={{ fontSize: 12, fontWeight: 700, letterSpacing: ".1em", color: "#697386", textTransform: "uppercase", marginBottom: 24 }}>
-          POPULAR BUILDS
-        </div>
-        <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
-          {builds.map(([title, desc, Icon, bg, color]: any) => (
-            <a href="#" key={title} style={{ display: "flex", gap: 14, alignItems: "flex-start", textDecoration: "none", borderRadius: 12, padding: "6px 8px", transition: "background .15s" }}
+      <div style={{ display: "flex", flexDirection: "column", paddingRight: 4 }}>
+        <div style={{ fontSize: 9.5, fontWeight: 700, letterSpacing: ".1em", color: "#94a3b8", textTransform: "uppercase", marginBottom: 6 }}>POPULAR BUILDS</div>
+        <div style={{ display: "flex", flexDirection: "column", gap: 1.5 }}>
+          {builds.map(([title, Icon, bg, color]: any) => (
+            <div key={title} style={{ display: "flex", gap: 6, alignItems: "center", height: 26, cursor: "pointer", borderRadius: 6, padding: "2px 4px" }}
               onMouseEnter={e => (e.currentTarget.style.background = "rgba(255,102,0,.04)")}
               onMouseLeave={e => (e.currentTarget.style.background = "transparent")}>
               <IconContainer icon={Icon} bgColor={bg} iconColor={color} />
-              <div>
-                <div style={{ fontSize: 14, fontWeight: 600, color: "#0A2540", lineHeight: 1.3 }}>{title}</div>
-                <div style={{ fontSize: 12, color: "#697386", marginTop: 2 }}>{desc}</div>
-              </div>
-            </a>
+              <div style={{ fontSize: 11.5, fontWeight: 500, color: "#0f172a", lineHeight: 1.3, whiteSpace: "normal", wordBreak: "break-word" }}>{title}</div>
+            </div>
           ))}
         </div>
       </div>
 
-      {/* Right Card */}
-      <div style={{ display: "flex", flexDirection: "column", gap: 24, overflowY: "auto", maxHeight: 600 }}>
-        <div style={{ background: "#FFF8F4", border: "1px solid #F0ECE7", borderRadius: 20, padding: 24 }}>
-          <div style={{ background: "#fff", border: "1px solid #EDF1F6", borderRadius: 16, padding: 16, marginBottom: 16 }}>
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 8, marginBottom: 10 }}>
-              {[1,2,3].map(i => <div key={i} style={{ height: 36, borderRadius: 8, background: "#FFD4B8" }} />)}
-              {[1,2,3].map(i => <div key={i} style={{ height: 44, borderRadius: 8, background: "#FFBC8F" }} />)}
-            </div>
-            <div style={{ height: 10, background: "#FFE8D6", borderRadius: 99, marginBottom: 8 }} />
-            <div style={{ height: 10, width: "70%", background: "#FFE8D6", borderRadius: 99 }} />
-          </div>
-          <div style={{ fontSize: 16, fontWeight: 700, color: "#0A2540", marginBottom: 6 }}>Build production-ready apps</div>
-          <p style={{ fontSize: 13, color: "#697386", lineHeight: 1.7, marginBottom: 16 }}>
-            Start with templates that scale from prototype to production
-          </p>
-          <a href="#" style={{ display: "block", textAlign: "center", background: "#FF6600", color: "#fff", fontWeight: 600, fontSize: 14, padding: "12px", borderRadius: 12, textDecoration: "none" }}>
-            Use Template →
-          </a>
-        </div>
-
-        <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
-          {[
-            ["NEW THIS WEEK", Sparkles, "#FFF7E8", "#F59E0B"],
-            ["COMPARE ONEATLAS", BarChart3, "#FFF2EB", "#FF6600"],
-          ].map(([title, Icon, bg, color]: any) => (
-            <a href="#" key={title} style={{ display: "flex", alignItems: "center", justifyContent: "space-between", textDecoration: "none", borderRadius: 12, padding: "6px 8px", transition: "background .15s" }}
-              onMouseEnter={e => (e.currentTarget.style.background = "rgba(255,102,0,.04)")}
-              onMouseLeave={e => (e.currentTarget.style.background = "transparent")}>
-              <div style={{ display: "flex", gap: 14, alignItems: "center" }}>
-                <IconContainer icon={Icon} bgColor={bg} iconColor={color} />
-                <div style={{ fontSize: 14, fontWeight: 700, color: "#0A2540", letterSpacing: ".02em" }}>{title}</div>
+      {/* Column 3 */}
+      <div style={{ display: "flex", flexDirection: "column", justifyContent: "space-between", height: "100%", paddingLeft: 2 }}>
+        <div style={{ background: "#FFF8F4", border: "1px solid #F0ECE7", borderRadius: 10, padding: "10px", flex: 1, display: "flex", flexDirection: "column", justifyContent: "space-between", marginBottom: 8 }}>
+          <div>
+            <div style={{ background: "#fff", border: "1px solid #F0ECE7", borderRadius: 6, padding: 6, marginBottom: 6, boxShadow: "0 1px 2px rgba(0,0,0,.04)" }}>
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 2, marginBottom: 4 }}>
+                {[1,2,3].map(i => <div key={i} style={{ height: 8, borderRadius: 3, background: "#FFE0CC" }} />)}
+                {[1,2,3].map(i => <div key={i} style={{ height: 10, borderRadius: 3, background: "#FFBC8F" }} />)}
               </div>
-              <ArrowRight size={16} color="#697386" />
-            </a>
+              <div style={{ height: 3, background: "#FFE8D6", borderRadius: 99, marginBottom: 3 }} />
+              <div style={{ height: 3, width: "70%", background: "#FFE8D6", borderRadius: 99 }} />
+            </div>
+            <div style={{ fontSize: 10, fontWeight: 700, color: "#0f172a", marginBottom: 2 }}>Build ready apps</div>
+            <p style={{ fontSize: 9, color: "#64748b", lineHeight: 1.4, wordBreak:"break-word" }}>Start with templates</p>
+            <p style={{ fontSize: 9, color: "#64748b", lineHeight: 1.4, wordBreak:"break-word" }}>that scale to production.</p>
+          </div>
+          <button style={{ width: "100%", height: 24, borderRadius: 6, background: "#FF6600", color: "#fff", fontWeight: 500, fontSize: 10, border: "none", cursor: "pointer", marginTop: 12, display: "flex", alignItems: "center", justifyContent: "center", gap: 4 }}
+            onMouseEnter={e => (e.currentTarget.style.background = "#e65c00")}
+            onMouseLeave={e => (e.currentTarget.style.background = "#FF6600")}>
+            Use Template →
+          </button>
+        </div>
+        <div style={{ display: "flex", flexDirection: "column", gap: 4, paddingLeft: 2 }}>
+          {[["NEW", Sparkles, "#fbbf24"], ["COMPARE", BarChart3, "#FF6600"]].map(([label, Icon, color]: any) => (
+            <div key={label} style={{ display: "flex", alignItems: "center", justifyContent: "space-between", cursor: "pointer" }}>
+              <div style={{ display: "flex", gap: 4, alignItems: "center", fontSize: 8.5, fontWeight: 700, color: "#475569", letterSpacing: ".05em" }}>
+                <Icon size={10} color={color} />{label}
+              </div>
+              <ChevronRight size={9} color="#cbd5e1" />
+            </div>
           ))}
         </div>
       </div>
