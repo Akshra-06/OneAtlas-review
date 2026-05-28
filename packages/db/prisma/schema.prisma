@@ -110,6 +110,7 @@ model Project {
   updatedAt     DateTime        @updatedAt
   auditLogs     AuditLog[]
   deployments   Deployment[]
+  dashboardConfig ProjectDashboardConfig?
   envVars       ProjectEnvVar[]
   org           Organization    @relation(fields: [orgId], references: [id], onDelete: Cascade)
   workflows     Workflow[]
@@ -399,4 +400,236 @@ model DeploymentTelemetry {
   deployment        Deployment @relation(fields: [deploymentId], references: [id], onDelete: Cascade)
 
   @@map("deployment_telemetry")
+}
+
+// ─── DASHBOARD CONFIG ──────────────────────────────
+model ProjectDashboardConfig {
+  id          String   @id @default(cuid())
+  orgId       String
+  projectId   String   @unique
+  templateId  String
+  layout      Json     @default("{}")
+  theme       Json     @default("{}")
+  widgets     Json     @default("[]")
+  createdBy   String
+  updatedBy   String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  project     Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  @@index([orgId])
+}
+
+// ─── SUPPORT TEMPLATE ──────────────────────────────
+model SupportTicket {
+  id           String   @id @default(cuid())
+  orgId        String
+  projectId    String
+  ticketNumber String
+  subject      String
+  status       String   @default("open")
+  priority     String   @default("normal")
+  channel      String   @default("email")
+  customerId   String?
+  customerName String?
+  assignedTo   String?
+  resolvedAt   DateTime?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  @@index([orgId])
+  @@index([projectId])
+}
+
+model SupportChat {
+  id         String   @id @default(cuid())
+  orgId      String
+  projectId  String
+  status     String   @default("active")
+  agentId    String?
+  agentName  String?
+  customerId String?
+  aiHandled  Boolean  @default(false)
+  startedAt  DateTime @default(now())
+  endedAt    DateTime?
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+  @@index([orgId])
+  @@index([projectId])
+}
+
+// ─── CRM TEMPLATE ──────────────────────────────────
+model CrmDeal {
+  id          String   @id @default(cuid())
+  orgId       String
+  projectId   String
+  title       String
+  value       Float    @default(0)
+  stage       String   @default("lead")
+  contactName String?
+  assignedTo  String?
+  closedAt    DateTime?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  @@index([orgId])
+  @@index([projectId])
+}
+
+model CrmContact {
+  id        String   @id @default(cuid())
+  orgId     String
+  projectId String
+  name      String
+  email     String?
+  phone     String?
+  company   String?
+  status    String   @default("active")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  @@index([orgId])
+  @@index([projectId])
+}
+
+// ─── ECOMMERCE TEMPLATE ────────────────────────────
+model EcomOrder {
+  id           String   @id @default(cuid())
+  orgId        String
+  projectId    String
+  orderNumber  String
+  customerName String?
+  status       String   @default("pending")
+  total        Float    @default(0)
+  itemCount    Int      @default(0)
+  fulfilledAt  DateTime?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  @@index([orgId])
+  @@index([projectId])
+}
+
+model EcomProduct {
+  id        String   @id @default(cuid())
+  orgId     String
+  projectId String
+  name      String
+  sku       String?
+  stock     Int      @default(0)
+  price     Float    @default(0)
+  status    String   @default("active")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  @@index([orgId])
+  @@index([projectId])
+}
+
+// ─── ATS TEMPLATE ──────────────────────────────────
+model AtsCandidate {
+  id          String   @id @default(cuid())
+  orgId       String
+  projectId   String
+  name        String
+  email       String?
+  role        String?
+  stage       String   @default("applied")
+  recruiterId String?
+  interviewAt DateTime?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  @@index([orgId])
+  @@index([projectId])
+}
+
+// ─── FINANCE TEMPLATE ──────────────────────────────
+model FinanceTransaction {
+  id          String   @id @default(cuid())
+  orgId       String
+  projectId   String
+  type        String
+  amount      Float
+  category    String?
+  description String?
+  date        DateTime @default(now())
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  @@index([orgId])
+  @@index([projectId])
+}
+
+// ─── LOGISTICS TEMPLATE ────────────────────────────
+model LogisticsShipment {
+  id          String   @id @default(cuid())
+  orgId       String
+  projectId   String
+  trackingNo  String
+  origin      String?
+  destination String?
+  status      String   @default("pending")
+  carrier     String?
+  estimatedAt DateTime?
+  deliveredAt DateTime?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  @@index([orgId])
+  @@index([projectId])
+}
+
+// ─── PROJECT MANAGEMENT TEMPLATE ───────────────────
+model PmTask {
+  id          String   @id @default(cuid())
+  orgId       String
+  projectId   String
+  title       String
+  status      String   @default("todo")
+  priority    String   @default("medium")
+  assignedTo  String?
+  dueDate     DateTime?
+  completedAt DateTime?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  @@index([orgId])
+  @@index([projectId])
+}
+
+// ─── EDUCATION TEMPLATE ────────────────────────────
+model EduCourse {
+  id          String   @id @default(cuid())
+  orgId       String
+  projectId   String
+  title       String
+  instructor  String?
+  enrolled    Int      @default(0)
+  completed   Int      @default(0)
+  status      String   @default("active")
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  @@index([orgId])
+  @@index([projectId])
+}
+
+// ─── HEALTHCARE TEMPLATE ───────────────────────────
+model HealthcarePatient {
+  id           String   @id @default(cuid())
+  orgId        String
+  projectId    String
+  name         String
+  status       String   @default("waiting")
+  urgency      String   @default("normal")
+  appointedAt  DateTime?
+  assignedTo   String?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  @@index([orgId])
+  @@index([projectId])
+}
+
+// ─── ANALYTICS TEMPLATE ────────────────────────────
+model AnalyticsEvent {
+  id        String   @id @default(cuid())
+  orgId     String
+  projectId String
+  event     String
+  value     Float    @default(0)
+  source    String?
+  metadata  Json     @default("{}")
+  createdAt DateTime @default(now())
+  @@index([orgId])
+  @@index([projectId])
 }

@@ -1,22 +1,27 @@
 import { Project, ApiResponse } from "@/types";
 import { apiFetch } from "./api";
 
+interface PaginatedProjects {
+  data: Project[];
+}
+
+type ProjectsResponse = ApiResponse<Project[] | PaginatedProjects>;
+
 export async function getProjects(orgId: string, token?: string): Promise<Project[]> {
   const headers: Record<string, string> = {};
   if (token) {
     headers["Authorization"] = `Bearer ${token}`;
   }
 
-  const json = await apiFetch<any>(`/orgs/${orgId}/projects`, {
+  const json = await apiFetch<ProjectsResponse>(`/orgs/${orgId}/projects`, {
     headers,
   });
 
-  // Response shape: { success: true, data: { data: Project[], pagination: {...} } }
-  if (json?.data?.data && Array.isArray(json.data.data)) {
+  if (!Array.isArray(json.data) && Array.isArray(json.data.data)) {
     return json.data.data;
   }
-  // Flat array fallback
-  if (Array.isArray(json?.data)) {
+
+  if (Array.isArray(json.data)) {
     return json.data;
   }
 

@@ -4,7 +4,7 @@
 // POST /storage — write an object
 // =============================================================================
 
-export const runtime = "edge";
+export const runtime = "nodejs";
 
 import { NextRequest } from "next/server";
 import { z } from "zod";
@@ -35,8 +35,8 @@ export async function GET(req: NextRequest, { params }: RouteContext) {
       return ok({ items: [] });
     }
 
-    await storageService.listObjects(orgId, bucket);
-    return ok({ items: [] });
+    const items = await storageService.listObjects(orgId, bucket);
+    return ok({ items });
   } catch (error) {
     return errorResponse(error);
   }
@@ -48,7 +48,7 @@ export async function POST(req: NextRequest, { params }: RouteContext) {
     await requireOrgMember(orgId, "MEMBER");
 
     const body = putObjectSchema.parse(await req.json());
-    await storageService.putObject({
+    const object = await storageService.putObject({
       orgId,
       bucket: body.bucket,
       key: body.key,
@@ -57,8 +57,7 @@ export async function POST(req: NextRequest, { params }: RouteContext) {
     });
 
     return created({
-      bucket: body.bucket,
-      key: body.key,
+      ...object,
       stored: true,
     });
   } catch (error) {

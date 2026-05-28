@@ -108,34 +108,40 @@ export function BuilderClient({ projectId }: BuilderClientProps) {
       { prompt: promptToUse, model: selectedModel },
       controller.signal,
       (event, data) => {
+        const text = (key: string) =>
+          typeof data[key] === "string" ? data[key] : "";
+
         if (event === "status") {
           setSseState("streaming");
-          setGenerationPhase(data.step);
-          addLog(data.step, data.message);
+          setGenerationPhase(text("step"));
+          addLog(text("step"), text("message"));
         } else if (event === "provider") {
           setSseState("streaming");
           setGenerationPhase("provider_selection");
-          addLog("provider", data.message);
+          addLog("provider", text("message"));
         } else if (event === "fallback") {
           setSseState("streaming");
           setGenerationPhase("fallback");
-          addLog("fallback", data.message);
+          addLog("fallback", text("message"));
         } else if (event === "retry") {
           setSseState("streaming");
           setGenerationPhase("retry");
-          addLog("retry", data.message);
+          addLog("retry", text("message"));
         } else if (event === "progress") {
-          setGenerationPhase(data.phase);
+          setGenerationPhase(text("phase"));
         } else if (event === "done") {
           setGenerationPhase("complete");
-          addLog("done", `Completed with ${data.provider?.toUpperCase?.() ?? "AI"} ${data.model ? `(${data.model})` : ""}`);
-          if (data.previewUrl) {
-            setPreviewUrl(data.previewUrl);
+          const provider = text("provider") || "AI";
+          const model = text("model");
+          addLog("done", `Completed with ${provider.toUpperCase()} ${model ? `(${model})` : ""}`);
+          const previewUrl = text("previewUrl");
+          if (previewUrl) {
+            setPreviewUrl(previewUrl);
           }
         } else if (event === "error") {
           setSseState("error");
           setGenerationPhase("error");
-          setErrorMessage(data.message);
+          setErrorMessage(text("message"));
         }
       },
       () => {

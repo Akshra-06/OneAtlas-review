@@ -6,9 +6,16 @@ export async function apiFetch<T>(
   let token: string | null = null;
 
   if (typeof window !== "undefined") {
-    // Client-side: use window.Clerk to retrieve the JWT
+    const clerkWindow = window as Window & {
+      Clerk?: {
+        session?: {
+          getToken: () => Promise<string | null>;
+        };
+      };
+    };
+
     try {
-      token = await (window as any).Clerk?.session?.getToken() || null;
+      token = (await clerkWindow.Clerk?.session?.getToken()) || null;
     } catch (err) {
       console.error("[apiFetch] Failed to retrieve token from window.Clerk client-side:", err);
     }
@@ -29,17 +36,6 @@ export async function apiFetch<T>(
   const cleanEndpoint = endpoint.startsWith("/") ? endpoint : `/${endpoint}`;
   const targetUrl = `${API_URL}${cleanEndpoint}`;
 
-  // Temporary debug logs as requested
-  console.log("API_URL =", API_URL);
-  console.log("endpoint =", cleanEndpoint);
-  console.log("targetUrl =", targetUrl);
-  console.log("Token existence =", token ? `Yes (length: ${token.length})` : "No");
-  console.log("Fetch options =", JSON.stringify({
-    method: options.method || "GET",
-    hasHeaders: !!options.headers,
-    credentials: "include",
-  }));
-
   const response = await fetch(targetUrl, {
     ...options,
     credentials: "include",
@@ -50,7 +46,9 @@ export async function apiFetch<T>(
     let errorBody = "";
     try {
       errorBody = await response.text();
-    } catch {}
+    } catch {
+      errorBody = "";
+    }
     console.error(`[apiFetch] API returned ${response.status}: ${errorBody}`);
     throw new Error(`API error: ${response.status} - ${errorBody || response.statusText}`);
   }

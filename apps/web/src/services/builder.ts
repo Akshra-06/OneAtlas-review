@@ -1,5 +1,3 @@
-import { AIModel } from "@/types";
-
 const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:3001/api/v1";
 
 export interface GeneratePayload {
@@ -8,13 +6,15 @@ export interface GeneratePayload {
   regenerateParts?: string[];
 }
 
+export type GenerateEventData = Record<string, unknown>;
+
 export async function generateApp(
   orgId: string,
   projectId: string,
   token: string,
   payload: GeneratePayload,
   signal: AbortSignal,
-  onEvent: (event: string, data: any) => void,
+  onEvent: (event: string, data: GenerateEventData) => void,
   onDone: () => void,
   onError: (error: string) => void
 ) {
@@ -66,8 +66,13 @@ export async function generateApp(
             const parsed = JSON.parse(data);
             if (eventName === "done") sawDone = true;
             if (eventName === "error") sawError = true;
-            onEvent(eventName, parsed);
-          } catch(e) {
+            onEvent(
+              eventName,
+              parsed && typeof parsed === "object"
+                ? (parsed as GenerateEventData)
+                : { value: parsed }
+            );
+          } catch {
             console.error("Failed to parse SSE data", data);
           }
         }
@@ -78,8 +83,8 @@ export async function generateApp(
     } else if (!sawDone && !sawError) {
       onError("Streaming interruption: connection closed before completion");
     }
-  } catch (err: any) {
-    if (err.name === "AbortError") {
+  } catch (err) {
+    if (err instanceof DOMException && err.name === "AbortError") {
       console.log("Generation aborted by user.");
     } else {
       onError("Network error or connection lost");

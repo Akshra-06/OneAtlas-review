@@ -14,14 +14,24 @@
  * }
  */
 
-export const runtime = "edge";
+export const runtime = "nodejs";
 
 import { NextRequest } from "next/server";
 import { z } from "zod";
-import { completeText, inferProviderFromModel, type AIProvider, type ModelTier } from "../../../../../lib/ai/edge-client";
+import type { AIProvider } from "@oneatlas/ai";
+import { AIService, type CompletionTier } from "../../../../../services/ai.service";
 
-const providerSchema = z.enum(["anthropic", "openai", "google", "deepseek"]);
+const providerSchema = z.enum([
+  "anthropic",
+  "openai",
+  "google",
+  "deepseek",
+  "groq",
+  "openrouter",
+  "mistral",
+]);
 const tierSchema = z.enum(["fast", "smart"]);
+const aiService = new AIService();
 
 const CompletionRequestSchema = z.object({
   prompt: z.string().trim().min(1, "Prompt is required").max(20_000),
@@ -59,6 +69,19 @@ function encodeEvent(encoder: TextEncoder, event: string, data: unknown) {
   return encoder.encode(`event: ${event}\ndata: ${JSON.stringify(data)}\n\n`);
 }
 
+function inferProviderFromModel(model?: string): AIProvider | undefined {
+  const value = model?.toLowerCase() ?? "";
+  if (!value) return undefined;
+  if (value.includes("gemini") || value.includes("google")) return "google";
+  if (value.includes("deepseek")) return "deepseek";
+  if (value.includes("claude") || value.includes("anthropic")) return "anthropic";
+  if (value.includes("groq") || value.includes("llama")) return "groq";
+  if (value.includes("mistral")) return "mistral";
+  if (value.includes("openrouter")) return "openrouter";
+  if (value.includes("gpt") || value.includes("o1") || value.includes("openai")) return "openai";
+  return undefined;
+}
+
 export async function OPTIONS() {
   return new Response(null, {
     status: 204,
@@ -85,11 +108,11 @@ export async function POST(request: NextRequest) {
             model: body.model ?? `${provider}:${body.tier}`,
           });
 
-          const result = await completeText({
+          const result = await aiService.completeText({
             prompt: body.prompt,
             provider,
             model: body.model,
-            tier: body.tier as ModelTier,
+            tier: body.tier as CompletionTier,
             systemPrompt: "You are OneAtlas, a concise, production-oriented coding assistant.",
             temperature: body.temperature,
             maxTokens: body.maxTokens,

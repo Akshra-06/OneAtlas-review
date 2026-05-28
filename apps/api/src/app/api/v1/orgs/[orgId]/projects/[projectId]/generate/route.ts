@@ -18,7 +18,8 @@ import { ConflictError, NotFoundError, type GenerationResult } from "@oneatlas/s
 import { requireOrgMember } from "../../../../../../../../lib/auth";
 import { errorResponse, ok } from "../../../../../../../../lib/response";
 import { captureGenerationCompleted } from "../../../../../../../../lib/analytics";
-import { completeJson, type AIProvider } from "../../../../../../../../lib/ai/edge-client";
+import { AIService, type CompletionTier } from "../../../../../../../../services/ai.service";
+import type { AIProvider } from "@oneatlas/ai";
 
 interface RouteContext {
   params: Promise<{ orgId: string; projectId: string }>;
@@ -59,6 +60,8 @@ function providerFromEnv(): AIProvider {
   }
   return "google";
 }
+
+const aiService = new AIService();
 
 function buildPrompt(prompt: string, regenerateParts: string[], appName: string): string {
   return [
@@ -193,7 +196,7 @@ export async function POST(req: NextRequest, { params }: RouteContext) {
 
     const encoder = new TextEncoder();
     const provider = providerFromEnv();
-    const tier = body.model === "FAST" ? "fast" : "smart";
+    const tier: CompletionTier = body.model === "FAST" ? "fast" : "smart";
     const appId = projectId;
 
     const stream = new ReadableStream<Uint8Array>({
@@ -216,7 +219,7 @@ export async function POST(req: NextRequest, { params }: RouteContext) {
           send("status", { step: "generation", message: `Generating application blueprint with ${provider}…` });
           send("progress", { phase: "generation", completed: 1, total: 3 });
 
-          const generated = await completeJson<Partial<GenerationResult>>({
+          const generated = await aiService.completeJson<Partial<GenerationResult>>({
             prompt: buildPrompt(body.prompt, body.regenerateParts, appId),
             provider,
             tier,
