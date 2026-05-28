@@ -4,7 +4,7 @@ const BASE_URL = process.env.NEXT_PUBLIC_API_URL + "/api/v1";
 
 async function getAuthHeader(): Promise<Record<string, string>> {
   try {
-    const { getToken } = auth();
+    const { getToken } = await auth();
     const token = await getToken();
     if (token) return { Authorization: `Bearer ${token}` };
   } catch {}
