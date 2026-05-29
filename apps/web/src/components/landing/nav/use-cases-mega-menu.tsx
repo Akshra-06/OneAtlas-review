@@ -6,8 +6,8 @@ import {
 } from "lucide-react";
 
 const IconContainer = ({ icon: Icon, bgColor, iconColor }: { icon: any; bgColor: string; iconColor: string }) => (
-  <div style={{ width: 22, height: 22, borderRadius: 6, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, background: bgColor }}>
-    <Icon size={12} strokeWidth={1.8} style={{ color: iconColor }} />
+  <div style={{ width: 28, height: 28, borderRadius: 8, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, background: bgColor }}>
+    <Icon size={15} strokeWidth={1.8} style={{ color: iconColor }} />
   </div>
 );
 
@@ -35,18 +35,18 @@ export function UseCasesMegaMenu() {
   ];
 
   return (
-    <div style={{ background: "#fff", borderRadius: 16, boxShadow: "0 8px 40px rgba(10,37,64,.10)", border: "1px solid #f1f5f9", width: 420, padding: "10px", display: "grid", gridTemplateColumns: "150px 130px 110px", gap: 4, alignItems: "stretch" }}>
+    <div style={{ background: "#fff", borderRadius: 16, boxShadow: "0 8px 40px rgba(10,37,64,.10)", border: "1px solid #f1f5f9", width: 600, padding: "18px", display: "grid", gridTemplateColumns: "195px 180px 180px", gap: 6, alignItems: "stretch" }}>
       {/* Column 1 */}
       <div style={{ display: "flex", flexDirection: "column", justifyContent: "space-between", borderRight: "1px solid #f8fafc", paddingRight: 4 }}>
         <div>
-          <div style={{ fontSize: 8.5, fontWeight: 700, letterSpacing: ".1em", color: "#94a3b8", textTransform: "uppercase", marginBottom: 6 }}>By Category</div>
+          <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: ".1em", color: "#94a3b8", textTransform: "uppercase", marginBottom: 10 }}>By Category</div>
           <div style={{ display: "flex", flexDirection: "column", gap: 1 }}>
             {categories.map(([title, Icon, bg, color]: any) => (
-              <div key={title} style={{ display: "flex", gap: 6, alignItems: "center", height: 23, cursor: "pointer", borderRadius: 6, padding: "2px 4px" }}
+              <div key={title} style={{ display: "flex", gap: 8, alignItems: "center", height: 40, cursor: "pointer", borderRadius: 8, padding: "4px 8px" }}
                 onMouseEnter={e => (e.currentTarget.style.background = "rgba(255,102,0,.04)")}
                 onMouseLeave={e => (e.currentTarget.style.background = "transparent")}>
                 <IconContainer icon={Icon} bgColor={bg} iconColor={color} />
-                <div style={{ fontSize: 10.5, fontWeight: 500, color: "#0f172a", lineHeight: 1, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{title}</div>
+                <div style={{ fontSize: 13, fontWeight: 500, color: "#0f172a", lineHeight: 1, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{title}</div>
               </div>
             ))}
           </div>
@@ -59,14 +59,14 @@ export function UseCasesMegaMenu() {
       {/* Column 2 */}
       <div style={{ display: "flex", flexDirection: "column", justifyContent: "space-between", paddingRight: 4 }}>
         <div>
-          <div style={{ fontSize: 8.5, fontWeight: 700, letterSpacing: ".1em", color: "#94a3b8", textTransform: "uppercase", marginBottom: 6 }}>By Role</div>
+          <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: ".1em", color: "#94a3b8", textTransform: "uppercase", marginBottom: 10 }}>By Role</div>
           <div style={{ display: "flex", flexDirection: "column", gap: 1 }}>
             {roles.map(([title, Icon, bg, color]: any) => (
-              <div key={title} style={{ display: "flex", gap: 6, alignItems: "center", height: 23, cursor: "pointer", borderRadius: 6, padding: "2px 4px" }}
+              <div key={title} style={{ display: "flex", gap: 8, alignItems: "center", height: 40, cursor: "pointer", borderRadius: 8, padding: "4px 8px" }}
                 onMouseEnter={e => (e.currentTarget.style.background = "rgba(255,102,0,.04)")}
                 onMouseLeave={e => (e.currentTarget.style.background = "transparent")}>
                 <IconContainer icon={Icon} bgColor={bg} iconColor={color} />
-                <div style={{ fontSize: 10.5, fontWeight: 500, color: "#0f172a", lineHeight: 1, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{title}</div>
+                <div style={{ fontSize: 13, fontWeight: 500, color: "#0f172a", lineHeight: 1, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{title}</div>
               </div>
             ))}
           </div>

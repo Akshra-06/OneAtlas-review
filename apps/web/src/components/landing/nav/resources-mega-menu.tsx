@@ -1,32 +1,135 @@
 "use client";
-import { FileText, HelpCircle, BookOpen, Youtube, Zap, Code2, ArrowRight } from "lucide-react";
+import {
+  FileText, HelpCircle, BookOpen, Youtube, ArrowRight,
+} from "lucide-react";
 
-const IconContainer = ({ icon: Icon, bgColor, iconColor }: { icon: any; bgColor: string; iconColor: string }) => (
-  <div style={{ width: 28, height: 28, borderRadius: 8, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, background: bgColor, transition: "transform .2s" }}>
-    <Icon size={16} strokeWidth={1.5} style={{ color: iconColor }} />
-  </div>
+const DiscordIcon = () => (
+  <svg viewBox="0 0 127.14 96.36" fill="#5865F2" width="16" height="16">
+    <path d="M107.7,8.07A105.15,105.15,0,0,0,77.26,0a77.19,77.19,0,0,0-3.3,6.83A96.67,96.67,0,0,0,53.22,6.83,77.19,77.19,0,0,0,49.88,0,105.15,105.15,0,0,0,19.44,8.07C3.66,31.58-1.86,54.65,1,77.53A105.73,105.73,0,0,0,32,96.36a74.37,74.37,0,0,0,6.69-10.93,68.21,68.21,0,0,1-10.54-5.12c.9-.66,1.76-1.37,2.58-2.1a75.47,75.47,0,0,0,62.81,0c.82.73,1.68,1.44,2.58,2.1a68.21,68.21,0,0,1-10.54,5.12,74.37,74.37,0,0,0,6.69,10.93,105.73,105.73,0,0,0,31.54-18.83C129.93,50.54,124.15,27.68,107.7,8.07ZM42.45,65.69C36.18,65.69,31,60,31,53S36.18,40.36,42.45,40.36,53.83,46,53.83,53,48.72,65.69,42.45,65.69Zm42.24,0C78.41,65.69,73.24,60,73.24,53S78.41,40.36,84.69,40.36,96.07,46,96.07,53,91,65.69,84.69,65.69Z"/>
+  </svg>
 );
 
-const items = [
-  { label: "Docs", Icon: FileText, bg: "#FFF2EB", color: "#FF6600" },
-  { label: "Help Center", Icon: HelpCircle, bg: "#FFF7E8", color: "#F59E0B" },
-  { label: "Blog", Icon: BookOpen, bg: "#EEF5FF", color: "#3B82F6" },
-  { label: "Updates", Icon: Zap, bg: "#E9FFF5", color: "#10B981" },
-  { label: "API Reference", Icon: Code2, bg: "#F3F4F6", color: "#6B7280" },
-  { label: "YouTube", Icon: Youtube, bg: "#FFF1F1", color: "#FF0000" },
+const RedditIcon = () => (
+  <svg viewBox="0 0 24 24" fill="#FF4500" width="16" height="16">
+    <path d="M12 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12a12 12 0 0 0 12-12A12 12 0 0 0 12 0zm5.01 4.744c.688 0 1.25.561 1.25 1.249a1.25 1.25 0 0 1-2.498.056l-2.597-.547l-.8 3.747c1.824.07 3.48.632 4.674 1.488c.308-.309.73-.491 1.207-.491c.968 0 1.754.786 1.754 1.754c0 .716-.435 1.333-1.01 1.614a3.111 3.111 0 0 1 .042.52c0 2.694-3.13 4.87-7.004 4.87c-3.874 0-7.004-2.176-7.004-4.87c0-.183.015-.366.043-.534A1.748 1.748 0 0 1 4.028 12c0-.968.786-1.754 1.754-1.754c.463 0 .898.196 1.207.49c1.207-.883 2.878-1.43 4.744-1.487l.885-4.182a.342.342 0 0 1 .14-.197a.35.35 0 0 1 .238-.042l2.906.617a1.214 1.214 0 0 1 1.108-.701zM9.25 12C8.561 12 8 12.562 8 13.25c0 .687.561 1.248 1.25 1.248c.687 0 1.248-.561 1.248-1.249c0-.688-.561-1.249-1.249-1.249zm5.5 0c-.687 0-1.248.561-1.248 1.25c0 .687.561 1.248 1.249 1.248c.688 0 1.249-.561 1.249-1.249c0-.687-.562-1.249-1.25-1.249zm-5.466 3.99a.327.327 0 0 0-.231.094a.33.33 0 0 0 0 .463c.842.842 2.484.913 2.961.913c.477 0 2.105-.056 2.961-.913a.361.361 0 0 0 .029-.463a.33.33 0 0 0-.464 0c-.547.533-1.684.73-2.512.73c-.828 0-1.979-.196-2.512-.73a.326.326 0 0 0-.232-.095z"/>
+  </svg>
+);
+
+const LinkedInIcon = () => (
+  <svg viewBox="0 0 24 24" fill="#0A66C2" width="16" height="16">
+    <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037c-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85c3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065c0-1.138.92-2.063 2.063-2.063c1.14 0 2.064.925 2.064 2.063c0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/>
+  </svg>
+);
+
+const TwitterIcon = () => (
+  <svg viewBox="0 0 24 24" fill="#000000" width="16" height="16">
+    <path d="M18.244 2.25h3.308l-7.227 8.26l8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
+  </svg>
+);
+
+const GithubIcon = () => (
+  <svg viewBox="0 0 24 24" fill="#24292E" width="16" height="16">
+    <path d="M12 .297c-6.63 0-12 5.373-12 12c0 5.303 3.438 9.8 8.205 11.385c.6.113.82-.258.82-.577c0-.285-.01-1.04-.015-2.04c-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729c1.205.084 1.838 1.236 1.838 1.236c1.07 1.835 2.809 1.305 3.495.998c.108-.776.417-1.305.76-1.605c-2.665-.3-5.466-1.332-5.466-5.93c0-1.31.465-2.38 1.235-3.22c-.135-.303-.54-1.523.105-3.176c0 0 1.005-.322 3.3 1.23c.96-.267 1.98-.399 3-.405c1.02.006 2.04.138 3 .405c2.28-1.552 3.285-1.23 3.285-1.23c.645 1.653.24 2.873.12 3.176c.765.84 1.23 1.91 1.23 3.22c0 4.61-2.805 5.625-5.475 5.92c.42.36.81 1.096.81 2.22c0 1.606-.015 2.896-.015 3.286c0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12"/>
+  </svg>
+);
+
+const InstagramIcon = () => (
+  <svg viewBox="0 0 24 24" width="16" height="16">
+    <defs>
+      <linearGradient id="ig-grad-res" x1="0%" y1="100%" x2="100%" y2="0%">
+        <stop offset="0%" stopColor="#FED01A" />
+        <stop offset="25%" stopColor="#F58529" />
+        <stop offset="50%" stopColor="#DD2A7B" />
+        <stop offset="75%" stopColor="#8134AF" />
+        <stop offset="100%" stopColor="#515BD4" />
+      </linearGradient>
+    </defs>
+    <path fill="url(#ig-grad-res)" d="M12 0C8.74 0 8.333.015 7.053.072C5.775.132 4.905.333 4.14.63c-.789.306-1.459.717-2.126 1.384S.935 3.35.63 4.14C.333 4.905.131 5.775.072 7.053C.012 8.333 0 8.74 0 12s.015 3.667.072 4.947c.06 1.277.261 2.148.558 2.913c.306.788.717 1.459 1.384 2.126c.667.666 1.336 1.079 2.126 1.384c.766.296 1.636.499 2.913.558C8.333 23.988 8.74 24 12 24s3.667-.015 4.947-.072c1.277-.06 2.148-.262 2.913-.558c.788-.306 1.459-.718 2.126-1.384c.666-.667 1.079-1.335 1.384-2.126c.296-.765.499-1.636.558-2.913c.06-1.28.072-1.687.072-4.947s-.015-3.667-.072-4.947c-.06-1.277-.262-2.149-.558-2.913c-.306-.789-.718-1.459-1.384-2.126C21.319 1.347 20.651.935 19.86.63c-.765-.297-1.636-.499-2.913-.558C15.667.012 15.26 0 12 0zm0 2.16c3.203 0 3.585.016 4.85.071c1.17.055 1.805.249 2.227.415c.562.217.96.477 1.382.896c.419.42.679.819.896 1.381c.164.422.36 1.057.413 2.227c.057 1.266.07 1.646.07 4.85s-.015 3.585-.074 4.85c-.061 1.17-.256 1.805-.421 2.227c-.224.562-.479.96-.899 1.382c-.419.419-.824.679-1.38.896c-.42.164-1.065.36-2.235.413c-1.274.057-1.649.07-4.859.07c-3.211 0-3.586-.015-4.859-.074c-1.171-.061-1.816-.256-2.236-.421c-.569-.224-.96-.479-1.379-.899c-.421-.419-.69-.824-.9-1.38c-.165-.42-.359-1.065-.42-2.235c-.045-1.26-.061-1.649-.061-4.844c0-3.196.016-3.586.061-4.861c.061-1.17.255-1.814.42-2.234c.21-.57.479-.96.9-1.381c.419-.419.81-.689 1.379-.898c.42-.166 1.051-.361 2.221-.421c1.275-.045 1.65-.06 4.859-.06l.045.03zm0 3.678c-3.405 0-6.162 2.76-6.162 6.162c0 3.405 2.76 6.162 6.162 6.162c3.405 0 6.162-2.76 6.162-6.162c0-3.405-2.76-6.162-6.162-6.162zM12 16c-2.21 0-4-1.79-4-4s1.79-4 4-4s4 1.79 4 4s-1.79 4-4 4zm7.846-10.405c0 .795-.646 1.44-1.44 1.44c-.795 0-1.44-.646-1.44-1.44c0-.794.646-1.439 1.44-1.439c.793-.001 1.44.645 1.44 1.439z"/>
+  </svg>
+);
+
+const learnItems = [
+  { label: "Docs", Icon: FileText, color: "#FF6600" },
+  { label: "Help Center", Icon: HelpCircle, color: "#F59E0B" },
+  { label: "Blog", Icon: BookOpen, color: "#3B82F6" },
+  { label: "Updates", Icon: FileText, color: "#10B981" },
+  { label: "YouTube", Icon: Youtube, color: "#FF0000" },
+];
+
+const communityItems = [
+  { label: "Reddit", Icon: RedditIcon },
+  { label: "LinkedIn", Icon: LinkedInIcon },
+  { label: "X (Twitter)", Icon: TwitterIcon },
+  { label: "GitHub", Icon: GithubIcon },
+  { label: "Instagram", Icon: InstagramIcon },
 ];
 
 export function ResourcesMegaMenu() {
   return (
-    <div style={{ padding: 6, borderRadius: 12, background: "#fff", width: 200, border: "1px solid #E8E5E0", boxShadow: "0 8px 24px rgba(17,17,17,.04)" }}>
-      {items.map(({ label, Icon, bg, color }) => (
-        <a key={label} href="#" style={{ display: "flex", alignItems: "center", gap: 10, padding: "8px 12px", borderRadius: 8, fontSize: 13, fontWeight: 500, color: "#111111", textDecoration: "none", transition: "background .15s" }}
-          onMouseEnter={e => (e.currentTarget.style.background = "rgba(255,102,0,.05)")}
-          onMouseLeave={e => (e.currentTarget.style.background = "transparent")}>
-          <IconContainer icon={Icon} bgColor={bg} iconColor={color} />
-          {label}
-        </a>
-      ))}
+    <div style={{
+      background: "#fff", borderRadius: 16,
+      boxShadow: "0 8px 24px rgba(17,17,17,.04)",
+      border: "1px solid #E8E5E0",
+      width: 520, padding: "16px 18px",
+      display: "grid", gridTemplateColumns: "155px 155px 150px",
+      gap: 14, alignItems: "start",
+    }}>
+      {/* Column 1 — Learn */}
+      <div style={{ paddingRight: 8 }}>
+        <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: ".1em", color: "#94a3b8", textTransform: "uppercase", marginBottom: 10 }}>Learn</div>
+        <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
+          {learnItems.map(({ label, Icon, color }) => (
+            <div key={label} style={{ display: "flex", gap: 8, alignItems: "center", height: 32, cursor: "pointer", borderRadius: 6, padding: "2px 4px" }}
+              onMouseEnter={e => (e.currentTarget.style.background = "rgba(255,102,0,.04)")}
+              onMouseLeave={e => (e.currentTarget.style.background = "transparent")}>
+              <Icon size={16} strokeWidth={1.8} style={{ color, flexShrink: 0 }} />
+              <span style={{ fontSize: 13, fontWeight: 500, color: "#0f172a" }}>{label}</span>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Column 2 — Community */}
+      <div style={{ paddingRight: 8, paddingLeft: 4 }}>
+        <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: ".1em", color: "#94a3b8", textTransform: "uppercase", marginBottom: 10 }}>Community</div>
+        <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
+          {communityItems.map(({ label, Icon }) => (
+            <div key={label} style={{ display: "flex", gap: 8, alignItems: "center", height: 32, cursor: "pointer", borderRadius: 6, padding: "2px 4px" }}
+              onMouseEnter={e => (e.currentTarget.style.background = "rgba(255,102,0,.04)")}
+              onMouseLeave={e => (e.currentTarget.style.background = "transparent")}>
+              <Icon />
+              <span style={{ fontSize: 13, fontWeight: 500, color: "#0f172a" }}>{label}</span>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Column 3 — Discord Card */}
+      <div style={{ paddingLeft: 4 }}>
+        <div style={{ background: "#FFF8F4", border: "1px solid #F0ECE7", borderRadius: 12, padding: 12, display: "flex", flexDirection: "column", gap: 8 }}>
+          <div style={{ background: "#fff", border: "1px solid #F0ECE7", borderRadius: 8, padding: 6, boxShadow: "0 1px 2px rgba(0,0,0,.04)", display: "flex", alignItems: "center", justifyContent: "center", width: 32, height: 32 }}>
+            <DiscordIcon />
+          </div>
+          <div style={{ fontSize: 12, fontWeight: 700, color: "#0f172a", lineHeight: 1.2 }}>Discord</div>
+          <p style={{ fontSize: 10, color: "#64748b", lineHeight: 1, wordBreak: "break-word" }}>
+            Join thousands of
+          </p>
+          <p style={{ fontSize: 10, color: "#64748b", lineHeight: 1, wordBreak: "break-word" }}>
+            developers building,
+          </p>
+          <p style={{ fontSize: 10, color: "#64748b", lineHeight: 1, wordBreak: "break-word" }}>
+            sharing, and learning
+          </p>
+          <p style={{ fontSize: 10, color: "#64748b", lineHeight: 1, wordBreak: "break-word" }}>
+            together.
+          </p>
+          <button style={{ width: "100%", height: 26, borderRadius: 8, background: "#FF6600", color: "#fff", fontWeight: 700, fontSize: 10, border: "none", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: 4 }}
+            onMouseEnter={e => (e.currentTarget.style.background = "#e65c00")}
+            onMouseLeave={e => (e.currentTarget.style.background = "#FF6600")}>
+            Join Discord <ArrowRight size={10} />
+          </button>
+        </div>
+      </div>
     </div>
   );
 }

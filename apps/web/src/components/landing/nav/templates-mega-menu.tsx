@@ -6,8 +6,8 @@ import {
 } from "lucide-react";
 
 const IconContainer = ({ icon: Icon, bgColor, iconColor }: { icon: any; bgColor: string; iconColor: string }) => (
-  <div style={{ width: 22, height: 22, borderRadius: 6, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, background: bgColor }}>
-    <Icon size={12} strokeWidth={1.6} style={{ color: iconColor }} />
+  <div style={{ width: 28, height: 28, borderRadius: 8, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, background: bgColor }}>
+    <Icon size={15} strokeWidth={1.6} style={{ color: iconColor }} />
   </div>
 );
 
@@ -35,17 +35,17 @@ export function TemplatesMegaMenu() {
   ];
 
   return (
-    <div style={{ background: "#fff", borderRadius: 16, boxShadow: "0 8px 40px rgba(10,37,64,.10)", border: "1px solid #f1f5f9", display: "grid", gridTemplateColumns: "180px 180px 140px", gap: 8, padding: "10px", alignItems: "stretch" }}>
+    <div style={{ background: "#fff", borderRadius: 16, boxShadow: "0 8px 40px rgba(10,37,64,.10)", border: "1px solid #f1f5f9", display: "grid", gridTemplateColumns: "200px 200px 160px", gap: 24, padding: "10px", alignItems: "stretch" }}>
       {/* Column 1 */}
       <div style={{ display: "flex", flexDirection: "column", borderRight: "1px solid #f8fafc", paddingRight: 4 }}>
-        <div style={{ fontSize: 9.5, fontWeight: 700, letterSpacing: ".1em", color: "#94a3b8", textTransform: "uppercase", marginBottom: 6 }}>BUSINESS & AI</div>
+        <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: ".1em", color: "#94a3b8", textTransform: "uppercase", marginBottom: 10 }}>BUSINESS & AI</div>
         <div style={{ display: "flex", flexDirection: "column", gap: 1.5 }}>
           {business.map(([title, Icon, bg, color]: any) => (
-            <div key={title} style={{ display: "flex", gap: 6, alignItems: "center", height: 26, cursor: "pointer", borderRadius: 6, padding: "2px 4px" }}
+            <div key={title} style={{ display: "flex", gap: 8, alignItems: "flex-start", minHeight: 40, cursor: "pointer", borderRadius: 8, padding: "4px 8px" }}
               onMouseEnter={e => (e.currentTarget.style.background = "rgba(255,102,0,.04)")}
               onMouseLeave={e => (e.currentTarget.style.background = "transparent")}>
               <IconContainer icon={Icon} bgColor={bg} iconColor={color} />
-              <div style={{ fontSize: 11.5, fontWeight: 500, color: "#0f172a", lineHeight: 1.3, whiteSpace: "normal", wordBreak: "break-word" }}>{title}</div>
+              <div style={{ fontSize: 13, fontWeight: 500, color: "#0f172a", lineHeight: 1.3, whiteSpace: "normal", wordBreak: "break-word" }}>{title}</div>
             </div>
           ))}
         </div>
@@ -53,14 +53,14 @@ export function TemplatesMegaMenu() {
 
       {/* Column 2 */}
       <div style={{ display: "flex", flexDirection: "column", paddingRight: 4 }}>
-        <div style={{ fontSize: 9.5, fontWeight: 700, letterSpacing: ".1em", color: "#94a3b8", textTransform: "uppercase", marginBottom: 6 }}>POPULAR BUILDS</div>
+        <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: ".1em", color: "#94a3b8", textTransform: "uppercase", marginBottom: 10 }}>POPULAR BUILDS</div>
         <div style={{ display: "flex", flexDirection: "column", gap: 1.5 }}>
           {builds.map(([title, Icon, bg, color]: any) => (
-            <div key={title} style={{ display: "flex", gap: 6, alignItems: "center", height: 26, cursor: "pointer", borderRadius: 6, padding: "2px 4px" }}
+            <div key={title} style={{ display: "flex", gap: 8, alignItems: "flex-start", minHeight: 40, cursor: "pointer", borderRadius: 8, padding: "4px 8px" }}
               onMouseEnter={e => (e.currentTarget.style.background = "rgba(255,102,0,.04)")}
               onMouseLeave={e => (e.currentTarget.style.background = "transparent")}>
               <IconContainer icon={Icon} bgColor={bg} iconColor={color} />
-              <div style={{ fontSize: 11.5, fontWeight: 500, color: "#0f172a", lineHeight: 1.3, whiteSpace: "normal", wordBreak: "break-word" }}>{title}</div>
+              <div style={{ fontSize: 13, fontWeight: 500, color: "#0f172a", lineHeight: 1.3, whiteSpace: "normal", wordBreak: "break-word"}}>{title}</div>
             </div>
           ))}
         </div>
@@ -71,12 +71,12 @@ export function TemplatesMegaMenu() {
         <div style={{ background: "#FFF8F4", border: "1px solid #F0ECE7", borderRadius: 10, padding: "10px", flex: 1, display: "flex", flexDirection: "column", justifyContent: "space-between", marginBottom: 8 }}>
           <div>
             <div style={{ background: "#fff", border: "1px solid #F0ECE7", borderRadius: 6, padding: 6, marginBottom: 6, boxShadow: "0 1px 2px rgba(0,0,0,.04)" }}>
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 2, marginBottom: 4 }}>
-                {[1,2,3].map(i => <div key={i} style={{ height: 8, borderRadius: 3, background: "#FFE0CC" }} />)}
-                {[1,2,3].map(i => <div key={i} style={{ height: 10, borderRadius: 3, background: "#FFBC8F" }} />)}
-              </div>
-              <div style={{ height: 3, background: "#FFE8D6", borderRadius: 99, marginBottom: 3 }} />
-              <div style={{ height: 3, width: "70%", background: "#FFE8D6", borderRadius: 99 }} />
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 4, marginBottom: 6 }}>
+              {[1,2,3].map(i => <div key={i} style={{ height: 16, borderRadius: 4, background: "#FFE0CC" }} />)}
+              {[1,2,3].map(i => <div key={i} style={{ height: 20, borderRadius: 4, background: "#FFBC8F" }} />)}
+            </div>
+            <div style={{ height: 5, background: "#FFE8D6", borderRadius: 99, marginBottom: 4 }} />
+            <div style={{ height: 5, width: "70%", background: "#FFE8D6", borderRadius: 99 }} />
             </div>
             <div style={{ fontSize: 10, fontWeight: 700, color: "#0f172a", marginBottom: 2 }}>Build ready apps</div>
             <p style={{ fontSize: 9, color: "#64748b", lineHeight: 1.4, wordBreak:"break-word" }}>Start with templates</p>

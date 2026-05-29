@@ -7,16 +7,15 @@ import { ProductMegaMenu } from "./product-mega-menu";
 import { UseCasesMegaMenu } from "./use-cases-mega-menu";
 import { TemplatesMegaMenu } from "./templates-mega-menu";
 import { ResourcesMegaMenu } from "./resources-mega-menu";
-import { CommunityMegaMenu } from "./community-mega-menu";
+
 
 export function Nav() {
   const [menuOpen, setMenuOpen] = useState(false);
-  const [openMega, setOpenMega] = useState<"product" | "usecases" | "templates" | "resources" | "community" | null>(null);
+  const [openMega, setOpenMega] = useState<"product" | "usecases" | "templates" | "resources" | null>(null);
   const megaRef = useRef<HTMLDivElement>(null);
   const useCasesRef = useRef<HTMLDivElement>(null);
   const templatesRef = useRef<HTMLDivElement>(null);
   const resourcesRef = useRef<HTMLDivElement>(null);
-  const communityRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     function handleClick(e: MouseEvent) {
@@ -24,8 +23,7 @@ export function Nav() {
         megaRef.current && !megaRef.current.contains(e.target as Node) &&
         useCasesRef.current && !useCasesRef.current.contains(e.target as Node) &&
         templatesRef.current && !templatesRef.current.contains(e.target as Node) &&
-        resourcesRef.current && !resourcesRef.current.contains(e.target as Node) &&
-        communityRef.current && !communityRef.current.contains(e.target as Node)
+        resourcesRef.current && !resourcesRef.current.contains(e.target as Node)
       ) {
         setOpenMega(null);
       }
@@ -60,7 +58,7 @@ export function Nav() {
               <AnimatePresence>
                 {openMega === "product" && (
                   <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 10 }} transition={{ duration: 0.18 }}
-                    style={{ position: "absolute", top: "calc(100% + 12px)", left: -100, transform: "translateX(-10%)", zIndex: 100 }}>
+                    style={{ position:"fixed", top: 72, left: 300, zIndex: 100 }}>
                     <ProductMegaMenu />
                   </motion.div>
                 )}
@@ -76,7 +74,7 @@ export function Nav() {
               <AnimatePresence>
                 {openMega === "usecases" && (
                   <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 10 }} transition={{ duration: 0.18 }}
-                    style={{ position: "absolute", top: "calc(100% + 12px)", left: -100, transform: "translateX(-15%)", zIndex: 100 }}>
+                    style={{ position: "fixed", top: 72, left: 300, zIndex: 100 }}>
                     <UseCasesMegaMenu />
                   </motion.div>
                 )}
@@ -92,17 +90,12 @@ export function Nav() {
               <AnimatePresence>
                 {openMega === "templates" && (
                   <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 10 }} transition={{ duration: 0.18 }}
-                    style={{ position: "absolute", top: "calc(100% + 12px)", left: -100, transform: "translateX(-20%)", zIndex: 100 }}>
+                    style={{ position: "fixed", top: 72, left: 300, zIndex: 100 }}>
                     <TemplatesMegaMenu />
                   </motion.div>
                 )}
               </AnimatePresence>
             </div>
-
-            <a href="#">Enterprise</a>
-            <a href="#">Security</a>
-            <a href="#">Pricing</a>
-
             {/* Resources */}
             <div ref={resourcesRef} style={{ position: "relative" }}>
               <a href="#" onClick={(e) => { e.preventDefault(); setOpenMega(openMega === "resources" ? null : "resources"); }}
@@ -112,28 +105,16 @@ export function Nav() {
               <AnimatePresence>
                 {openMega === "resources" && (
                   <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 10 }} transition={{ duration: 0.18 }}
-                    style={{ position: "absolute", top: "calc(100% + 12px)", left: -50, transform: "translateX(-40%)", zIndex: 100 }}>
+                    style={{ position: "fixed", top: 72, left: 300, zIndex: 100 }}>
                     <ResourcesMegaMenu />
                   </motion.div>
                 )}
               </AnimatePresence>
             </div>
 
-            {/* Community */}
-            <div ref={communityRef} style={{ position: "relative" }}>
-              <a href="#" onClick={(e) => { e.preventDefault(); setOpenMega(openMega === "community" ? null : "community"); }}
-                style={{ display: "inline-flex", alignItems: "center", gap: 4, whiteSpace: "nowrap" }}>
-                Community {chevron(openMega === "community")}
-              </a>
-              <AnimatePresence>
-                {openMega === "community" && (
-                  <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 10 }} transition={{ duration: 0.18 }}
-                   style={{ position: "absolute", top: "calc(100% + 12px)", left: -50, transform: "translateX(-50%)", zIndex: 100 }}>
-                    <CommunityMegaMenu />
-                  </motion.div>
-                )}
-              </AnimatePresence>
-            </div>
+            <a href="#">Enterprise</a>
+            <a href="#">Security</a>
+            <Link href="/pricing">Pricing</Link>
 
           </div>
 
@@ -164,7 +145,6 @@ export function Nav() {
               <a href="#" onClick={() => setMenuOpen(false)}>Security</a>
               <a href="#" onClick={() => setMenuOpen(false)}>Pricing</a>
               <a href="#" onClick={() => setMenuOpen(false)}>Resources</a>
-              <a href="#" onClick={() => setMenuOpen(false)}>Community</a>
             </div>
             <div className="nav-mobile-ctas">
               <Link href="/signup" className="nav-mobile-signin" onClick={() => setMenuOpen(false)}>Sign In</Link>

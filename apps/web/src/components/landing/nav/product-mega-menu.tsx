@@ -5,8 +5,8 @@ import {
 } from "lucide-react";
 
 const IconContainer = ({ icon: Icon, bgColor, iconColor }: { icon: any; bgColor: string; iconColor: string }) => (
-  <div style={{ width: 22, height: 22, borderRadius: 6, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, background: bgColor }}>
-    <Icon size={12} strokeWidth={1.8} style={{ color: iconColor }} />
+  <div style={{ width: 28, height: 28, borderRadius: 8, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, background: bgColor }}>
+    <Icon size={15} strokeWidth={1.8} style={{ color: iconColor }} />
   </div>
 );
 
@@ -28,18 +28,18 @@ export function ProductMegaMenu() {
   ];
 
   return (
-    <div style={{ background: "#fff", borderRadius: 16, boxShadow: "0 8px 40px rgba(10,37,64,.10)", border: "1px solid #f1f5f9", width: 410, padding: "12px", display: "grid", gridTemplateColumns: "140px 130px 110px", gap: 4 }}>
+    <div style={{ background: "#fff", borderRadius: 16, boxShadow: "0 8px 40px rgba(10,37,64,.10)", border: "1px solid #f1f5f9", width: 540, padding: "18px", display: "grid", gridTemplateColumns: "180px 170px 140px", gap: 4 }}>
       {/* Column 1 */}
       <div style={{ display: "flex", flexDirection: "column", justifyContent: "space-between", borderRight: "1px solid #f8fafc", paddingRight: 4 }}>
         <div>
-          <div style={{ fontSize: 9.5, fontWeight: 700, letterSpacing: ".1em", color: "#94a3b8", textTransform: "uppercase", marginBottom: 6 }}>EXPLORE PRODUCT</div>
+          <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: ".1em", color: "#94a3b8", textTransform: "uppercase", marginBottom: 10 }}>EXPLORE PRODUCT</div>
           <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
             {leftItems.map(([title, Icon, bg, color]: any) => (
-              <div key={title} style={{ display: "flex", gap: 6, alignItems: "center", height: 25, cursor: "pointer", borderRadius: 6, padding: "2px 4px" }}
+              <div key={title} style={{ display: "flex", gap: 8, alignItems: "center", height: 40, cursor: "pointer", borderRadius: 8, padding: "4px 8px" }}
                 onMouseEnter={e => (e.currentTarget.style.background = "rgba(255,102,0,.04)")}
                 onMouseLeave={e => (e.currentTarget.style.background = "transparent")}>
                 <IconContainer icon={Icon} bgColor={bg} iconColor={color} />
-                <div style={{ fontSize: 11.5, fontWeight: 500, color: "#0f172a", lineHeight: 1, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{title}</div>
+                <div style={{ fontSize: 13, fontWeight: 500, color: "#0f172a", lineHeight: 1, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{title}</div>
               </div>
             ))}
           </div>
@@ -52,14 +52,14 @@ export function ProductMegaMenu() {
       {/* Column 2 */}
       <div style={{ display: "flex", flexDirection: "column", justifyContent: "space-between", paddingRight: 4 }}>
         <div>
-          <div style={{ fontSize: 9.5, fontWeight: 700, letterSpacing: ".1em", color: "#94a3b8", textTransform: "uppercase", marginBottom: 6 }}>POPULAR TOOLS</div>
+          <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: ".1em", color: "#94a3b8", textTransform: "uppercase", marginBottom: 10 }}>POPULAR TOOLS</div>
           <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
             {tools.map(([title, Icon, bg, color]: any) => (
-              <div key={title} style={{ display: "flex", gap: 6, alignItems: "center", height: 25, cursor: "pointer", borderRadius: 6, padding: "2px 4px" }}
+              <div key={title} style={{ display: "flex", gap: 8, alignItems: "center", height: 40, cursor: "pointer", borderRadius: 8, padding: "4px 8px" }}
                 onMouseEnter={e => (e.currentTarget.style.background = "rgba(255,102,0,.04)")}
                 onMouseLeave={e => (e.currentTarget.style.background = "transparent")}>
                 <IconContainer icon={Icon} bgColor={bg} iconColor={color} />
-                <div style={{ fontSize: 11.5, fontWeight: 500, color: "#0f172a", lineHeight: 1, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{title}</div>
+                <div style={{ fontSize: 13, fontWeight: 500, color: "#0f172a", lineHeight: 1, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{title}</div>
               </div>
             ))}
           </div>
@@ -75,7 +75,7 @@ export function ProductMegaMenu() {
           <div>
             <div style={{ background: "#fff", border: "1px solid #F0ECE7", borderRadius: 6, padding: 6, marginBottom: 4, boxShadow: "0 1px 2px rgba(0,0,0,.04)" }}>
               <div style={{ fontSize: 10, fontWeight: 700, color: "#0f172a", marginBottom: 2 }}>Start building</div>
-              <div style={{ fontSize: 6, color: "#94a3b8", marginBottom: 4, lineHeight: 1.2 }}>Build with AI platform</div>
+              <div style={{ fontSize: 8, color: "#94a3b8", marginBottom: 4, lineHeight: 1.2 }}>Build with AI platform</div>
               <div style={{ background: "#fff", border: "1px solid #e2e8f0", borderRadius: 4, overflow: "hidden", maxHeight: 40 }}>
                 <div style={{ display: "flex" }}>
                   <div style={{ width: 12, borderRight: "1px solid #e2e8f0", background: "#FAFAFA", display: "flex", flexDirection: "column", alignItems: "center", gap: 2, padding: "2px 0" }}>
@@ -84,14 +84,14 @@ export function ProductMegaMenu() {
                     <Boxes size={5} color="#94a3b8" />
                   </div>
                   <div style={{ flex: 1, padding: "2px 4px" }}>
-                    <code style={{ fontSize: 5, fontFamily: "monospace", display: "block", marginBottom:6 }}>
+                    <code style={{ fontSize: 7, fontFamily: "monospace", display: "block", marginBottom:6 }}>
                       <span style={{ color: "#10B981" }}>SEL</span> * <span style={{ color: "#EC4899" }}>FROM</span>
                     </code>
                     <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginTop: 4 }}>
                       <div style={{ display: "flex", gap: 1, alignItems: "flex-end", height: 5 }}>
-                        {[8, 14, 10, 20].map((v, i) => <div key={i} style={{ width: 3, height: v * 0.4, background: "#C4B5FD", borderRadius: 1 }} />)}
+                        {[8, 14, 10, 20,11,21].map((v, i) => <div key={i} style={{ width: 4, height: v * 0.4, background: "#C4B5FD", borderRadius: 1 }} />)}
                       </div>
-                      <div style={{ fontSize: 6, fontWeight: 700, color: "#0f172a" }}>13K</div>
+                      <div style={{ fontSize: 8, fontWeight: 700, color: "#0f172a" }}>13K</div>
                     </div>
                   </div>
                 </div>
