@@ -1,0 +1,960 @@
+/* SecurityPage.module.css */
+
+/* ─── PAGE ─── */
+.page {
+  background: #F5F5EE;
+  font-family: 'Inter', ui-sans-serif, system-ui, -apple-system, sans-serif;
+  color: #111111;
+  -webkit-font-smoothing: antialiased;
+  min-height: 100vh;
+}
+
+
+
+/* ─── HERO ─── */
+.hero {
+  padding: 2px 32px 52px;
+}
+
+.heroInner {
+  max-width: 1280px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: 1fr 1.08fr;
+  gap: 56px;
+  align-items: center;
+}
+
+.heroBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: #FFFFFF;
+  border: 1px solid #E5E7EB;
+  border-radius: 22px;
+  padding: 6px 14px;
+  margin-bottom: 26px;
+}
+
+.heroBadge span {
+  font-size: 13px;
+  color: #6B7280;
+  font-weight: 500;
+}
+
+.badgeDot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #FF6600;
+  animation: pulseOrange 2.2s ease-in-out infinite;
+  flex-shrink: 0;
+}
+
+@keyframes pulseOrange {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(255, 102, 0, 0.55); }
+  50%       { box-shadow: 0 0 0 5px rgba(255, 102, 0, 0); }
+}
+
+.heroH1 {
+  font-size: clamp(36px, 3.4vw, 52px);
+  font-weight: 800;
+  line-height: 1.07;
+  letter-spacing: -0.035em;
+  margin-bottom: 20px;
+  color: #111111;
+}
+
+.heroH1 em {
+  font-style: normal;
+  color: #FF6600;
+}
+
+.heroP {
+  font-size: 16px;
+  color: #6B7280;
+  line-height: 1.75;
+  margin-bottom: 32px;
+  max-width: 415px;
+}
+
+.heroActions {
+  display: flex;
+  gap: 12px;
+}
+
+.btnPrimary {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  height: 50px;
+  background: #FF6600;
+  color: #fff;
+  padding: 0 24px;
+  border-radius: 12px;
+  font-weight: 700;
+  font-size: 15px;
+  text-decoration: none;
+  transition: transform 0.15s, box-shadow 0.15s;
+  box-shadow: 0 2px 14px rgba(255, 102, 0, 0.3);
+}
+
+.btnPrimary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 22px rgba(255, 102, 0, 0.4);
+}
+
+.btnSecondary {
+  display: inline-flex;
+  align-items: center;
+  height: 50px;
+  background: #FFFFFF;
+  color: #111111;
+  padding: 0 24px;
+  border-radius: 12px;
+  font-weight: 600;
+  font-size: 15px;
+  text-decoration: none;
+  border: 1px solid #E5E7EB;
+  transition: background 0.15s, box-shadow 0.15s;
+}
+
+.btnSecondary:hover {
+  background: #f9fafb;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+}
+
+/* ─── ORBITAL ─── */
+.orbitalWrap {
+  position: relative;
+  width: 100%;
+  max-width: 540px;
+  aspect-ratio: 1;
+  margin: 0 auto;
+  flex-shrink: 0;
+}
+
+.orbitalSvg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+.orbitalCenter {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 90px;
+  height: 90px;
+  border-radius: 50%;
+  background: #FF6600;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 4;
+  animation: orbPulse 3s ease-in-out infinite;
+}
+
+@keyframes orbPulse {
+  0%, 100% { box-shadow: 0 0 0 10px rgba(255, 102, 0, 0.12), 0 0 0 22px rgba(255, 102, 0, 0.06); }
+  50%       { box-shadow: 0 0 0 16px rgba(255, 102, 0, 0.08), 0 0 0 34px rgba(255, 102, 0, 0.03); }
+}
+
+.nodeCard {
+  position: absolute;
+  width: 178px;
+  background: #FFFFFF;
+  border: 1px solid #E5E7EB;
+  border-radius: 16px;
+  padding: 13px 15px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05), 0 12px 32px rgba(0, 0, 0, 0.06);
+  z-index: 4;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.nodeCard:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 6px 28px rgba(0, 0, 0, 0.11);
+}
+
+.nodeInner {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+}
+
+.nodeIconWrap {
+  width: 30px;
+  height: 30px;
+  border-radius: 9px;
+  background: #F3F4F6;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.nodeTitle {
+  font-size: 12.5px;
+  font-weight: 700;
+  color: #111111;
+  margin-bottom: 3px;
+  line-height: 1.3;
+  white-space: nowrap;
+}
+
+.nodeSub {
+  font-size: 11px;
+  color: #6B7280;
+  line-height: 1.5;
+}
+
+/* ─── LOGOS ─── */
+.logosWrap {
+  max-width: 1280px;
+  margin: 52px auto 0;
+  padding: 0 32px;
+}
+
+.logosLabel {
+  font-size: 11px;
+  color: #9CA3AF;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  margin-bottom: 18px;
+}
+
+.logosRow {
+  display: flex;
+  align-items: center;
+  gap: 40px;
+  flex-wrap: wrap;
+}
+
+.logoItem {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  cursor: default;
+}
+
+.logoImg {
+  height: 22px;
+  width: auto;
+}
+
+.logoName {
+  font-size: 15px;
+  font-weight: 700;
+  color: #111111;
+  white-space: nowrap;
+}
+
+
+/* ─── SECTION / CARD WRAP ─── */
+.section {
+  padding: 0 32px 20px;
+}
+
+.cardWrap {
+  max-width: 1280px;
+  margin: 0 auto;
+  background: #FFFFFF;
+  border: 1px solid #E5E7EB;
+  border-radius: 24px;
+  padding: 44px 44px 48px;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.02), 0 4px 24px rgba(0, 0, 0, 0.04);
+}
+
+.sectionTitleLarge {
+  font-size: 34px;
+  font-weight: 800;
+  letter-spacing: -0.035em;
+  color: #111;
+  line-height: 1.12;
+  margin: 0;
+}
+
+.eyebrow {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: #FF6600;
+  margin-bottom: 10px;
+}
+
+/* ─── BUILT FOR AI ─── */
+.shimmerBar {
+  width: 32px;
+  height: 3px;
+  border-radius: 2px;
+  background: #FF6600;
+  margin-top: 20px;
+  position: relative;
+  overflow: hidden;
+}
+
+.shimmerBarInner {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, #FF6600, #ff8533, #FF6600);
+  background-size: 200% 100%;
+  animation: shimmerBar 2.5s ease infinite;
+}
+
+@keyframes shimmerBar {
+  0%   { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+.bfModern {
+  position: relative;
+  background: #fff;
+  border: 1px solid #E5E7EB;
+  border-radius: 18px;
+  padding: 26px 20px 28px;
+  overflow: hidden;
+  transition: transform 0.22s ease, box-shadow 0.22s ease, border-color 0.22s ease;
+  cursor: default;
+}
+
+.bfModern:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.08);
+  border-color: #D1D5DB;
+}
+
+.bfGradientTop {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2.5px;
+  border-radius: 18px 18px 0 0;
+}
+
+.bfIconWrap {
+  position: relative;
+  width: 52px;
+  height: 52px;
+  margin-bottom: 18px;
+}
+
+.bfIconOuter {
+  position: absolute;
+  inset: 0;
+  border-radius: 14px;
+}
+
+.bfIconInner {
+  position: absolute;
+  inset: 3px;
+  border-radius: 11px;
+  background: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.bfPulseRing {
+  position: absolute;
+  inset: -4px;
+  border-radius: 18px;
+  border: 1.5px solid;
+  animation: ringPulse 3s ease-in-out infinite;
+}
+
+@keyframes ringPulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50%       { opacity: 0.3; transform: scale(1.06); }
+}
+
+.bfTitle {
+  font-size: 15px;
+  font-weight: 700;
+  color: #111;
+  margin-bottom: 7px;
+}
+
+.bfDesc {
+  font-size: 12.5px;
+  color: #9CA3AF;
+  line-height: 1.6;
+}
+
+.bfArrow {
+  margin-top: 18px;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  opacity: 0;
+  transform: translateX(-4px);
+  transition: all 0.25s ease;
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.bfModern:hover .bfArrow {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+/* ─── PIPELINE ─── */
+.pipelineGlow {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 600px;
+  height: 300px;
+  border-radius: 50%;
+  background: radial-gradient(ellipse, rgba(255, 102, 0, 0.03) 0%, transparent 70%);
+  pointer-events: none;
+}
+
+.pipelineHeader {
+  text-align: center;
+  margin-bottom: 52px;
+  position: relative;
+  z-index: 1;
+}
+
+.pipelineSub {
+  font-size: 14px;
+  color: #9CA3AF;
+  line-height: 1.7;
+  margin-top: 12px;
+  max-width: 440px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.pipelineTrack {
+  position: relative;
+  margin-bottom: 44px;
+  z-index: 1;
+}
+
+.trackLine {
+  position: absolute;
+  top: 40px;
+  left: 60px;
+  right: 60px;
+  height: 2px;
+  z-index: 0;
+}
+
+.trackLineBase {
+  position: absolute;
+  inset: 0;
+  background: #E5E7EB;
+  border-radius: 2px;
+}
+
+.travelDot {
+  position: absolute;
+  top: -2px;
+  width: 40px;
+  height: 6px;
+  border-radius: 3px;
+  background: linear-gradient(90deg, transparent, #FF6600, transparent);
+  animation: travelDot 3s linear infinite;
+}
+
+@keyframes travelDot {
+  0%   { left: -40px; }
+  100% { left: calc(100% + 40px); }
+}
+
+.stepsRow {
+  display: flex;
+  justify-content: space-between;
+  position: relative;
+  z-index: 1;
+}
+
+.pipeNode {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  flex: 1;
+  cursor: default;
+}
+
+.pipeNodeIcon {
+  width: 80px;
+  height: 80px;
+  border-radius: 22px;
+  background: #fff;
+  border: 1.5px solid #E5E7EB;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.04);
+  transition: all 0.25s ease;
+}
+
+.pipeNode:hover .pipeNodeIcon {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 28px rgba(0, 0, 0, 0.09);
+  border-color: #D1D5DB;
+}
+
+.activeIndicator {
+  position: absolute;
+  top: -3px;
+  right: -3px;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: #FF6600;
+  border: 2px solid #fff;
+  box-shadow: 0 0 0 3px rgba(255, 102, 0, 0.15);
+}
+
+.pipeNodeLabel {
+  font-size: 13.5px;
+  font-weight: 700;
+  color: #111;
+  display: block;
+}
+
+.pipeNodeSub {
+  font-size: 11px;
+  color: #9CA3AF;
+  margin-top: 2px;
+  display: block;
+}
+
+/* ─── BADGES ─── */
+.badgesRow {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  position: relative;
+  z-index: 1;
+}
+
+.glassBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(255, 255, 255, 0.7);
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(229, 231, 235, 0.8);
+  border-radius: 12px;
+  padding: 10px 16px;
+  transition: all 0.2s;
+}
+
+.glassBadge:hover {
+  background: #fff;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
+}
+
+.glassBadgeIcon {
+  width: 22px;
+  height: 22px;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.glassBadgeLabel {
+  font-size: 13px;
+  font-weight: 600;
+  color: #374151;
+}
+
+/* ─── SECURITY FEATURES ─── */
+.featuresGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0;
+}
+
+.secFeatItem {
+  padding: 24px 22px;
+  cursor: default;
+  transition: background 0.18s;
+}
+
+.secFeatItem:hover {
+  background: rgba(0, 0, 0, 0.018);
+}
+
+.featIconWrap {
+  width: 38px;
+  height: 38px;
+  border-radius: 11px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.featTitle {
+  font-size: 15px;
+  font-weight: 700;
+  color: #111;
+}
+
+.featDesc {
+  font-size: 12.5px;
+  color: #9CA3AF;
+  line-height: 1.6;
+  margin-left: 51px;
+}
+
+.viewAllLink {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13.5px;
+  font-weight: 600;
+  color: #FF6600;
+  text-decoration: none;
+  margin-top: 22px;
+  transition: gap 0.2s;
+}
+
+.viewAllLink:hover {
+  gap: 9px;
+}
+
+.shieldWatermark {
+  position: absolute;
+  bottom: -20px;
+  left: -10px;
+  opacity: 0.04;
+  pointer-events: none;
+}
+
+/* ─── CTA ─── */
+.ctaSection {
+  padding: 0 32px 80px;
+}
+
+.ctaWrap {
+  max-width: 1280px;
+  margin: 0 auto;
+  background: #FF6600;
+  border-radius: 26px;
+  padding: 56px 60px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 40px;
+  flex-wrap: wrap;
+  position: relative;
+  overflow: hidden;
+}
+
+.ctaWrap::before {
+  content: '';
+  position: absolute;
+  top: -80px;
+  right: -80px;
+  width: 300px;
+  height: 300px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.07);
+  pointer-events: none;
+}
+
+.ctaWrap::after {
+  content: '';
+  position: absolute;
+  bottom: -100px;
+  left: 38%;
+  width: 220px;
+  height: 220px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.04);
+  pointer-events: none;
+}
+
+.ctaContent {
+  max-width: 560px;
+  position: relative;
+  z-index: 1;
+}
+
+.ctaH2 {
+  font-size: 28px;
+  font-weight: 800;
+  color: #fff;
+  line-height: 1.25;
+  margin-bottom: 12px;
+  letter-spacing: -0.025em;
+}
+
+.ctaP {
+  font-size: 15.5px;
+  color: rgba(255, 255, 255, 0.82);
+  line-height: 1.65;
+}
+
+.btnWhite {
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  height: 52px;
+  background: #FFFFFF;
+  color: #111111;
+  padding: 0 28px;
+  border-radius: 13px;
+  font-weight: 700;
+  font-size: 15px;
+  text-decoration: none;
+  white-space: nowrap;
+  position: relative;
+  z-index: 1;
+  transition: transform 0.15s, box-shadow 0.15s;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
+}
+
+.btnWhite:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+}
+
+/* ─── SCROLL REVEAL ─── */
+.reveal {
+  opacity: 0;
+  transform: translateY(14px);
+  transition: opacity 0.5s ease, transform 0.5s ease;
+}
+
+.visible {
+  opacity: 1;
+  transform: none;
+}
+
+/* ═══════════════════════════════════════════
+   MOBILE RESPONSIVENESS
+═══════════════════════════════════════════ */
+
+@media (max-width: 768px) {
+
+  /* ─── HERO ─── */
+  .hero {
+    padding: 32px 20px 40px;
+  }
+
+  .heroInner {
+    grid-template-columns: 1fr;
+    gap: 0;
+  }
+
+  /* hide orbital on mobile */
+  .orbitalHide {
+    display: none !important;
+  }
+
+  .heroH1 {
+    font-size: 34px;
+    line-height: 1.1;
+  }
+
+  .heroP {
+    font-size: 15px;
+    max-width: 100%;
+  }
+
+  .heroBadge {
+    margin-bottom: 20px;
+  }
+
+  .heroActions {
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .btnPrimary {
+    height: 50px;
+    font-size: 15px;
+    padding: 0 20px;
+    justify-content: center;
+    width: 100%;
+  }
+
+  .btnSecondary {
+    height: 50px;
+    font-size: 15px;
+    padding: 0 20px;
+    justify-content: center;
+    width: 100%;
+  }
+
+  /* ─── LOGOS ─── */
+  .logosWrap {
+    margin-top: 36px;
+    padding: 0 20px;
+  }
+
+  .logosRow {
+    gap: 20px 28px;
+  }
+
+  .logoItem {
+    font-size: 13px;
+  }
+
+  /* ─── SECTIONS ─── */
+  .section {
+    padding: 0 16px 16px;
+  }
+
+  .cardWrap {
+    padding: 28px 20px 32px;
+    border-radius: 18px;
+  }
+
+  .sectionTitleLarge {
+    font-size: 26px;
+  }
+
+  /* ─── BUILT FOR AI — stack heading + 2x2 grid ─── */
+  .builtForGrid {
+    grid-template-columns: 1fr !important;
+    gap: 24px !important;
+  }
+
+  .builtForCards {
+    grid-template-columns: 1fr 1fr !important;
+    gap: 12px !important;
+  }
+
+  .bfModern {
+    padding: 20px 16px 22px;
+  }
+
+  /* ─── PIPELINE ─── */
+  .pipelineHeader {
+    margin-bottom: 28px;
+  }
+
+  .pipelineHeader .sectionTitleLarge {
+    font-size: 24px;
+  }
+
+  .pipelineTrack {
+    margin-bottom: 28px;
+  }
+
+  /* 3x2 grid for pipeline steps */
+  .stepsRow {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px 4px;
+    justify-items: center;
+  }
+
+  /* hide the animated line on mobile */
+  .trackLine {
+    display: none;
+  }
+
+  .pipeNodeIcon {
+    width: 60px;
+    height: 60px;
+    border-radius: 16px;
+  }
+
+  .pipeNodeLabel {
+    font-size: 12px;
+  }
+
+  .pipeNodeSub {
+    font-size: 10px;
+  }
+
+  /* badges stack vertically */
+  .badgesRow {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 8px;
+  }
+
+  .glassBadge {
+    justify-content: flex-start;
+    padding: 12px 16px;
+  }
+
+  /* ─── SECURITY FEATURES — stack heading + 1 col ─── */
+  .featuresLayout {
+    grid-template-columns: 1fr !important;
+    gap: 24px !important;
+  }
+
+  .featuresGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .secFeatItem {
+    border-right: none !important;
+    border-bottom: 1px solid #E5E7EB !important;
+    padding: 18px 0;
+  }
+
+  .secFeatItem:last-child {
+    border-bottom: none !important;
+  }
+
+  .featDesc {
+    margin-left: 0;
+    margin-top: 6px;
+  }
+
+  /* ─── CTA ─── */
+  .ctaSection {
+    padding: 0 16px 48px;
+  }
+
+  .ctaWrap {
+    padding: 36px 24px;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 24px;
+    border-radius: 18px;
+  }
+
+  .ctaH2 {
+    font-size: 22px;
+  }
+
+  .ctaP {
+    font-size: 14px;
+  }
+
+  .btnWhite {
+    width: 100%;
+    justify-content: center;
+  }
+}
+
+@media (max-width: 480px) {
+
+  .heroH1 {
+    font-size: 28px;
+  }
+
+  .stepsRow {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px;
+  }
+
+  .builtForCards {
+    grid-template-columns: 1fr !important;
+  }
+}

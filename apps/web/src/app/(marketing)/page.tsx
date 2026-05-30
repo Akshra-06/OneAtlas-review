@@ -7,7 +7,7 @@ import RolesBento from "@/components/landing/roles-bento";
 import { Integrations } from "@/components/landing/integrations";
 import { Pricing } from "@/components/landing/pricing";
 import { FAQ } from "@/components/landing/faq";
-import { Footer } from "@/components/landing/footer";
+import { Footer } from "@/components/landing/footer/footer";
 
 export default function HomePage() {
   return (
