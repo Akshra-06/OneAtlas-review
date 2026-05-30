@@ -1,4 +1,5 @@
 "use client";
+import Link from "next/link";
 import {
   Database, Zap, Grid, Smartphone, Rocket, Upload, ArrowRight,
   FileText, BookOpen, Code2, Cpu, Shield, Package, Globe, Users, Boxes,
@@ -44,9 +45,9 @@ export function ProductMegaMenu() {
             ))}
           </div>
         </div>
-        <button style={{ marginTop: 10, display: "inline-flex", alignItems: "center", gap: 3, color: "#FF6600", fontWeight: 500, fontSize: 10.5, background: "none", border: "none", cursor: "pointer", padding: 0 }}>
-          View docs <ArrowRight size={11} />
-        </button>
+        <Link href="/docs" style={{ marginTop: 10, display: "inline-flex", alignItems: "center", gap: 3, color: "#FF6600", fontWeight: 500, fontSize: 10.5, textDecoration: "none", padding: 0 }}>
+  View docs <ArrowRight size={11} />
+</Link>
       </div>
 
       {/* Column 2 */}
@@ -105,13 +106,13 @@ export function ProductMegaMenu() {
           </button>
         </div>
         <div style={{ display: "flex", flexDirection: "column", gap: 4, paddingLeft: 2 }}>
-          {[["Docs", FileText, "#FF6600"], ["Changelog", BookOpen, "#10B981"], ["API", Code2, "#2563EB"]].map(([label, Icon, color]: any) => (
-            <div key={label} style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 9.5, color: "#475569", cursor: "pointer" }}
-              onMouseEnter={e => (e.currentTarget.style.color = "#0f172a")}
-              onMouseLeave={e => (e.currentTarget.style.color = "#475569")}>
-              <Icon size={9.5} color={color} /> {label}
-            </div>
-          ))}
+          {[["Docs", FileText, "#FF6600", "/docs"], ["Changelog", BookOpen, "#10B981", "/changelog"], ["API", Code2, "#2563EB", "/docs/api-reference"]].map(([label, Icon, color, href]: any) => (
+  <Link key={label} href={href} style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 9.5, color: "#475569", cursor: "pointer", textDecoration: "none" }}
+    onMouseEnter={e => (e.currentTarget.style.color = "#0f172a")}
+    onMouseLeave={e => (e.currentTarget.style.color = "#475569")}>
+    <Icon size={9.5} color={color} /> {label}
+  </Link>
+))}
         </div>
       </div>
     </div>

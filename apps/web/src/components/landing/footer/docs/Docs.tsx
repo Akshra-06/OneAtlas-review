@@ -14,7 +14,7 @@
  */
 "use client";
 import React, { useEffect, useRef, useState } from "react";
-import "./Docs.css";
+import "./docs.css";
 import { color } from "framer-motion";
 
 
@@ -200,7 +200,7 @@ const DeployCard: React.FC = () => {
 
 const Dock: React.FC = () => {
   return (
-    <div className="page">
+   <div className="oa-docs"><div className="page">
         {/* ===== TOP NAV ===== */}
         <nav className="top-nav">
           <div className="logo">
@@ -232,9 +232,9 @@ const Dock: React.FC = () => {
               <path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42" />
             </Svg>
           </button>
-          <button className="cta-btn">
-            Start Building <span>→</span>
-          </button>
+          <button className="cta-btn" style={{ background: "#FF6600", color: "#fff", padding: "8px 18px", borderRadius: 12, fontSize: 13, fontWeight: 600, display: "flex", alignItems: "center", gap: 6, whiteSpace: "nowrap" }}>
+  Start Building <span>→</span>
+</button>
         </nav>
 
         {/* ===== LEFT SIDEBAR ===== */}
@@ -482,9 +482,9 @@ const Dock: React.FC = () => {
                 OneAtlas gives you the tools to build, deploy, and scale production-ready AI applications.
               </p>
               <div className="hero-actions">
-                <button className="cta-btn">
-                  Start Building <span>→</span>
-                </button>
+                <button className="cta-btn" style={{ background: "#FF6600", color: "#fff", padding: "8px 18px", borderRadius: 12, fontSize: 13, fontWeight: 600, display: "flex", alignItems: "center", gap: 6, whiteSpace: "nowrap" }}>
+  Start Building <span>→</span>
+</button>
                 <a href="#" className="watch-link">
                   <span className="play-circle">▶</span>
                   Watch overview
@@ -917,7 +917,7 @@ const Dock: React.FC = () => {
             </Svg>
           </div>
       </footer>
-    </div>
+    </div></div>
   );
 };
 
