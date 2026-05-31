@@ -10,6 +10,9 @@ import { useAuthStore } from "@/store/useAuthStore";
 import { generateApp } from "@/services/builder";
 import { getProjects } from "@/services/projects";
 import { Project } from "@/types";
+import KpiCard from "@/components/dashboard/KpiCard";
+import Sidebar from "@/components/dashboard/Sidebar";
+import ChatPanel from "@/components/dashboard/ChatPanel";
 
 interface BuilderClientProps {
   projectId: string;
@@ -196,6 +199,7 @@ export function BuilderClient({ projectId }: BuilderClientProps) {
       </header>
       
       <div className="flex-1 flex px-6 py-8 gap-8 max-w-7xl mx-auto w-full">
+        <Sidebar />
         {/* Left column: Controls */}
         <div className="w-[400px] flex flex-col gap-6">
           <div className="bg-white p-6 rounded-xl border border-[#EDF1F6] shadow-sm flex flex-col gap-4">
@@ -261,6 +265,13 @@ export function BuilderClient({ projectId }: BuilderClientProps) {
 
         {/* Right column: Preview and Output */}
         <div className="flex-1 flex flex-col gap-6 min-w-0">
+          <div className="grid grid-cols-3 gap-4">
+            <KpiCard title="Revenue" value="$124K" />
+            <KpiCard title="Users" value="12,430" />
+            <KpiCard title="Conversion" value="4.2%" />
+          </div>
+          
+          <ChatPanel />
           {/* Preview Panel */}
           {sseState === "completed" && previewUrl ? (
             <div className="flex-1 bg-white rounded-xl border border-[#EDF1F6] shadow-md flex flex-col overflow-hidden">
