@@ -45,9 +45,9 @@ export const MODELS_CONFIG = {
   },
 
   OPENROUTER: {
-    FAST: "deepseek/deepseek-v4-flash:free",
-    CAPABLE: "nvidia/nemotron-3-super:free",
-    REASONING: "openai/gpt-oss-120b:free",
+    FAST: "meta-llama/llama-4-scout:free",
+    CAPABLE: "meta-llama/llama-4-maverick:free",
+    REASONING: "deepseek/deepseek-r1:free",
   },
 } as const;
 
@@ -248,34 +248,34 @@ export const MODEL_CAPABILITIES: Record<string, ModelCapabilities> = {
 
   // ───────────────── OpenRouter ─────────────────
 
-  "deepseek/deepseek-v4-flash:free": {
-    supportsStreaming: true,
-    supportsStructuredOutputs: true,
-    supportsJSONMode: true,
-    supportsLongContext: true,
-    structuredOutputReliability: "HIGH",
-    maxContextWindow: 1_050_000,
-    maxOutputTokens: 16_384,
-  },
-
-  "nvidia/nemotron-3-super:free": {
+  "meta-llama/llama-4-scout:free": {
     supportsStreaming: true,
     supportsStructuredOutputs: true,
     supportsToolCalling: true,
+    supportsJSONMode: true,
     supportsLongContext: true,
-    structuredOutputReliability: "HIGH",
+    structuredOutputReliability: "MEDIUM",
+    maxContextWindow: 512_000,
+    maxOutputTokens: 16_384,
+  },
+  "meta-llama/llama-4-maverick:free": {
+    supportsStreaming: true,
+    supportsStructuredOutputs: true,
+    supportsToolCalling: true,
+    supportsJSONMode: true,
+    supportsLongContext: true,
+    structuredOutputReliability: "MEDIUM",
     maxContextWindow: 1_000_000,
     maxOutputTokens: 32_768,
   },
-
-  "openai/gpt-oss-120b:free": {
+  "deepseek/deepseek-r1:free": {
     supportsStreaming: true,
-    supportsJSONMode: true,
     supportsReasoning: true,
-    supportsToolCalling: true,
+    supportsJSONMode: true,
+    supportsLongContext: true,
     structuredOutputReliability: "HIGH",
-    maxContextWindow: 131_072,
-    maxOutputTokens: 65_536,
+    maxContextWindow: 164_000,
+    maxOutputTokens: 32_768,
   },
 };
 
@@ -315,9 +315,9 @@ export const COST_TABLE: Record<string, ModelCost> = {
   "deepseek-reasoner": { inputPer1M: 0.55, outputPer1M: 2.19 },
 
   // OpenRouter
-  "deepseek/deepseek-v4-flash:free": { inputPer1M: 0, outputPer1M: 0 },
-  "nvidia/nemotron-3-super:free": { inputPer1M: 0, outputPer1M: 0 },
-  "openai/gpt-oss-120b:free": { inputPer1M: 0, outputPer1M: 0 },
+  "meta-llama/llama-4-scout:free": { inputPer1M: 0, outputPer1M: 0 },
+  "meta-llama/llama-4-maverick:free": { inputPer1M: 0, outputPer1M: 0 },
+  "deepseek/deepseek-r1:free": { inputPer1M: 0, outputPer1M: 0 },
 };
 
 // ───────────────── Public Helpers ─────────────────
