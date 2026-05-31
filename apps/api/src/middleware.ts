@@ -102,13 +102,10 @@ function log(fields: Record<string, unknown>) {
 }
 
 
-
-// ── Middleware ────────────────────────────────────────────────────────────────
-
 export default clerkMiddleware(async (auth, req: NextRequest) => {
   try {
     const startMs = Date.now();
-  const requestId = crypto.randomUUID();
+    const requestId = crypto.randomUUID();
 
   // Attach request ID so route handlers can read it from headers
   const requestHeaders = new Headers(req.headers);
@@ -119,7 +116,14 @@ export default clerkMiddleware(async (auth, req: NextRequest) => {
   const hasAuthHeader = req.headers.has("Authorization");
   console.log(`[middleware] Incoming request: method=${req.method} path=${req.nextUrl.pathname} origin=${originHeader} hasAuthHeader=${hasAuthHeader}`);
 
-  // ── Preflight CORS checks ──────────────────────────────────────────────────
+  // ── DEV BYPASS — must be first, before any auth check ───────────────────
+  if (process.env.NODE_ENV === 'development' && process.env.DEV_BYPASS_AUTH === 'true') {
+    const res = NextResponse.next({ request: { headers: requestHeaders } });
+    res.headers.set("x-request-id", requestId);
+    return res;
+  }
+
+  // ── Preflight CORS checks ─────────────────────────────────────────────────
   if (req.method === "OPTIONS") {
     const origin = req.headers.get("origin") ?? "*";
     return new NextResponse(null, {
