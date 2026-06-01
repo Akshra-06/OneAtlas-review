@@ -3,15 +3,15 @@ import { useState, useEffect, useRef } from "react";
 import TEMPLATE_SVGS from "./template-svgs";
 
 /* ─── DATA ─────────────────────────────────────────────── */
-interface Template {
+export interface Template {
   id: string; cat: string; catCls: string; accent: string;
   title: string; desc: string; time: string; team: string;
   filters: string[]; preview: string; glow: string;
 }
 
-const FILTERS = ["All","AI Apps","Dashboards","CRM","Internal Tools","Ecommerce","Productivity","Client Apps","Marketplaces"];
+export const FILTERS = ["All","AI Apps","Dashboards","CRM","Internal Tools","Ecommerce","Productivity","Client Apps","Marketplaces"];
 
-const TEMPLATES: Template[] = [
+export const TEMPLATES: Template[] = [
   // ── EXISTING 9 ──
   { id:"ai-support",  cat:"AI APPS",        catCls:"sky",    accent:"#FF6600", title:"AI Support Agent",          desc:"Resolves tickets autonomously — queue, live status, priority, and AI replies.",         time:"~2 min", team:"2–20", filters:["AI Apps"],        preview:"support",   glow:"" },
   { id:"kpi",         cat:"DASHBOARDS",     catCls:"coral",  accent:"#FF6600", title:"KPI Dashboard",             desc:"Live charts, KPI tiles, and date-range filters — MAU, growth %, and revenue.",          time:"~1 min", team:"Any",  filters:["Dashboards"],     preview:"bars",      glow:"" },
@@ -746,7 +746,7 @@ function LaunchModal({ tmpl, onClose }: { tmpl: Template | null; onClose: () => 
 }
 
 /* ─── CARD ──────────────────────────────────────────────── */
-function TemplateCard({ t, onLaunch }: { t: Template; onLaunch: (t: Template) => void }) {
+export function TemplateCard({ t, onLaunch }: { t: Template; onLaunch: (t: Template) => void }) {
   const [hover, setHover] = useState(false);
   const PreviewComp = PREVIEW_MAP[t.preview];
   return (
