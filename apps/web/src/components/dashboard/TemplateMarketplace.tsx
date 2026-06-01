@@ -23,8 +23,8 @@ export function TemplateMarketplace() {
   const filteredTemplates = useMemo(() => {
     return TEMPLATES.filter((template) => {
       const matchesFilter =
-        activeFilter === "All" ||
-        template.cat === activeFilter;
+  activeFilter === "All" ||
+  template.filters.includes(activeFilter);
 
       const searchText = search.toLowerCase();
 
