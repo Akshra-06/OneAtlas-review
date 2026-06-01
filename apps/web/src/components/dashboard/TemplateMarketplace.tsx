@@ -21,21 +21,25 @@ export function TemplateMarketplace() {
   }, []);
 
   const filteredTemplates = useMemo(() => {
-    return TEMPLATES.filter((template) => {
-      const matchesFilter =
-  activeFilter === "All" ||
-  template.filters.includes(activeFilter);
+  const searchText = search.trim().toLowerCase();
 
-      const searchText = search.toLowerCase();
+  return TEMPLATES.filter((template) => {
+    const matchesSearch =
+      template.title.toLowerCase().includes(searchText) ||
+      template.desc.toLowerCase().includes(searchText) ||
+      template.cat.toLowerCase().includes(searchText);
 
-      const matchesSearch =
-        template.title.toLowerCase().includes(searchText) ||
-        template.desc.toLowerCase().includes(searchText) ||
-        template.cat.toLowerCase().includes(searchText);
+    // If user is searching, prioritize search
+    if (searchText) {
+      return matchesSearch;
+    }
 
-      return matchesFilter && matchesSearch;
-    });
-  }, [search, activeFilter]);
+    return (
+      activeFilter === "All" ||
+      template.filters.includes(activeFilter)
+    );
+  });
+}, [search, activeFilter]);
 
   const openTemplate = (template: Template) => {
   router.push(`/builder/${template.id}`);
