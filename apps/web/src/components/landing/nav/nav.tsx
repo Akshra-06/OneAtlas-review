@@ -164,7 +164,7 @@ export function Nav() {
               </AnimatePresence>
             </div>
 
-            <a href="#">Enterprise</a>
+            <a href="/enterprise">Enterprise</a>
             <Link href="/security">Security</Link>
             <Link href="/pricing">Pricing</Link>
           </div>
