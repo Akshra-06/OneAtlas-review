@@ -90,7 +90,7 @@ export default function HeroSection() {
             className="absolute inset-0 w-full h-full"
             viewBox="0 0 1100 750"
             fill="none"
-            xmlns="http://www.w3.org/2000/svg"
+            
             preserveAspectRatio="xMidYMid meet"
           >
             <defs>
@@ -158,7 +158,7 @@ export default function HeroSection() {
             {(['AI MODELS', 'DATA & SYSTEMS', 'WORKFLOWS', 'PRODUCTION APPS'] as const).map((title, i) => (
               <foreignObject key={title} x={CX} y={CYS[i] - CH / 2} width={CW} height={CH}>
                 <div
-                  xmlns="http://www.w3.org/1999/xhtml"
+                  
                   style={{
                     width: '100%',
                     height: '100%',

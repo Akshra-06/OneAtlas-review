@@ -1,6 +1,9 @@
-import { useState } from 'react';
-import { ChevronDown } from 'lucide-react';
 
+
+"use client";
+
+import { useState } from "react";
+import { ChevronDown } from 'lucide-react';
 interface FAQItem {
   question: string;
   answer: string;
