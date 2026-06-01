@@ -290,8 +290,8 @@ export function Nav() {
               </div>
 
               {/* Direct links */}
-              <a href="#" style={{ display: "block", padding: "12px 0", fontSize: 15, fontWeight: 600, color: "#111", textDecoration: "none" }}
-                onClick={() => setMenuOpen(false)}>Enterprise</a>
+              <a href="/enterprise" style={{ display: "block", padding: "12px 0", fontSize: 15, fontWeight: 600, color: "#111", textDecoration: "none" }}
+                onClick={() => setMenuOpen(false)}>Enterprise</Link>
               <Link href="/security" style={{ display: "block", padding: "12px 0", fontSize: 15, fontWeight: 600, color: "#111", textDecoration: "none" }}
                 onClick={() => setMenuOpen(false)}>Security</Link>
               <Link href="/pricing" style={{ display: "block", padding: "12px 0", fontSize: 15, fontWeight: 600, color: "#111", textDecoration: "none" }}
