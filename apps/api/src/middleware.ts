@@ -20,6 +20,7 @@ const isPublicRoute = createRouteMatcher([
   "/api/ready",
   "/api/v1/ai/health",
   "/api/v1/ai/complete",
+  "/api/v1/templates/preview",
 ]);
 
 const isAiRoute = createRouteMatcher([
@@ -150,6 +151,12 @@ export default clerkMiddleware(async (auth, req: NextRequest) => {
       public: true,
       latencyMs: Date.now() - startMs,
     });
+
+    const origin = req.headers.get("origin") ?? "*";
+    res.headers.set("Access-Control-Allow-Origin", origin);
+    res.headers.set("Access-Control-Allow-Credentials", "true");
+    res.headers.set("Access-Control-Allow-Methods", "GET,POST,PUT,PATCH,DELETE,OPTIONS");
+    res.headers.set("Access-Control-Allow-Headers", "Content-Type, Authorization, x-request-id");
 
     return res;
   }

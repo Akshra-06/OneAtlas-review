@@ -65,3 +65,48 @@ export async function saveDashboardConfig(
 
   return json.data;
 }
+
+export interface TemplatePreviews {
+  kanban?: {
+    pipelineValue: string;
+    closing: number;
+    winRate: number;
+    cols: { label: string; cards: { who: string; amt: string; cls: string; stage: string }[] }[];
+  };
+  flow?: {
+    queue: number;
+    pending: number;
+    autoApproved: number;
+    avgHours: number;
+    activeTx: { who: string; desc: string; amt: string } | null;
+  };
+  bars?: {
+    mau: number;
+    trend: number[];
+  };
+  inventory?: {
+    totalSkus: number;
+    stockLevels: string;
+    items: { sku: string; name: string; target: number; count: string }[];
+  };
+  checklist?: {
+    done: number;
+    total: number;
+    tasks: { title: string; day: string }[];
+    candidate: string;
+    role: string;
+  };
+  support?: {
+    openTickets: number;
+    avgWait: string;
+    tickets: { id: string; title: string; pri: string; status: string; key: string }[];
+  };
+}
+
+export async function getDemoDashboardPreviews(): Promise<TemplatePreviews> {
+  const json = await apiFetch<ApiResponse<TemplatePreviews>>(
+      `/templates/preview`
+    );
+  if (json.success) return json.data;
+  return {};
+}
