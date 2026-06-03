@@ -1,9 +1,12 @@
 // =============================================================================
 // apps/api/src/app/api/v1/orgs/[orgId]/projects/[projectId]/generate/route.ts
 //
-// GET    — returns current generation status
-// POST   — full generation (runGenerationPipeline, SSE progress)
-// PATCH  — incremental regeneration triggered by Atlas AI (SSE progress)
+// POST /api/v1/orgs/:orgId/projects/:projectId/generate
+//   Triggers AI code generation for a project.
+//   Streams progress back to the client via Server-Sent Events (SSE).
+//
+// GET  /api/v1/orgs/:orgId/projects/:projectId/generate
+//   Returns the current generation status (for polling fallback).
 // =============================================================================
 
 export const runtime = "nodejs";
@@ -11,22 +14,142 @@ export const runtime = "nodejs";
 import { NextRequest } from "next/server";
 import { prisma, createAuditLog } from "@oneatlas/db";
 import { z } from "zod";
-import { ConflictError, NotFoundError } from "@oneatlas/shared";
-import type { GenerationResult, GeneratedFile } from "@oneatlas/shared";
+import {
+  ConflictError,
+  NotFoundError,
+  type GenerationResult,
+} from "@oneatlas/shared";
 import { requireOrgMember } from "../../../../../../../../lib/auth";
 import { errorResponse, ok } from "../../../../../../../../lib/response";
 import { captureGenerationCompleted } from "../../../../../../../../lib/analytics";
-import { runGenerationPipeline } from "@oneatlas/ai";
-import type { PipelineContext } from "@oneatlas/ai";
-
-// onStageComplete callback type — mirrors RunPipelineOptions from workflow-engine
-type PipelineProgressCallback = (stage: string, ctx: PipelineContext) => void;
+import {
+  AIService,
+  type CompletionTier,
+} from "../../../../../../../../services/ai.service";
+import type { AIProvider } from "@oneatlas/ai";
 
 interface RouteContext {
   params: Promise<{ orgId: string; projectId: string }>;
 }
 
-// ── Shared helpers ────────────────────────────────────────────────────────────
+function createId(): string {
+  return globalThis.crypto.randomUUID();
+}
+const modifySchema = z.object({
+  prompt: z.string().min(3).max(4000),
+
+  model: z
+    .enum(["FAST", "SMART"])
+    .default("SMART"),
+});
+const generateSchema = z.object({
+  prompt: z.string().min(10).max(8000),
+
+  model: z.enum(["FAST", "SMART"]).default("SMART"),
+
+  mode: z.enum(["generate", "modify"]).default("generate"),
+
+  regenerateParts: z
+    .array(z.enum(["schema", "pages", "api", "workflows", "all"]))
+    .default(["all"]),
+});
+
+const GENERATION_SYSTEM_PROMPT = `You are OneAtlas, an expert full-stack code generator.
+Generate a complete, production-ready web application based on the user's prompt.
+
+Respond ONLY with a JSON object matching this schema — no markdown, no explanation:
+{
+  "appId": string,
+  "appName": string,
+  "prismaSchema": string,
+  "files": [{ "filePath": string, "content": string, "fileType": string, "entityName"?: string }],
+  "routeConfig": { "appId": string, "appName": string, "defaultRoute": string, "routes": [], "sidebarNav": [] },
+  "entitySchemas": [],
+  "generatedAt": string,
+  "validation": { "valid": true, "issues": [] }
+}`;
+
+function providerFromEnv(): AIProvider {
+  const value = (
+    process.env.AI_DEFAULT_PROVIDER ||
+    process.env.AI_FALLBACK_PROVIDER ||
+    "google"
+  ).toLowerCase();
+  if (
+    value === "anthropic" ||
+    value === "openai" ||
+    value === "google" ||
+    value === "deepseek" ||
+    value === "groq" ||
+    value === "openrouter" ||
+    value === "mistral"
+  ) {
+    return value;
+  }
+  return "google";
+}
+
+const aiService = new AIService();
+
+function buildPrompt(
+  prompt: string,
+  regenerateParts: string[],
+  appName: string,
+): string {
+  return [
+    `App name: ${appName}`,
+    `Regenerate parts: ${regenerateParts.join(", ")}`,
+    "",
+    prompt,
+  ].join("\n");
+}
+function normalizeGeneratedResult(
+  result: Partial<GenerationResult>,
+  projectId: string,
+  prompt: string,
+): GenerationResult {
+  const appId =
+    typeof result.appId === "string" && result.appId.trim()
+      ? result.appId.trim()
+      : projectId;
+  const appName =
+    typeof result.appName === "string" && result.appName.trim()
+      ? result.appName.trim()
+      : prompt.slice(0, 60) || "OneAtlas App";
+  const files = Array.isArray(result.files) ? result.files : [];
+  const entitySchemas = Array.isArray(result.entitySchemas)
+    ? result.entitySchemas
+    : [];
+  const routeConfig =
+    result.routeConfig && typeof result.routeConfig === "object"
+      ? result.routeConfig
+      : { appId, appName, defaultRoute: "/", routes: [], sidebarNav: [] };
+
+  return {
+    appId,
+    appName,
+    prismaSchema:
+      typeof result.prismaSchema === "string" ? result.prismaSchema : "",
+    files,
+    routeConfig,
+    entitySchemas,
+    generatedAt:
+      typeof result.generatedAt === "string"
+        ? result.generatedAt
+        : new Date().toISOString(),
+    validation:
+      result.validation && typeof result.validation === "object"
+        ? result.validation
+        : { valid: true, issues: [] },
+  };
+}
+
+function countFiles(
+  files: Array<{ fileType?: string }>,
+  fileType: string,
+): number {
+  return files.filter((file) => file.fileType === fileType).length;
+}
 
 function sseHeaders() {
   return {
@@ -37,55 +160,28 @@ function sseHeaders() {
   };
 }
 
-function countFiles(files: Array<{ fileType?: string }>, fileType: string): number {
-  return files.filter((f) => f.fileType === fileType).length;
-}
-
-const STAGE_PROGRESS: Record<string, { label: string; pct: number }> = {
-  entity_schema_gen:    { label: "Extracting entities…",          pct: 10 },
-  prisma_schema_gen:    { label: "Building database schema…",     pct: 20 },
-  page_generation:      { label: "Generating pages…",             pct: 35 },
-  api_generation:       { label: "Generating API routes…",        pct: 50 },
-  support_generation:   { label: "Generating support files…",     pct: 60 },
-  workflow_generation:  { label: "Generating workflows…",         pct: 70 },
-  component_generation: { label: "Generating components…",        pct: 80 },
-  layout_generation:    { label: "Building layout & navigation…", pct: 88 },
-  packaging:            { label: "Packaging result…",             pct: 93 },
-  compile_validation:   { label: "Validating & repairing…",       pct: 97 },
-  deployment_handoff:   { label: "Queuing for deployment…",       pct: 99 },
-};
-
-// ── Schemas ───────────────────────────────────────────────────────────────────
-
-const generateSchema = z.object({
-  prompt: z.string().min(10).max(8000),
-  model: z.enum(["FAST", "SMART"]).default("SMART"),
-  regenerateParts: z
-    .array(z.enum(["schema", "pages", "api", "workflows", "all"]))
-    .default(["all"]),
-});
-
-const patchSchema = z.object({
-  parts: z
-    .array(z.enum(["schema", "pages", "api", "workflows", "all"]))
-    .min(1)
-    .default(["all"]),
-  atlasMessage: z.string().min(1).max(4000).optional(),
-});
-
-// ── GET — fetch current status ────────────────────────────────────────────────
-
+// ── GET — fetch current status/metadata ───────────────────────────────────────
 export async function GET(req: NextRequest, { params }: RouteContext) {
   try {
     const { orgId, projectId } = await params;
     const auth = await requireOrgMember(orgId, "MEMBER");
 
+    // Verify project
     const project = await prisma.project.findUnique({
       where: { id: projectId },
-      select: { id: true, orgId: true, status: true, metadata: true, generatedCode: true, updatedAt: true },
+      select: {
+        id: true,
+        orgId: true,
+        status: true,
+        metadata: true,
+        generatedCode: true,
+        updatedAt: true,
+      },
     });
 
-    if (!project || project.orgId !== auth.orgId) throw new NotFoundError("Project");
+    if (!project || project.orgId !== auth.orgId) {
+      throw new NotFoundError("Project");
+    }
 
     const meta = (project.metadata as Record<string, unknown>) ?? {};
 
@@ -102,9 +198,37 @@ export async function GET(req: NextRequest, { params }: RouteContext) {
   }
 }
 
-// ── POST — full generation ────────────────────────────────────────────────────
+function buildModifyPrompt(
+  currentApp: unknown,
+  prompt: string
+): string {
+  return `
+You are modifying an existing application.
 
+CURRENT APPLICATION:
+
+${JSON.stringify(currentApp, null, 2)}
+
+MODIFICATION REQUEST:
+
+${prompt}
+
+Rules:
+
+- This application already exists.
+- Do NOT redesign it.
+- Do NOT remove features.
+- Do NOT rename routes.
+- Do NOT regenerate unrelated files.
+- Only modify files required for the request.
+- Preserve all existing functionality.
+- Return a complete GenerationResult JSON.
+`;
+}
+
+// ── POST — trigger AI generation (SSE stream) ─────────────────────────────────
 export async function POST(req: NextRequest, { params }: RouteContext) {
+
   try {
     const { orgId, projectId } = await params;
     const auth = await requireOrgMember(orgId, "MEMBER");
@@ -115,12 +239,29 @@ export async function POST(req: NextRequest, { params }: RouteContext) {
       select: { id: true, orgId: true, status: true, metadata: true },
     });
 
-    if (!project || project.orgId !== auth.orgId) throw new NotFoundError("Project");
-    if (project.status === "DELETED") throw new NotFoundError("Project");
+    if (!project || project.orgId !== auth.orgId) {
+      throw new NotFoundError("Project");
+    }
+
+    if (project.status === "DELETED") {
+      throw new NotFoundError("Project");
+    }
 
     const meta = (project.metadata as Record<string, unknown>) ?? {};
-    if (meta.generationStatus === "running") {
-      throw new ConflictError("Generation is already in progress for this project.");
+    const generationStartedAt = meta.generationStartedAt
+      ? new Date(String(meta.generationStartedAt))
+      : null;
+
+    const isStale =
+      generationStartedAt &&
+      Date.now() - generationStartedAt.getTime() > 60 * 1000;
+
+    const generationStatus = String(meta.generationStatus ?? "idle");
+
+    if (generationStatus === "running" && !isStale) {
+      throw new ConflictError(
+        "Generation is already in progress for this project.",
+      );
     }
 
     await prisma.project.update({
@@ -145,230 +286,72 @@ export async function POST(req: NextRequest, { params }: RouteContext) {
     });
 
     const encoder = new TextEncoder();
-    const startTime = Date.now();
+    const provider = providerFromEnv();
+    const tier: CompletionTier = body.model === "FAST" ? "fast" : "smart";
+    const appId = projectId;
 
     const stream = new ReadableStream<Uint8Array>({
       async start(controller) {
-        let closed = false;
-
+        let controllerClosed = false;
         const send = (event: string, data: unknown) => {
-          if (closed) return;
-          try { controller.enqueue(encoder.encode(`event: ${event}\ndata: ${JSON.stringify(data)}\n\n`)); }
-          catch { closed = true; }
+          if (controllerClosed) return;
+          try {
+            controller.enqueue(
+              encoder.encode(
+                `event: ${event}\ndata: ${JSON.stringify(data)}\n\n`,
+              ),
+            );
+          } catch {
+            controllerClosed = true;
+          }
         };
 
+        const startTime = Date.now();
+
         try {
-          send("status",   { step: "init", message: "Starting AI generation pipeline…" });
-          send("progress", { pct: 0, phase: "understanding", label: "Understanding your prompt…" });
+          send("status", { step: "init", message: "Starting AI generation…" });
+          send("progress", { phase: "init", completed: 0, total: 3 });
+          send("status", {
+            step: "generation",
+            message: `Generating application blueprint with ${provider}…`,
+          });
+          send("progress", { phase: "generation", completed: 1, total: 3 });
 
-          const result = await (runGenerationPipeline as any)(
-            body.prompt,
+          const generated = await aiService.completeJson<
+            Partial<GenerationResult>
+          >({
+            prompt: buildPrompt(body.prompt, body.regenerateParts, appId),
+            provider,
+            tier,
+            systemPrompt: GENERATION_SYSTEM_PROMPT,
+            maxTokens: 12_000,
+            temperature: 0.2,
+          });
+
+          const generatedCode = normalizeGeneratedResult(
+            generated,
             projectId,
-            auth.orgId,
-            {
-              onStageComplete: (stage: string, _ctx: PipelineContext) => {
-                const p = STAGE_PROGRESS[stage];
-                if (p) {
-                  send("status",   { step: stage, message: p.label });
-                  send("progress", { pct: p.pct, phase: stage, label: p.label });
-                }
-              },
-            } satisfies { onStageComplete: PipelineProgressCallback }
-          ) as GenerationResult;
+            body.prompt,
+          );
 
-          send("status",   { step: "saving", message: "Saving generated files…" });
-          send("progress", { pct: 98, phase: "saving", label: "Saving files to project…" });
+          send("status", {
+            step: "saving",
+            message: "Saving files to project…",
+          });
+          send("progress", { phase: "saving", completed: 2, total: 3 });
 
           await prisma.project.update({
             where: { id: projectId },
             data: {
-              generatedCode: result as any,
+              generatedCode: generatedCode as any,
               prompt: body.prompt,
               metadata: {
                 ...(meta as object),
                 generationStatus: "done",
-                generatedAt: result.generatedAt,
+                generatedAt: generatedCode.generatedAt,
                 generationPrompt: body.prompt,
-                generationModel: body.model,
-              } as any,
-            },
-          });
-          console.log(
-            "[GEN RESULT]",
-            JSON.stringify(result, null, 2)
-          );
-
-          const pageCount     = countFiles(result.files as Array<{ fileType?: string }>, "page");
-          const apiRouteCount = countFiles(result.files as Array<{ fileType?: string }>, "api-route");
-
-          await createAuditLog({
-            orgId: auth.orgId,
-            userId: auth.userId,
-            projectId,
-            action: "project.generation.completed",
-            metadata: { model: body.model, pageCount },
-          });
-
-          captureGenerationCompleted({
-            distinctId: auth.userId,
-            orgId: auth.orgId,
-            projectId,
-            model: body.model.toLowerCase() as any,
-            provider: "pipeline",
-            cached: false,
-            latencyMs: Date.now() - startTime,
-            pageCount,
-            apiRouteCount,
-            tier: body.model === "FAST" ? "fast" : "smart",
-          });
-
-          send("done", {
-            projectId,
-            generatedAt: result.generatedAt,
-            model: body.model,
-            generationStatus: "done",
-            summary: { pages: pageCount, apiRoutes: apiRouteCount },
-            buildStatus: "skipped",
-            previewStartupStatus: "skipped",
-            previewUrl: undefined,
-          });
-          send("progress", { pct: 100, phase: "complete", label: "Done!" });
-
-        } catch (error) {
-          const message = error instanceof Error ? error.message : "Unknown error";
-          await prisma.project.update({
-            where: { id: projectId },
-            data: {
-              metadata: {
-                ...(meta as object),
-                generationStatus: "failed",
-                generationError: message,
-              } as any,
-            },
-          });
-          send("error", { message });
-        } finally {
-          closed = true;
-          try { controller.close(); } catch { /* ignore */ }
-        }
-      },
-    });
-
-    return new Response(stream, { headers: sseHeaders() });
-  } catch (error) {
-    return errorResponse(error);
-  }
-}
-
-// ── PATCH — incremental regeneration (Atlas AI Apply) ────────────────────────
-
-function mergeGeneratedFiles(
-  existing: GeneratedFile[],
-  incoming: GeneratedFile[],
-): GeneratedFile[] {
-  const incomingPaths = new Set(incoming.map((f) => f.filePath));
-  return [
-    ...existing.filter((f) => !incomingPaths.has(f.filePath)),
-    ...incoming,
-  ];
-}
-
-export async function PATCH(req: NextRequest, { params }: RouteContext) {
-  try {
-    const { orgId, projectId } = await params;
-    const auth = await requireOrgMember(orgId, "MEMBER");
-    const body = patchSchema.parse(await req.json());
-
-    const project = await prisma.project.findUnique({
-      where: { id: projectId },
-      select: { id: true, orgId: true, status: true, prompt: true, generatedCode: true, metadata: true },
-    });
-
-    if (!project || project.orgId !== auth.orgId) throw new NotFoundError("Project");
-    if (!project.generatedCode) {
-      throw new ConflictError("No generated code yet. Run full generation first.");
-    }
-
-    const meta = (project.metadata as Record<string, unknown>) ?? {};
-    if (meta.generationStatus === "running") {
-      throw new ConflictError("Generation already in progress.");
-    }
-
-    const existingResult = project.generatedCode as GenerationResult;
-
-    // Enrich the original prompt with the Atlas AI change request
-    const enrichedPrompt = body.atlasMessage
-      ? `${project.prompt ?? ""}\n\nApply this change: ${body.atlasMessage}`
-      : project.prompt ?? "";
-
-    await prisma.project.update({
-      where: { id: projectId },
-      data: {
-        metadata: {
-          ...(meta as object),
-          generationStatus: "running",
-          incrementalStartedAt: new Date().toISOString(),
-          incrementalParts: body.parts,
-        } as any,
-      },
-    });
-
-    const encoder = new TextEncoder();
-    const startTime = Date.now();
-
-    const stream = new ReadableStream<Uint8Array>({
-      async start(controller) {
-        let closed = false;
-
-        const send = (event: string, data: unknown) => {
-          if (closed) return;
-          try { controller.enqueue(encoder.encode(`event: ${event}\ndata: ${JSON.stringify(data)}\n\n`)); }
-          catch { closed = true; }
-        };
-
-        try {
-          send("status",   { step: "init", message: "Starting incremental regeneration…" });
-          send("progress", { pct: 0, phase: "init", label: "Preparing…" });
-
-          const result = await (runGenerationPipeline as any)(
-            enrichedPrompt,
-            projectId,
-            auth.orgId,
-            {
-              onStageComplete: (stage: string, _ctx: PipelineContext) => {
-                const p = STAGE_PROGRESS[stage];
-                if (p) {
-                  send("status",   { step: stage, message: p.label });
-                  send("progress", { pct: Math.round(p.pct * 0.9), phase: stage, label: p.label });
-                }
-              },
-            } satisfies { onStageComplete: PipelineProgressCallback }
-          ) as GenerationResult;
-
-          send("status",   { step: "merging", message: "Merging changes into project…" });
-          send("progress", { pct: 96, phase: "merging", label: "Merging changes…" });
-
-          const mergedFiles = mergeGeneratedFiles(
-            existingResult.files as GeneratedFile[],
-            result.files as GeneratedFile[]
-          );
-
-          const updatedResult: GenerationResult = {
-            ...result,
-            files: mergedFiles,
-            generatedAt: new Date().toISOString(),
-          };
-
-          await prisma.project.update({
-            where: { id: projectId },
-            data: {
-              generatedCode: updatedResult as any,
-              metadata: {
-                ...(meta as object),
-                generationStatus: "done",
-                generatedAt: updatedResult.generatedAt,
-                lastIncrementalParts: body.parts,
-                lastAtlasMessage: body.atlasMessage,
+                generationProvider: provider,
+                generationModel: tier,
               } as any,
             },
           });
@@ -379,32 +362,59 @@ export async function PATCH(req: NextRequest, { params }: RouteContext) {
             projectId,
             action: "project.generation.completed",
             metadata: {
-              type: "incremental",
-              parts: body.parts,
-              atlasMessage: body.atlasMessage,
-              latencyMs: Date.now() - startTime,
+              provider,
+              model: tier,
+              pageCount: countFiles(
+                generatedCode.files as Array<{ fileType?: string }>,
+                "page",
+              ),
             },
           });
 
-          const pageCount    = countFiles(mergedFiles as Array<{ fileType?: string }>, "page");
-          const apiCount     = countFiles(mergedFiles as Array<{ fileType?: string }>, "api-route");
+          captureGenerationCompleted({
+            distinctId: auth.userId,
+            orgId: auth.orgId,
+            projectId,
+            model: tier,
+            provider,
+            cached: false,
+            latencyMs: Date.now() - startTime,
+            pageCount: countFiles(
+              generatedCode.files as Array<{ fileType?: string }>,
+              "page",
+            ),
+            apiRouteCount: countFiles(
+              generatedCode.files as Array<{ fileType?: string }>,
+              "api-route",
+            ),
+            tier,
+          });
 
           send("done", {
             projectId,
-            generatedAt: updatedResult.generatedAt,
-            partsRegenerated: body.parts,
+            generatedAt: generatedCode.generatedAt,
+            provider,
+            model: tier,
             generationStatus: "done",
             summary: {
-              pages: pageCount,
-              apiRoutes: apiCount,
-              filesUpdated: result.files.length,
-              totalFiles: mergedFiles.length,
+              pages: countFiles(
+                generatedCode.files as Array<{ fileType?: string }>,
+                "page",
+              ),
+              apiRoutes: countFiles(
+                generatedCode.files as Array<{ fileType?: string }>,
+                "api-route",
+              ),
             },
+            workspacePath: undefined,
+            buildStatus: "skipped",
+            previewStartupStatus: "skipped",
+            previewUrl: undefined,
           });
-          send("progress", { pct: 100, phase: "complete", label: "Done!" });
-
+          send("progress", { phase: "complete", completed: 3, total: 3 });
         } catch (error) {
-          const message = error instanceof Error ? error.message : "Unknown error";
+          const message =
+            error instanceof Error ? error.message : "Unknown error";
           await prisma.project.update({
             where: { id: projectId },
             data: {
@@ -412,13 +422,19 @@ export async function PATCH(req: NextRequest, { params }: RouteContext) {
                 ...(meta as object),
                 generationStatus: "failed",
                 generationError: message,
+                generationEndedAt: new Date().toISOString(),
               } as any,
             },
           });
+
           send("error", { message });
         } finally {
-          closed = true;
-          try { controller.close(); } catch { /* ignore */ }
+          controllerClosed = true;
+          try {
+            controller.close();
+          } catch {
+            // Ignore double-close.
+          }
         }
       },
     });
@@ -427,4 +443,243 @@ export async function PATCH(req: NextRequest, { params }: RouteContext) {
   } catch (error) {
     return errorResponse(error);
   }
-} 
+}
+
+
+  export async function PATCH(
+  req: NextRequest,
+  { params }: RouteContext
+) {
+   try {
+    const { orgId, projectId } = await params;
+    const auth = await requireOrgMember(orgId, "MEMBER");
+    const body = modifySchema.parse(
+  await req.json()
+);
+
+    const project = await prisma.project.findUnique({
+      where: { id: projectId },
+      select: {
+  id: true,
+  orgId: true,
+  status: true,
+  metadata: true,
+  generatedCode: true,
+},
+    });
+
+    if (!project || project.orgId !== auth.orgId) {
+      throw new NotFoundError("Project");
+    }
+
+    if (project.status === "DELETED") {
+      throw new NotFoundError("Project");
+    }
+
+    const meta = (project.metadata as Record<string, unknown>) ?? {};
+    const generationStartedAt = meta.generationStartedAt
+      ? new Date(String(meta.generationStartedAt))
+      : null;
+
+    const isStale =
+      generationStartedAt &&
+      Date.now() - generationStartedAt.getTime() > 60 * 1000;
+
+    const generationStatus = String(meta.generationStatus ?? "idle");
+
+    if (generationStatus === "running" && !isStale) {
+      throw new ConflictError(
+        "Generation is already in progress for this project.",
+      );
+    }
+
+    await prisma.project.update({
+      where: { id: projectId },
+      data: {
+        metadata: {
+          ...(meta as object),
+          generationStatus: "running",
+          generationStartedAt: new Date().toISOString(),
+          generationPrompt: body.prompt,
+        } as any,
+        status: "ACTIVE",
+      },
+    });
+
+    await createAuditLog({
+  orgId: auth.orgId,
+  userId: auth.userId,
+  projectId,
+  action: "project.modification.started",
+  metadata: {
+    prompt: body.prompt,
+  },
+});
+
+    const encoder = new TextEncoder();
+    const provider = providerFromEnv();
+    const tier: CompletionTier = body.model === "FAST" ? "fast" : "smart";
+    const MODIFY_SYSTEM_PROMPT = `
+You are modifying an existing OneAtlas application.
+
+Preserve all existing functionality.
+
+Only apply the requested change.
+
+Do not redesign or rebuild the application.
+
+Return a complete updated GenerationResult JSON.
+`;
+
+    const stream = new ReadableStream<Uint8Array>({
+      async start(controller) {
+        let controllerClosed = false;
+        const send = (event: string, data: unknown) => {
+          if (controllerClosed) return;
+          try {
+            controller.enqueue(
+              encoder.encode(
+                `event: ${event}\ndata: ${JSON.stringify(data)}\n\n`,
+              ),
+            );
+          } catch {
+            controllerClosed = true;
+          }
+        };
+
+        const startTime = Date.now();
+
+        try {
+          send("status", { step: "init", message: "Starting AI generation…" });
+          send("progress", { phase: "init", completed: 0, total: 3 });
+          send("status", {
+            step: "generation",
+            message: `Generating application blueprint with ${provider}…`,
+          });
+          send("progress", { phase: "generation", completed: 1, total: 3 });
+
+          const generated = await aiService.completeJson<
+            Partial<GenerationResult>
+          >({
+            prompt: buildModifyPrompt(
+  project.generatedCode,
+  body.prompt
+),
+            provider,
+            tier,
+            systemPrompt: MODIFY_SYSTEM_PROMPT,
+            maxTokens: 12_000,
+            temperature: 0.2,
+          });
+
+          const generatedCode = normalizeGeneratedResult(
+            generated,
+            projectId,
+            body.prompt,
+          );
+
+          send("status", {
+            step: "saving",
+            message: "Saving files to project…",
+          });
+          send("progress", { phase: "saving", completed: 2, total: 3 });
+
+          await prisma.project.update({
+            where: { id: projectId },
+            data: {
+              generatedCode: generatedCode as any,
+              prompt: body.prompt,
+              metadata: {
+                ...(meta as object),
+                generationStatus: "done",
+                generatedAt: generatedCode.generatedAt,
+                generationPrompt: body.prompt,
+                generationProvider: provider,
+                generationModel: tier,
+              } as any,
+            },
+          });
+
+          await createAuditLog({
+  orgId: auth.orgId,
+  userId: auth.userId,
+  projectId,
+  action: "project.modification.completed",
+});
+
+          captureGenerationCompleted({
+            distinctId: auth.userId,
+            orgId: auth.orgId,
+            projectId,
+            model: tier,
+            provider,
+            cached: false,
+            latencyMs: Date.now() - startTime,
+            pageCount: countFiles(
+              generatedCode.files as Array<{ fileType?: string }>,
+              "page",
+            ),
+            apiRouteCount: countFiles(
+              generatedCode.files as Array<{ fileType?: string }>,
+              "api-route",
+            ),
+            tier,
+          });
+
+          send("done", {
+            projectId,
+            generatedAt: generatedCode.generatedAt,
+            provider,
+            model: tier,
+            generationStatus: "done",
+            summary: {
+              pages: countFiles(
+                generatedCode.files as Array<{ fileType?: string }>,
+                "page",
+              ),
+              apiRoutes: countFiles(
+                generatedCode.files as Array<{ fileType?: string }>,
+                "api-route",
+              ),
+            },
+            workspacePath: undefined,
+            buildStatus: "skipped",
+            previewStartupStatus: "skipped",
+            previewUrl: undefined,
+          });
+          send("progress", { phase: "complete", completed: 3, total: 3 });
+        } catch (error) {
+          const message =
+            error instanceof Error ? error.message : "Unknown error";
+          await prisma.project.update({
+            where: { id: projectId },
+            data: {
+              metadata: {
+                ...(meta as object),
+                generationStatus: "failed",
+                generationError: message,
+                generationEndedAt: new Date().toISOString(),
+              } as any,
+            },
+          });
+
+          send("error", { message });
+        } finally {
+          controllerClosed = true;
+          try {
+            controller.close();
+          } catch {
+            // Ignore double-close.
+          }
+        }
+      },
+    });
+
+    return new Response(stream, { headers: sseHeaders() });
+  } catch (error) {
+    return errorResponse(error);
+  }
+
+
+
+}

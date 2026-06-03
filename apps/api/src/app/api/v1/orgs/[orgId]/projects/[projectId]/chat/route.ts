@@ -21,7 +21,10 @@ import { prisma } from "@oneatlas/db";
 import { NotFoundError } from "@oneatlas/shared";
 import { requireOrgMember } from "../../../../../../../../lib/auth";
 import { errorResponse, ok } from "../../../../../../../../lib/response";
-import { atlasConversationStore, type ChatMessage } from "../../../../../../../../services/atlas-conversation.service";
+import {
+  atlasConversationStore,
+  type ChatMessage,
+} from "../../../../../../../../services/atlas-conversation.service";
 import { AtlasAIService } from "../../../../../../../../services/atlas-ai.service";
 import type { GenerationResult } from "@oneatlas/shared";
 
@@ -39,7 +42,7 @@ const ChatRequestSchema = z.object({
         role: z.enum(["user", "assistant"]),
         content: z.string(),
         timestamp: z.string(),
-      })
+      }),
     )
     .optional(),
 });
@@ -92,7 +95,11 @@ export async function POST(req: NextRequest, { params }: RouteContext) {
     // Load the project to get its generated code as app context
     const project = await prisma.project.findUnique({
       where: { id: projectId },
-      select: { id: true, orgId: true, generatedCode: true },
+      select: {
+        id: true,
+        orgId: true,
+        generatedCode: true,
+      },
     });
 
     if (!project || project.orgId !== orgId) {
@@ -103,7 +110,13 @@ export async function POST(req: NextRequest, { params }: RouteContext) {
 
     // Use client-provided history if given, otherwise load from Redis
     let history: ChatMessage[] = body.history
-      ? body.history.map((m: { role: "user" | "assistant"; content: string; timestamp: string }) => ({ ...m }))
+      ? body.history.map(
+          (m: {
+            role: "user" | "assistant";
+            content: string;
+            timestamp: string;
+          }) => ({ ...m }),
+        )
       : await atlasConversationStore.get(projectId);
 
     // Append the new user message
@@ -125,7 +138,9 @@ export async function POST(req: NextRequest, { params }: RouteContext) {
           if (closed) return;
           try {
             controller.enqueue(
-              encoder.encode(`event: ${event}\ndata: ${JSON.stringify(data)}\n\n`)
+              encoder.encode(
+                `event: ${event}\ndata: ${JSON.stringify(data)}\n\n`,
+              ),
             );
           } catch {
             closed = true;
@@ -133,7 +148,10 @@ export async function POST(req: NextRequest, { params }: RouteContext) {
         };
 
         try {
-          send("status", { step: "thinking", message: "Atlas AI is thinking…" });
+          send("status", {
+            step: "thinking",
+            message: "Atlas AI is thinking…",
+          });
 
           // Call Atlas AI with full conversation history + app context
           const response = await atlasAI.chat(history, appContext, projectId);
@@ -162,17 +180,16 @@ export async function POST(req: NextRequest, { params }: RouteContext) {
             messageCount: history.length + 1,
           });
         } catch (error) {
-          console.error(
-            "[GENERATION ERROR FULL]",
-            error
-          );
-
-          send("error", {
-            message: error instanceof Error ? error.message : "Unknown error",
-          });
+          const message =
+            error instanceof Error ? error.message : "Unknown error";
+          send("error", { message });
         } finally {
           closed = true;
-          try { controller.close(); } catch { /* ignore */ }
+          try {
+            controller.close();
+          } catch {
+            /* ignore */
+          }
         }
       },
     });
