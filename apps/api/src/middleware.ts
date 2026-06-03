@@ -199,14 +199,27 @@ export default clerkMiddleware(async (auth, req: NextRequest) => {
   // are not forwarded. The frontend sends getToken() result as a Bearer JWT.
   // We verify it directly using Clerk's SDK and inject the session into headers.
   if (bearerToken && !bearerToken.startsWith("oa_")) {
+    console.log(
+      "[middleware] bearer token detected",
+      bearerToken.substring(0, 30) + "..."
+    );
     try {
+      console.log(
+        "[middleware] PK:",
+        process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY
+      );
+
       const clerkClient = createClerkClient({
         secretKey: process.env.CLERK_SECRET_KEY,
         publishableKey: process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY,
       });
+      console.log(
+        "[middleware] jwt key exists?",
+        !!process.env.CLERK_JWT_KEY
+      );
 
       const requestState = await clerkClient.authenticateRequest(req, {
-        jwtKey: process.env.CLERK_JWT_KEY,
+        acceptsToken: "session_token",
         authorizedParties: [
           "http://localhost:3000",
           "http://localhost:3001",
@@ -216,6 +229,10 @@ export default clerkMiddleware(async (auth, req: NextRequest) => {
           process.env.NEXT_PUBLIC_API_URL,
         ].filter(Boolean) as string[],
       });
+      console.log(
+        "[middleware] requestState",
+        requestState?.status
+      );
 
       if (requestState.status === "signed-in" && requestState.toAuth().userId) {
         const resolvedAuth = requestState.toAuth();
@@ -251,13 +268,25 @@ export default clerkMiddleware(async (auth, req: NextRequest) => {
         return res;
       }
     } catch (err) {
-      console.error("[middleware] Clerk JWT verification failed:", err);
-      // Fall through to cookie-based auth check
-    }
+      console.error(
+        "[middleware] Clerk JWT verification failed:",
+        err
+      );
+}
   }
 
+    console.log(
+      "[middleware] injected headers",
+      requestHeaders.get("x-clerk-user-id"),
+      requestHeaders.get("x-clerk-org-id")
+    );
   // Require valid Clerk session for all /api/v1/* routes (cookie-based, same-origin)
-  const session = await auth();
+    const session = await auth();
+    console.log(
+      "[middleware] auth() result",
+      session.userId,
+      session.orgId
+    );
   if (!session.userId) {
     log({
       requestId,

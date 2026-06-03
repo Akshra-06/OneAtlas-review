@@ -43,16 +43,21 @@ export class GroqProvider extends BaseProvider {
       messages.push({ role: 'system', content: request.systemPrompt });
     }
     messages.push({ role: 'user', content: request.prompt });
+    console.log("[GROQ MODEL]", model);
+    let completion;
 
-    const completion = await this.client.chat.completions.create({
-      model,
-      messages,
-      temperature: request.temperature ?? 0.2,
-      max_tokens: request.maxTokens,
-      // Groq JSON mode: instructs model to output JSON, but does NOT enforce schema shape.
-      // Shape validation + recovery happens in ValidationOrchestrator.
-      ...(request.schema ? { response_format: { type: 'json_object' } } : {}),
-    });
+    try {
+      completion = await this.client.chat.completions.create({
+        model,
+        messages,
+        temperature: request.temperature ?? 0.2,
+        max_tokens: request.maxTokens,
+        ...(request.schema ? { response_format: { type: 'json_object' } } : {}),
+      });
+    } catch (err) {
+      console.error("[GROQ ERROR FULL]", err);
+      throw err;
+    }
 
     // PRINCIPAL FIX: Use safe extractor to prevent "choices[0]" TypeErrors
     const content = SafeCompletionExtractor.extractOpenAI(completion, 'GROQ');

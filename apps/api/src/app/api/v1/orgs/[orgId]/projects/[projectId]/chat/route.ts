@@ -162,8 +162,14 @@ export async function POST(req: NextRequest, { params }: RouteContext) {
             messageCount: history.length + 1,
           });
         } catch (error) {
-          const message = error instanceof Error ? error.message : "Unknown error";
-          send("error", { message });
+          console.error(
+            "[GENERATION ERROR FULL]",
+            error
+          );
+
+          send("error", {
+            message: error instanceof Error ? error.message : "Unknown error",
+          });
         } finally {
           closed = true;
           try { controller.close(); } catch { /* ignore */ }

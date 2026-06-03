@@ -4,7 +4,10 @@
 // Consolidated entry point for simple AI completions.
 // Uses the consolidated provider instances under packages/ai/src/gateway/providers/
 // =============================================================================
-
+console.log(
+  "[AI] GROQ key exists?",
+  !!process.env.GROQ_API_KEY
+);
 import {
   AIProvider,
   AIProviderClient,

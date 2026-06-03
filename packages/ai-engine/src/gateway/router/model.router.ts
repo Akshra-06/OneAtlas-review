@@ -35,6 +35,15 @@ export class ModelRouter {
       openrouterKey: keys.openrouterKey || process.env.OPENROUTER_API_KEY,
       mistralKey: keys.mistralKey || process.env.MISTRAL_API_KEY
     };
+    console.log("Provider key status:", {
+      openai: !!activeKeys.openaiKey,
+      anthropic: !!activeKeys.anthropicKey,
+      gemini: !!activeKeys.geminiKey,
+      groq: !!activeKeys.groqKey,
+      deepseek: !!activeKeys.deepseekKey,
+      openrouter: !!activeKeys.openrouterKey,
+      mistral: !!activeKeys.mistralKey,
+    });
 
     if (activeKeys.openaiKey) this.providers.set('OPENAI', new OpenAIProvider({ apiKey: activeKeys.openaiKey }));
     if (activeKeys.groqKey) this.providers.set('GROQ', new GroqProvider({ apiKey: activeKeys.groqKey }));
@@ -44,6 +53,10 @@ export class ModelRouter {
     if (activeKeys.openrouterKey) this.providers.set('OPENROUTER', new OpenRouterProvider({ apiKey: activeKeys.openrouterKey }));
     if (activeKeys.mistralKey) this.providers.set('MISTRAL', new MistralProvider({ apiKey: activeKeys.mistralKey }));
 
+    console.log(
+      "Registered providers:",
+      Array.from(this.providers.keys())
+    );
     logger.info('ModelRouter', 'INITIALIZED', `Registered ${this.providers.size} providers.`, {
       available: Array.from(this.providers.keys())
     });
