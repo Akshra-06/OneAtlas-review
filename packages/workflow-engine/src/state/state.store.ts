@@ -40,30 +40,23 @@ class StateStore {
     return `gen:run:${runId}`;
   }
 
-  private async writeRedis(
-    key: string,
-    value: unknown,
-  ): Promise<void> {
+  private async writeRedis(key: string, value: unknown): Promise<void> {
     if (!this.redisUrl || !this.redisToken) {
       logger.warn('StateStore', 'REDIS_UNCONFIGURED', `Redis unconfigured. Skipping write for key: ${key}`);
       return;
     }
-
-    await fetch(
-      `${this.redisUrl}/set/${key}`,
-      {
+    try {
+      await fetch(`${this.redisUrl}/set/${key}`, {
         method: 'POST',
         headers: {
           Authorization: `Bearer ${this.redisToken}`,
-          'Content-Type':
-            'application/json',
+          'Content-Type': 'application/json',
         },
-        body: JSON.stringify({
-          value: JSON.stringify(value),
-          ex: REDIS_TTL_SECONDS,
-        }),
-      },
-    );
+        body: JSON.stringify({ value: JSON.stringify(value), ex: REDIS_TTL_SECONDS }),
+      });
+    } catch {
+      logger.warn('StateStore', 'REDIS_WRITE_FAILED', `Redis write failed for key: ${key}. Continuing without cache.`);
+    }
   }
 
   async init(
@@ -93,17 +86,18 @@ class StateStore {
       state,
     );
 
-    await fetch(
-      `${this.getBaseUrl()}/api/internal/generation-runs`,
-      {
-        method: 'POST',
-        headers: {
-          'Content-Type':
-            'application/json',
+    try {
+      await fetch(
+        `${this.getBaseUrl()}/api/internal/generation-runs`,
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(state),
         },
-        body: JSON.stringify(state),
-      },
-    );
+      );
+    } catch {
+      // Internal API unavailable in dev — non-critical, continue
+    }
 
     return runId;
   }
@@ -129,17 +123,21 @@ class StateStore {
       updated,
     );
 
-    await fetch(
-      `${this.getBaseUrl()}/api/internal/generation-runs`,
-      {
-        method: 'POST',
-        headers: {
-          'Content-Type':
-            'application/json',
+    try {
+      await fetch(
+        `${this.getBaseUrl()}/api/internal/generation-runs`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type':
+              'application/json',
+          },
+          body: JSON.stringify(updated),
         },
-        body: JSON.stringify(updated),
-      },
-    );
+      );
+    } catch {
+      // Internal API unavailable in dev — non-critical, continue
+    }
   }
 
   async updateStage(

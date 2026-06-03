@@ -18,12 +18,17 @@ import {
   retryService,
 } from '../optimization/retry.service';
 
+export interface PipelineExecuteOptions {
+  onStageComplete?: (stage: string, ctx: PipelineContext) => void;
+}
+
 class PipelineExecutor {
   async execute(
     runId: string,
     understanding: AppUnderstanding,
     projectId: string,
     orgId: string,
+    options: PipelineExecuteOptions = {},
   ): Promise<GenerationResult> {
     let context: PipelineContext = {
       runId,
@@ -90,6 +95,10 @@ class PipelineExecutor {
                 ?.length ?? 0,
           },
         );
+
+        // Fire progress callback after each step so callers can stream SSE events
+        options.onStageComplete?.(step.stage, context);
+
       } catch (error) {
         const message =
           error instanceof Error
