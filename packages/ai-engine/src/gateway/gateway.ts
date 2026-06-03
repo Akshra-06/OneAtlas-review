@@ -16,7 +16,7 @@ import {
   UsageRecord,
   AIGatewayError,
   diagnoseError,
-  LegacyModelTier
+  LegacyModelTier,
 } from "./types/gateway.types";
 import { ModelTier } from "./config/models.config";
 
@@ -34,12 +34,12 @@ import { trackUsage } from "./usage";
 // ── Default gateway config ────────────────────────────────────────────────────
 
 const DEFAULT_CONFIG: GatewayConfig = {
-  defaultProvider:        "groq",
-  fallbackProvider:       "openrouter",
-  cacheEnabled:           process.env.AI_CACHE_ENABLED !== "false",
-  usageTrackingEnabled:   process.env.AI_USAGE_TRACKING !== "false",
-  maxRetries:             2,
-  retryBaseDelayMs:       500,
+  defaultProvider: "groq",
+  fallbackProvider: "openrouter",
+  cacheEnabled: process.env.AI_CACHE_ENABLED !== "false",
+  usageTrackingEnabled: process.env.AI_USAGE_TRACKING !== "false",
+  maxRetries: 2,
+  retryBaseDelayMs: 500,
 };
 
 const FALLBACK_PRIORITY: AIProvider[] = [
@@ -73,13 +73,20 @@ function isProviderConfigured(provider: AIProvider): boolean {
 
 function buildProvider(name: AIProvider): AIProviderClient {
   switch (name) {
-    case "anthropic":  return new ClaudeProvider();
-    case "openai":     return new OpenAIProvider();
-    case "google":     return new GeminiProvider();
-    case "deepseek":   return new DeepSeekProvider();
-    case "groq":       return new GroqProvider();
-    case "openrouter": return new OpenRouterProvider();
-    case "mistral":    return new MistralProvider();
+    case "anthropic":
+      return new ClaudeProvider();
+    case "openai":
+      return new OpenAIProvider();
+    case "google":
+      return new GeminiProvider();
+    case "deepseek":
+      return new DeepSeekProvider();
+    case "groq":
+      return new GroqProvider();
+    case "openrouter":
+      return new OpenRouterProvider();
+    case "mistral":
+      return new MistralProvider();
   }
 }
 
@@ -88,8 +95,10 @@ function inferProviderFromModel(model?: string): AIProvider | undefined {
   if (!value) return undefined;
   if (value.includes("gemini") || value.includes("google")) return "google";
   if (value.includes("deepseek")) return "deepseek";
-  if (value.includes("claude") || value.includes("anthropic")) return "anthropic";
-  if (value.includes("gpt") || value.includes("o1") || value.includes("openai")) return "openai";
+  if (value.includes("claude") || value.includes("anthropic"))
+    return "anthropic";
+  if (value.includes("gpt") || value.includes("o1") || value.includes("openai"))
+    return "openai";
   if (value.includes("groq") || value.includes("llama")) return "groq";
   if (value.includes("openrouter")) return "openrouter";
   if (value.includes("mistral")) return "mistral";
@@ -102,7 +111,12 @@ async function withRetry<T>(
   fn: () => Promise<T>,
   maxRetries: number,
   baseDelayMs: number,
-  onRetry?: (event: { attempt: number; maxRetries: number; delayMs: number; diagnostic: ErrorDiagnostic }) => void,
+  onRetry?: (event: {
+    attempt: number;
+    maxRetries: number;
+    delayMs: number;
+    diagnostic: ErrorDiagnostic;
+  }) => void,
 ): Promise<T> {
   let lastErr: unknown;
 
@@ -113,13 +127,20 @@ async function withRetry<T>(
       lastErr = err;
 
       const diagnosis = diagnoseError(err);
-      
-      console.warn(`[AIGateway Retry] Attempt ${attempt} failed. Diagnosis: ${diagnosis.code} (Retryable: ${diagnosis.retryable})`);
+
+      console.warn(
+        `[AIGateway Retry] Attempt ${attempt} failed. Diagnosis: ${diagnosis.code} (Retryable: ${diagnosis.retryable})`,
+      );
 
       if (!diagnosis.retryable || attempt === maxRetries) break;
 
       const delay = baseDelayMs * Math.pow(2, attempt); // exponential backoff
-      onRetry?.({ attempt: attempt + 1, maxRetries, delayMs: delay, diagnostic: diagnosis });
+      onRetry?.({
+        attempt: attempt + 1,
+        maxRetries,
+        delayMs: delay,
+        diagnostic: diagnosis,
+      });
       await new Promise((r) => setTimeout(r, delay));
     }
   }
@@ -143,7 +164,9 @@ export class AIGateway {
 
     // 1. Cache check
     if (this.config.cacheEnabled && req.cacheKey) {
-      const cached = await getCachedResponse(req.cacheKey) as unknown as CompletionResponse | null;
+      const cached = (await getCachedResponse(
+        req.cacheKey,
+      )) as unknown as CompletionResponse | null;
       if (cached) {
         return { ...cached, cached: true, latencyMs: 0 };
       }
@@ -153,13 +176,24 @@ export class AIGateway {
     const requestedProvider = req.provider ?? inferProviderFromModel(req.model);
 
     const activeProviders = FALLBACK_PRIORITY.filter(isProviderConfigured);
-    let providers = requestedProvider && isProviderConfigured(requestedProvider)
-      ? [requestedProvider, ...activeProviders.filter((p) => p !== requestedProvider)]
-      : activeProviders;
+    console.log("ACTIVE PROVIDERS:", activeProviders);
+    let providers =
+      requestedProvider && isProviderConfigured(requestedProvider)
+        ? [
+            requestedProvider,
+            ...activeProviders.filter((p) => p !== requestedProvider),
+          ]
+        : activeProviders;
 
-    if (providers.length === 0 && isProviderConfigured(this.config.defaultProvider)) {
+    if (
+      providers.length === 0 &&
+      isProviderConfigured(this.config.defaultProvider)
+    ) {
       providers = [this.config.defaultProvider];
-      if (this.config.fallbackProvider && isProviderConfigured(this.config.fallbackProvider)) {
+      if (
+        this.config.fallbackProvider &&
+        isProviderConfigured(this.config.fallbackProvider)
+      ) {
         providers.push(this.config.fallbackProvider);
       }
     }
@@ -176,7 +210,9 @@ export class AIGateway {
       );
     }
 
-    console.log(`[AIGateway] Determined provider search path: ${providers.join(" -> ")}`);
+    console.log(
+      `[AIGateway] Determined provider search path: ${providers.join(" -> ")}`,
+    );
 
     let response: CompletionResponse | null = null;
     let lastError: unknown;
@@ -185,7 +221,9 @@ export class AIGateway {
       const providerName = providers[i];
       if (!providerName) continue;
       try {
-        console.log(`[AIGateway] Trying provider ${providerName} (Attempt ${i + 1}/${providers.length})...`);
+        console.log(
+          `[AIGateway] Trying provider ${providerName} (Attempt ${i + 1}/${providers.length})...`,
+        );
         const client = buildProvider(providerName);
         req.onProviderSelected?.({
           provider: providerName,
@@ -211,25 +249,33 @@ export class AIGateway {
           },
           this.config.maxRetries,
           this.config.retryBaseDelayMs,
-          (event) => req.onProviderRetry?.({
-            provider: providerName,
-            ...event,
-          }),
+          (event) =>
+            req.onProviderRetry?.({
+              provider: providerName,
+              ...event,
+            }),
         );
 
-        console.log(`[AIGateway] Provider ${providerName} completed successfully.`);
+        console.log(
+          `[AIGateway] Provider ${providerName} completed successfully.`,
+        );
         break; // success — stop trying providers
       } catch (err: any) {
         lastError = err;
         const nextProviderName = providers[i + 1];
         const diagnosis = diagnoseError(err);
-        console.error(`[AIGateway] Provider ${providerName} failed: ${err instanceof Error ? err.message : String(err)}`);
-        
+        console.error(
+          `[AIGateway] Provider ${providerName} failed: ${err instanceof Error ? err.message : String(err)}`,
+        );
+
         if (req.onFallback) {
           try {
             req.onFallback(providerName, err, nextProviderName, diagnosis);
           } catch (callbackErr) {
-            console.error("[AIGateway] Failed to execute onFallback callback:", callbackErr);
+            console.error(
+              "[AIGateway] Failed to execute onFallback callback:",
+              callbackErr,
+            );
           }
         }
       }
@@ -247,21 +293,25 @@ export class AIGateway {
 
     // 3. Cache the successful response
     if (this.config.cacheEnabled && req.cacheKey) {
-      void setCachedResponse(req.cacheKey, response as any, req.cacheTtl ?? 3600);
+      void setCachedResponse(
+        req.cacheKey,
+        response as any,
+        req.cacheTtl ?? 3600,
+      );
     }
 
     // 4. Usage tracking (fire-and-forget)
     if (this.config.usageTrackingEnabled) {
       const usageRecord: UsageRecord = {
-        provider:         response.provider,
-        model:            response.model,
-        promptTokens:     response.usage.promptTokens,
+        provider: response.provider,
+        model: response.model,
+        promptTokens: response.usage.promptTokens,
         completionTokens: response.usage.completionTokens,
-        totalTokens:      response.usage.totalTokens,
+        totalTokens: response.usage.totalTokens,
         tier,
-        cached:           false,
-        latencyMs:        response.latencyMs,
-        timestamp:        new Date().toISOString(),
+        cached: false,
+        latencyMs: response.latencyMs,
+        timestamp: new Date().toISOString(),
       };
       void trackUsage(usageRecord);
     }

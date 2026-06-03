@@ -49,7 +49,9 @@ export type AuditAction =
   | "integration.disconnected"
   // API Key
   | "api_key.created"
-  | "api_key.revoked";
+  | "api_key.revoked"
+  | "project.modification.started"
+  | "project.modification.completed";
 
 interface CreateAuditLogParams {
   orgId: string;

@@ -45,10 +45,10 @@ export const MODELS_CONFIG = {
   },
 
   OPENROUTER: {
-    FAST: "meta-llama/llama-4-scout:free",
-    CAPABLE: "meta-llama/llama-4-maverick:free",
-    REASONING: "deepseek/deepseek-r1:free",
-  },
+  FAST: "google/gemini-2.5-flash",
+  CAPABLE: "google/gemini-2.5-flash",
+  REASONING: "google/gemini-2.5-flash",
+},
 } as const;
 
 export type ProviderName = keyof typeof MODELS_CONFIG;
@@ -258,16 +258,17 @@ export const MODEL_CAPABILITIES: Record<string, ModelCapabilities> = {
     maxContextWindow: 512_000,
     maxOutputTokens: 16_384,
   },
-  "meta-llama/llama-4-maverick:free": {
-    supportsStreaming: true,
-    supportsStructuredOutputs: true,
-    supportsToolCalling: true,
-    supportsJSONMode: true,
-    supportsLongContext: true,
-    structuredOutputReliability: "MEDIUM",
-    maxContextWindow: 1_000_000,
-    maxOutputTokens: 32_768,
-  },
+  "google/gemini-2.5-flash": {
+  supportsVision: true,
+  supportsStructuredOutputs: true,
+  supportsToolCalling: true,
+  supportsStreaming: true,
+  supportsJSONMode: true,
+  supportsLongContext: true,
+  structuredOutputReliability: "HIGH",
+  maxContextWindow: 1000000,
+  maxOutputTokens: 8192,
+},
   "deepseek/deepseek-r1:free": {
     supportsStreaming: true,
     supportsReasoning: true,
@@ -316,7 +317,10 @@ export const COST_TABLE: Record<string, ModelCost> = {
 
   // OpenRouter
   "meta-llama/llama-4-scout:free": { inputPer1M: 0, outputPer1M: 0 },
-  "meta-llama/llama-4-maverick:free": { inputPer1M: 0, outputPer1M: 0 },
+  "google/gemini-2.5-flash": {
+  inputPer1M: 0,
+  outputPer1M: 0,
+},
   "deepseek/deepseek-r1:free": { inputPer1M: 0, outputPer1M: 0 },
 };
 

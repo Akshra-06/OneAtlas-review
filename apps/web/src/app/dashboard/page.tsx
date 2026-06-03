@@ -166,7 +166,7 @@ export default function DashboardPage() {
               <h1 className="text-2xl font-bold tracking-tight text-[#0A2540]">
                 Your Projects
               </h1>
-              <Button onClick={() => setShowCreate(!showCreate)} variant="default" className="bg-[#635BFF] hover:bg-[#635BFF]/90 text-white">
+              <Button onClick={() => setShowCreate(!showCreate)} variant="default" className="bg-[#FF6B00] hover:bg-[#FF6B00]/90 text-white">
                 {showCreate ? "Cancel" : "+ New Project"}
               </Button>
             </div>
@@ -177,19 +177,19 @@ export default function DashboardPage() {
                 <div className="grid grid-cols-2 gap-4">
                   <div className="flex flex-col gap-1">
                     <label className="text-sm font-medium text-gray-700">Project Name</label>
-                    <input required value={name} onChange={e => setName(e.target.value)} type="text" className="border border-gray-200 p-2 rounded-md focus:outline-none focus:ring-2 focus:ring-[#635BFF]/50" placeholder="My Internal Tool" />
+                    <input required value={name} onChange={e => setName(e.target.value)} type="text" className="border border-gray-200 p-2 rounded-md focus:outline-none focus:ring-2 focus:ring-[#FF6B00]/50" placeholder="My Internal Tool" />
                   </div>
                   <div className="flex flex-col gap-1">
                     <label className="text-sm font-medium text-gray-700">Short Description</label>
-                    <input value={description} onChange={e => setDescription(e.target.value)} type="text" className="border border-gray-200 p-2 rounded-md focus:outline-none focus:ring-2 focus:ring-[#635BFF]/50" placeholder="A tool to manage..." />
+                    <input value={description} onChange={e => setDescription(e.target.value)} type="text" className="border border-gray-200 p-2 rounded-md focus:outline-none focus:ring-2 focus:ring-[#FF6B00]/50" placeholder="A tool to manage..." />
                   </div>
                 </div>
                 <div className="flex flex-col gap-1">
                   <label className="text-sm font-medium text-gray-700">Initial App Prompt</label>
-                  <textarea required value={prompt} onChange={e => setPrompt(e.target.value)} className="border border-gray-200 p-3 rounded-md h-24 focus:outline-none focus:ring-2 focus:ring-[#635BFF]/50" placeholder="I need a dashboard with a table that shows..." />
+                  <textarea required value={prompt} onChange={e => setPrompt(e.target.value)} className="border border-gray-200 p-3 rounded-md h-24 focus:outline-none focus:ring-2 focus:ring-[#FF6B00]/50" placeholder="I need a dashboard with a table that shows..." />
                 </div>
                 <div className="flex justify-end mt-2">
-                  <Button type="submit" disabled={isSubmitting || !name || !prompt} className="bg-[#635BFF] hover:bg-[#635BFF]/90 text-white">
+                  <Button type="submit" disabled={isSubmitting || !name || !prompt} className="bg-[#FF6B00] hover:bg-[#FF6B00]/90 text-white">
                     {isSubmitting ? "Creating..." : "Create Project"}
                   </Button>
                 </div>

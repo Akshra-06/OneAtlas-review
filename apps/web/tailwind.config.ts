@@ -1,4 +1,5 @@
 import type { Config } from "tailwindcss";
+import animate from "tailwindcss-animate";
 
 const config: Config = {
   darkMode: ["class"],
@@ -46,8 +47,7 @@ const config: Config = {
       },
       boxShadow: {
         sm: "0 1px 2px rgba(10,37,64,.04), 0 1px 1px rgba(10,37,64,.02)",
-        DEFAULT:
-          "0 2px 4px rgba(10,37,64,.04), 0 8px 24px rgba(10,37,64,.06)",
+        DEFAULT: "0 2px 4px rgba(10,37,64,.04), 0 8px 24px rgba(10,37,64,.06)",
         lg: "0 12px 40px rgba(10,37,64,.10), 0 4px 12px rgba(10,37,64,.05)",
       },
       maxWidth: { container: "1240px" },

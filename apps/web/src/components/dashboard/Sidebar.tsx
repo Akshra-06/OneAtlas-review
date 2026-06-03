@@ -22,7 +22,7 @@ export default function Sidebar() {
 
         {/* Navigation */}
         <nav className="space-y-2">
-          <button className="w-full flex items-center gap-3 px-4 py-3 rounded-xl bg-[#635BFF] text-white font-medium">
+          <button className="w-full flex items-center gap-3 px-4 py-3 rounded-xl bg-[#FF6B00] text-white font-medium">
             <LayoutDashboard size={18} />
             Dashboard
           </button>

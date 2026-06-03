@@ -1,4 +1,5 @@
-const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:3001/api/v1";
+const API_URL =
+  process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:3001/api/v1";
 
 export interface GeneratePayload {
   prompt: string;
@@ -16,21 +17,26 @@ export async function generateApp(
   signal: AbortSignal,
   onEvent: (event: string, data: GenerateEventData) => void,
   onDone: () => void,
-  onError: (error: string) => void
+  onError: (error: string) => void,
 ) {
   try {
-    const response = await fetch(`${API_URL}/orgs/${orgId}/projects/${projectId}/generate`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
+    const response = await fetch(
+      `${API_URL}/orgs/${orgId}/projects/${projectId}/generate`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(payload),
+        signal,
       },
-      body: JSON.stringify(payload),
-      signal,
-    });
-
+    );
     if (!response.ok) {
-      onError(`Generation failed: ${response.statusText}`);
+      const body = await response.text();
+
+      onError(`Generation failed (${response.status}): ${body}`);
+
       return;
     }
 
@@ -48,18 +54,18 @@ export async function generateApp(
     while (true) {
       const { done, value } = await reader.read();
       if (done) break;
-      
+
       buffer += decoder.decode(value, { stream: true });
-      const parts = buffer.split('\n\n');
+      const parts = buffer.split("\n\n");
       buffer = parts.pop() || "";
-      
+
       for (const part of parts) {
-        const lines = part.split('\n');
-        let eventName = 'message';
-        let data = '';
+        const lines = part.split("\n");
+        let eventName = "message";
+        let data = "";
         for (const line of lines) {
-          if (line.startsWith('event: ')) eventName = line.slice(7).trim();
-          if (line.startsWith('data: ')) data = line.slice(6).trim();
+          if (line.startsWith("event: ")) eventName = line.slice(7).trim();
+          if (line.startsWith("data: ")) data = line.slice(6).trim();
         }
         if (data) {
           try {
@@ -70,7 +76,7 @@ export async function generateApp(
               eventName,
               parsed && typeof parsed === "object"
                 ? (parsed as GenerateEventData)
-                : { value: parsed }
+                : { value: parsed },
             );
           } catch {
             console.error("Failed to parse SSE data", data);
@@ -88,6 +94,139 @@ export async function generateApp(
       console.log("Generation aborted by user.");
     } else {
       onError("Network error or connection lost");
+    }
+  }
+}
+export async function modifyApp(
+  orgId: string,
+  projectId: string,
+  token: string,
+  prompt: string,
+  signal: AbortSignal,
+  onEvent: (event: string, data: GenerateEventData) => void,
+  onDone: () => void,
+  onError: (error: string) => void,
+) {
+  try {
+    const response = await fetch(
+      `${API_URL}/orgs/${orgId}/projects/${projectId}/generate`,
+      {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          prompt,
+          model: "SMART",
+        }),
+        signal,
+      },
+    );
+
+    if (!response.ok) {
+      const body = await response.text();
+
+      onError(
+        `Modification failed (${response.status}): ${body}`,
+      );
+
+      return;
+    }
+
+    const reader = response.body?.getReader();
+    const decoder = new TextDecoder();
+
+    if (!reader) {
+      onError("No response stream");
+      return;
+    }
+
+    let buffer = "";
+    let sawDone = false;
+    let sawError = false;
+
+    while (true) {
+      const { done, value } =
+        await reader.read();
+
+      if (done) break;
+
+      buffer += decoder.decode(value, {
+        stream: true,
+      });
+
+      const parts = buffer.split("\n\n");
+      buffer = parts.pop() || "";
+
+      for (const part of parts) {
+        const lines = part.split("\n");
+
+        let eventName = "message";
+        let data = "";
+
+        for (const line of lines) {
+          if (line.startsWith("event: ")) {
+            eventName = line
+              .slice(7)
+              .trim();
+          }
+
+          if (line.startsWith("data: ")) {
+            data = line
+              .slice(6)
+              .trim();
+          }
+        }
+
+        if (!data) continue;
+
+        try {
+          const parsed = JSON.parse(data);
+
+          if (eventName === "done") {
+            sawDone = true;
+          }
+
+          if (eventName === "error") {
+            sawError = true;
+          }
+
+          onEvent(
+            eventName,
+            parsed &&
+              typeof parsed === "object"
+              ? (parsed as GenerateEventData)
+              : { value: parsed },
+          );
+        } catch {
+          console.error(
+            "Failed to parse SSE data",
+            data,
+          );
+        }
+      }
+    }
+
+    if (sawDone && !sawError) {
+      onDone();
+    } else if (!sawDone && !sawError) {
+      onError(
+        "Streaming interruption: connection closed before completion",
+      );
+    }
+  } catch (err) {
+    if (
+      err instanceof DOMException &&
+      err.name === "AbortError"
+    ) {
+      console.log(
+        "Modification aborted by user.",
+      );
+    } else {
+      onError(
+        "Network error or connection lost",
+      );
     }
   }
 }

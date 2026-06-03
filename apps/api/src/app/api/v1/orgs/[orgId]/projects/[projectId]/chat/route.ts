@@ -88,17 +88,27 @@ export async function POST(req: NextRequest, { params }: RouteContext) {
     await requireOrgMember(orgId, "MEMBER");
 
     const body = ChatRequestSchema.parse(await req.json());
-
+console.log("1. Route entered");
     // Load the project to get its generated code as app context
-    const project = await prisma.project.findUnique({
-      where: { id: projectId },
-      select: { id: true, orgId: true, generatedCode: true },
-    });
+   const project =
+  await prisma.project.findUnique({
+    where: { id: projectId },
+    select: {
+      id: true,
+      orgId: true,
+      generatedCode: true,
+    },
+  });
 
-    if (!project || project.orgId !== orgId) {
+console.log(
+  "PROJECT RESULT:",
+  JSON.stringify(project, null, 2)
+);
+
+    if (!project) {
       throw new NotFoundError("Project");
     }
-
+console.log("2. Project loaded");
     const appContext = project.generatedCode as GenerationResult | null;
 
     // Use client-provided history if given, otherwise load from Redis
@@ -134,9 +144,11 @@ export async function POST(req: NextRequest, { params }: RouteContext) {
 
         try {
           send("status", { step: "thinking", message: "Atlas AI is thinking…" });
+console.log("3. Context built");
 
           // Call Atlas AI with full conversation history + app context
           const response = await atlasAI.chat(history, appContext, projectId);
+          console.log("4. AI returned");
 
           // Store assistant reply in conversation history
           const assistantMessage: ChatMessage = {
