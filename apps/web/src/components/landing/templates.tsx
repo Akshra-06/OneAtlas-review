@@ -1,11 +1,12 @@
 "use client";
 import { useState, useEffect, useRef } from "react";
+import { getDemoDashboardPreviews, TemplatePreviews } from "@/services/templates";
 
 /* ─── types ─────────────────────────────────── */
 interface Template {
   id: string; cat: string; catCls: string; accent: string;
   title: string; desc: string; time: string; team: string;
-  filters: string[]; preview: string; glow: string;
+  filters: string[]; preview: keyof TemplatePreviews; glow: string;
 }
 
 const FILTERS = ["All", "CRUD Apps", "Dashboards", "Admin Panels", "Workflows", "Portals"];
@@ -49,84 +50,34 @@ function animAll(root: HTMLElement) {
   root.querySelectorAll<HTMLElement>("[data-counter]").forEach(animCounter);
 }
 
-function KanbanPreview({ hover }: { hover: boolean }) {
+function KanbanPreview({ hover, data }: { hover: boolean; data?: TemplatePreviews["kanban"] }) {
   const rootRef = useRef<HTMLDivElement>(null);
-  const cursorRef = useRef<HTMLDivElement>(null);
-  const hRef = useRef(hover);
-  useEffect(() => { hRef.current = hover; }, [hover]);
-
+  
   useEffect(() => {
     const root = rootRef.current; if (!root) return;
     setTimeout(() => animAll(root), 400);
-    const drift = setInterval(() => {
-      const c = cursorRef.current; if (!c) return;
-      c.style.left = (20 + Math.random() * (root.clientWidth - 40)) + "px";
-      c.style.top  = (30 + Math.random() * 100) + "px";
-    }, 2200);
-    let tid: ReturnType<typeof setTimeout>;
-    const moveOne = () => {
-      const cols = [...root.querySelectorAll<HTMLElement>(".kv2-col")];
-      const cards = [...root.querySelectorAll<HTMLElement>(".kv2-card")];
-      if (!cards.length) return;
-      const c = cards[Math.floor(Math.random() * cards.length)];
-      const curCol = c.parentElement as HTMLElement;
-      const idx = cols.indexOf(curCol);
-      const dir = Math.random() < 0.7 ? 1 : -1;
-      const next = cols[Math.min(cols.length - 1, Math.max(0, idx + dir))];
-      if (next === curCol) return;
-      const r = c.getBoundingClientRect(), pv = root.getBoundingClientRect();
-      const cur = cursorRef.current;
-      if (cur) { cur.style.left = (r.left - pv.left + 6) + "px"; cur.style.top = (r.top - pv.top + 6) + "px"; }
-      setTimeout(() => {
-        c.style.boxShadow = "0 12px 24px rgba(99,91,255,.28)"; c.style.transform = "scale(1.06) translateY(-2px)";
-        setTimeout(() => {
-          next.appendChild(c);
-          c.style.animation = "kv2Enter .5s cubic-bezier(.22,1,.36,1)";
-          if (next === cols[cols.length - 1]) {
-            const ping = document.createElement("div");
-            ping.style.cssText = `position:absolute;pointer-events:none;width:20px;height:20px;border-radius:50%;background:radial-gradient(circle,rgba(0,212,177,.5),transparent 70%);animation:pingV2 1.2s ease-out forwards;z-index:6;`;
-            const rr = c.getBoundingClientRect(), pvv = root.getBoundingClientRect();
-            ping.style.left = (rr.left - pvv.left + rr.width / 2 - 10) + "px";
-            ping.style.top  = (rr.top  - pvv.top  + rr.height / 2 - 10) + "px";
-            root.appendChild(ping); setTimeout(() => ping.remove(), 1300);
-          }
-          cols.forEach(col => {
-            const n = col.querySelector<HTMLElement>(".kv2-count");
-            if (!n) return;
-            const cnt = col.querySelectorAll(".kv2-card").length;
-            if (n.textContent !== String(cnt)) {
-              n.textContent = String(cnt);
-              n.style.transform = "scale(1.3)"; n.style.background = "var(--indigo)"; n.style.color = "#fff";
-              setTimeout(() => { n.style.transform = ""; n.style.background = ""; n.style.color = ""; }, 350);
-            }
-          });
-          setTimeout(() => { c.style.boxShadow = ""; c.style.transform = ""; c.style.animation = ""; }, 520);
-        }, 280);
-      }, 380);
-    };
-    const run = () => { moveOne(); tid = setTimeout(run, hRef.current ? 1500 : 2400); };
-    run();
-    return () => { clearInterval(drift); clearTimeout(tid); };
-  }, []);
+  }, [data]);
 
-  const cols = [
-    { label:"Lead",   cards:[{cls:"indigo",who:"Aria Tech",amt:"$24.5k"},{cls:"violet",who:"Northwind",amt:"$18.2k"}] },
-    { label:"Active", cards:[{cls:"coral",who:"Lumen Co.",amt:"$42.8k"},{cls:"sky",who:"Mosaic",amt:"$31.0k"}] },
-    { label:"Won",    cards:[{cls:"mint",who:"Helix",amt:"$56.4k"}] },
+  const cols = data?.cols || [
+    { label:"Lead", cards:[{who:"Stark",amt:"$12k",cls:"indigo",stage:"lead"},{who:"Wayne",amt:"$8k",cls:"indigo",stage:"lead"}] },
+    { label:"Active", cards:[{who:"Cyberdyne",amt:"$45k",cls:"sky",stage:"qualified"},{who:"Initech",amt:"$21k",cls:"sky",stage:"proposal"}] },
+    { label:"Won", cards:[{who:"Acme",amt:"$150k",cls:"mint",stage:"won"}] },
   ];
 
+  const pipelineRaw = data?.pipelineValue ? data.pipelineValue.replace(/[^0-9.]/g, '') : "284";
+  
   return (
     <div ref={rootRef} style={{position:"relative",height:"100%",display:"flex",flexDirection:"column",gap:8}}>
       <LiveTag label="LIVE PIPELINE"/>
       <div style={{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:8,height:128}}>
-        {cols.map(col=>(
+        {cols.map((col: NonNullable<TemplatePreviews["kanban"]>["cols"][0]) => (
           <div key={col.label} className="kv2-col" style={{background:"rgba(255,255,255,.7)",border:"1px solid var(--line-soft)",borderRadius:10,padding:"8px 8px 6px",display:"flex",flexDirection:"column",gap:6,backdropFilter:"blur(6px)",position:"relative"}}>
             <div style={{fontSize:9,fontWeight:700,letterSpacing:".1em",color:"var(--ink-mute)",textTransform:"uppercase",display:"flex",justifyContent:"space-between",alignItems:"center"}}>
               <span>{col.label}</span>
               <span className="kv2-count" style={{background:"var(--cream-2)",color:"var(--ink-soft)",padding:"1px 5px",borderRadius:99,fontSize:9,minWidth:14,textAlign:"center",transition:"all .3s"}}>{col.cards.length}</span>
             </div>
-            {col.cards.map(cd=>(
-              <div key={cd.who} className="kv2-card" style={{background:"#fff",border:"1px solid var(--line-soft)",borderRadius:6,padding:"5px 7px",fontSize:10,color:"var(--ink)",boxShadow:"0 1px 2px rgba(10,37,64,.04)",display:"flex",flexDirection:"column",gap:1,transition:"transform .55s cubic-bezier(.22,1,.36,1), box-shadow .3s",borderLeft:`3px solid var(--${cd.cls})`}}>
+            {col.cards.map((cd, i) => (
+              <div key={`${cd.who}-${i}`} className="kv2-card" style={{background:"#fff",border:"1px solid var(--line-soft)",borderRadius:6,padding:"5px 7px",fontSize:10,color:"var(--ink)",boxShadow:"0 1px 2px rgba(10,37,64,.04)",display:"flex",flexDirection:"column",gap:1,transition:"transform .55s cubic-bezier(.22,1,.36,1), box-shadow .3s",borderLeft:`3px solid var(--${cd.cls})`}}>
                 <span style={{fontSize:9,color:"var(--ink-mute)",lineHeight:1.1}}>{cd.who}</span>
                 <span style={{fontWeight:700,fontSize:10.5}}>{cd.amt}</span>
               </div>
@@ -135,40 +86,35 @@ function KanbanPreview({ hover }: { hover: boolean }) {
         ))}
       </div>
       <div style={{display:"flex",gap:6,marginTop:8}}>
-        {[{l:"Pipeline",counter:"284",pre:"$",suf:"k"},{l:"Closing",counter:"12",suf:""},{l:"Win Rate",counter:"38",suf:"%"}].map(kpi=>(
+        {[
+          {l:"Pipeline",counter:pipelineRaw,pre:"$",suf:"k"},
+          {l:"Closing",counter:data?.closing?.toString() || "12",suf:""},
+          {l:"Win Rate",counter:data?.winRate?.toString() || "38",suf:"%"}
+        ].map(kpi=>(
           <div key={kpi.l} style={{flex:1,background:"rgba(255,255,255,.7)",border:"1px solid var(--line-soft)",borderRadius:8,padding:"6px 8px"}}>
             <div style={{fontSize:9,color:"var(--ink-mute)",letterSpacing:".06em",textTransform:"uppercase",fontWeight:600,lineHeight:1}}>{kpi.l}</div>
             <div style={{fontSize:13,fontWeight:800,color:"var(--ink)",letterSpacing:"-.02em",lineHeight:1.2,marginTop:2}} data-counter={kpi.counter} data-prefix={kpi.pre||""} data-suffix={kpi.suf}>{kpi.pre||""}0{kpi.suf}</div>
           </div>
         ))}
       </div>
-      <div ref={cursorRef} style={{position:"absolute",left:"50%",top:"60%",width:14,height:18,zIndex:7,pointerEvents:"none",filter:"drop-shadow(0 2px 4px rgba(0,0,0,.15))",transition:"left .9s cubic-bezier(.4,0,.2,1), top .9s cubic-bezier(.4,0,.2,1)"}}>
-        <svg viewBox="0 0 14 18"><path d="M2 1 L2 14 L5 11 L7 16 L9 15 L7 10 L11 10 Z" fill="#fff" stroke="#0A2540" strokeWidth="1"/></svg>
-      </div>
     </div>
   );
 }
 
-function FlowPreview({ hover }: { hover: boolean }) {
+function FlowPreview({ hover, data }: { hover: boolean; data?: TemplatePreviews["flow"] }) {
   const rootRef = useRef<HTMLDivElement>(null);
-  const hRef = useRef(hover);
-  useEffect(() => { hRef.current = hover; }, [hover]);
-  const [pos, setPos] = useState(1);
+  const pos = 1;
   const labels = ["Submit","Manager","Finance","Paid"];
   useEffect(() => {
     const root = rootRef.current; if (root) setTimeout(() => animAll(root), 400);
-    let tid: ReturnType<typeof setTimeout>;
-    const run = () => { setPos(p => { const n = p + 1; return n >= 4 ? 1 : n; }); tid = setTimeout(run, hRef.current ? 1300 : 2200); };
-    tid = setTimeout(run, hRef.current ? 1300 : 2200);
-    return () => clearTimeout(tid);
-  }, []);
+  }, [data]);
   return (
     <div ref={rootRef} style={{display:"flex",flexDirection:"column",justifyContent:"center",gap:12,height:"100%",position:"relative"}}>
-      <LiveTag label="4 IN QUEUE"/>
+      <LiveTag label={`${data?.queue ?? 4} IN QUEUE`}/>
       <div style={{background:"#fff",border:"1px solid var(--line-soft)",borderRadius:9,padding:"8px 10px",display:"flex",alignItems:"center",gap:8,fontSize:11}}>
         <span style={{width:22,height:22,borderRadius:"50%",background:"linear-gradient(135deg,var(--peach),var(--coral))",display:"grid",placeItems:"center",color:"#fff",fontSize:10,fontWeight:700,flexShrink:0}}>M</span>
-        <span style={{fontWeight:600,color:"var(--ink)",flex:1,fontSize:11}}>Maya P. · Q4 software stack</span>
-        <span style={{fontWeight:700,fontFamily:"JetBrains Mono,monospace",fontSize:11}}>$1,840</span>
+        <span style={{fontWeight:600,color:"var(--ink)",flex:1,fontSize:11}}>{data?.activeTx?.who ?? "Maya P."} · {data?.activeTx?.desc ?? "Q4 software stack"}</span>
+        <span style={{fontWeight:700,fontFamily:"JetBrains Mono,monospace",fontSize:11}}>{data?.activeTx?.amt ?? "$1,840"}</span>
         <span style={{fontSize:9,fontWeight:700,letterSpacing:".06em",textTransform:"uppercase",color:"var(--coral)",padding:"2px 6px",background:"var(--coral-soft)",borderRadius:5}}>Step {pos+1}/4</span>
       </div>
       <div style={{position:"relative",height:34,display:"flex",alignItems:"center",justifyContent:"space-between",padding:"0 6px"}}>
@@ -185,7 +131,11 @@ function FlowPreview({ hover }: { hover: boolean }) {
         {labels.map((l,i)=><span key={l} style={{flex:1,textAlign:"center",color:i===pos?"var(--coral)":undefined,fontWeight:i===pos?700:undefined}}>{l}</span>)}
       </div>
       <div style={{display:"flex",gap:6}}>
-        {[{l:"Pending",v:"7"},{l:"Auto-approved",v:"42"},{l:"Avg",v:"4",suf:"h"}].map(s=>(
+        {[
+          {l:"Pending",v:data?.pending?.toString() ?? "7"},
+          {l:"Auto-approved",v:data?.autoApproved?.toString() ?? "42"},
+          {l:"Avg",v:data?.avgHours?.toString() ?? "4",suf:"h"}
+        ].map(s=>(
           <div key={s.l} style={{flex:1,background:"rgba(255,255,255,.7)",border:"1px solid var(--line-soft)",borderRadius:8,padding:"5px 8px"}}>
             <div style={{fontSize:9,color:"var(--ink-mute)",letterSpacing:".06em",textTransform:"uppercase",fontWeight:600,lineHeight:1}}>{s.l}</div>
             <div style={{fontSize:12,fontWeight:800,color:"var(--ink)",marginTop:2}} data-counter={s.v} data-suffix={s.suf||""}>0{s.suf||""}</div>
@@ -196,24 +146,13 @@ function FlowPreview({ hover }: { hover: boolean }) {
   );
 }
 
-const BAR_TARGETS = [40,55,30,68,45,82,68];
-function BarsPreview({ hover }: { hover: boolean }) {
+function BarsPreview({ hover, data }: { hover: boolean; data?: TemplatePreviews["bars"] }) {
   const rootRef = useRef<HTMLDivElement>(null);
-  const hRef = useRef(hover);
-  useEffect(() => { hRef.current = hover; }, [hover]);
-  const [heights, setHeights] = useState(BAR_TARGETS);
-  const [tipIdx, setTipIdx] = useState(5);
+  const heights = data?.trend || [40,55,30,68,45,82,68];
+  const tipIdx = 5;
   useEffect(() => {
     const root = rootRef.current; if (root) setTimeout(() => animAll(root), 400);
-    let tid: ReturnType<typeof setTimeout>;
-    const run = () => {
-      setHeights(prev => prev.map((_,i) => Math.max(18, Math.min(95, BAR_TARGETS[i] + (Math.random()-.5)*14))));
-      setTipIdx(p => (p+1) % BAR_TARGETS.length);
-      tid = setTimeout(run, hRef.current ? 900 : 1700);
-    };
-    tid = setTimeout(run, hRef.current ? 900 : 1700);
-    return () => clearTimeout(tid);
-  }, []);
+  }, [data]);
   const tipH = heights[tipIdx];
   return (
     <div ref={rootRef} style={{height:"100%",display:"flex",flexDirection:"column",gap:8,position:"relative"}}>
@@ -221,13 +160,13 @@ function BarsPreview({ hover }: { hover: boolean }) {
       <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start"}}>
         <div>
           <div style={{fontSize:9.5,color:"var(--ink-mute)",fontWeight:600,letterSpacing:".08em",textTransform:"uppercase",lineHeight:1}}>Monthly Active Users</div>
-          <div style={{fontSize:18,fontWeight:800,color:"var(--ink)",letterSpacing:"-.02em",lineHeight:1.1,marginTop:2}} data-counter="42180" data-fmt="comma">0</div>
+          <div style={{fontSize:18,fontWeight:800,color:"var(--ink)",letterSpacing:"-.02em",lineHeight:1.1,marginTop:2}} data-counter={data?.mau ?? "42180"} data-fmt="comma">0</div>
         </div>
         <div style={{fontSize:10,color:"var(--emerald)",fontWeight:700,background:"var(--mint-soft)",padding:"2px 6px",borderRadius:5,display:"inline-flex",alignItems:"center",gap:3,marginTop:4}}>↑ 12.4%</div>
       </div>
       <div style={{position:"relative",flex:1,minHeight:0}}>
         <div style={{position:"absolute",inset:0,display:"flex",alignItems:"flex-end",gap:5,padding:"0 0 4px"}}>
-          {heights.map((h,i)=>(
+          {heights.map((h: number,i: number)=>(
             <div key={i} style={{flex:1,height:h+"%",borderRadius:"5px 5px 2px 2px",background:i===5?"linear-gradient(180deg,#FF5996,#FF9173)":i<=3?"linear-gradient(180deg,#FFC8DC,#FFE3EE)":"linear-gradient(180deg,var(--coral),#FF8AB1)",transition:"height .8s cubic-bezier(.34,1.56,.64,1)"}}/>
           ))}
         </div>
@@ -248,39 +187,27 @@ function BarsPreview({ hover }: { hover: boolean }) {
   );
 }
 
-const INV = [
-  {sku:"A-1284",name:"Walnut Desk · oak",   target:86,count:"1,240"},
-  {sku:"A-0931",name:"Mesh Chair v2",        target:48,count:"580"  },
-  {sku:"A-7522",name:"Standing Riser · alu",target:18,count:"120"  },
-];
-function InventoryPreview({ hover }: { hover: boolean }) {
+function InventoryPreview({ hover, data }: { hover: boolean; data?: TemplatePreviews["inventory"] }) {
   const rootRef = useRef<HTMLDivElement>(null);
-  const hRef = useRef(hover);
-  useEffect(() => { hRef.current = hover; }, [hover]);
-  const [widths, setWidths] = useState([0,0,0]);
-  const [alertIdx, setAlertIdx] = useState(2);
+  const items = data?.items || [
+    {sku:"A-1284",name:"Walnut Desk · oak",   target:86,count:"1,240"},
+    {sku:"A-0931",name:"Mesh Chair v2",        target:48,count:"580"  },
+    {sku:"A-7522",name:"Standing Riser · alu",target:18,count:"120"  },
+  ];
+  const widths = items.map((i: NonNullable<TemplatePreviews["inventory"]>["items"][0]) => i.target);
+  const alertIdx = 2;
   useEffect(() => {
-    setTimeout(() => setWidths(INV.map(r=>r.target)), 300);
     const root = rootRef.current; if (root) setTimeout(() => animAll(root), 400);
-    let tid: ReturnType<typeof setTimeout>;
-    const run = () => {
-      const i = Math.floor(Math.random()*INV.length);
-      setWidths(prev => { const n=[...prev]; n[i]=Math.max(8,Math.min(98,INV[i].target+(Math.random()-.5)*22)); return n; });
-      if (Math.random()<.35) setAlertIdx(p=>(p+1)%INV.length);
-      tid = setTimeout(run, hRef.current ? 1000 : 1800);
-    };
-    tid = setTimeout(run, hRef.current ? 1000 : 1800);
-    return () => clearTimeout(tid);
-  }, []);
+  }, [data]);
   return (
     <div ref={rootRef} style={{height:"100%",display:"flex",flexDirection:"column"}}>
-      <LiveTag label="3,420 SKUs"/>
+      <LiveTag label={`${data?.totalSkus ?? "3,420"} SKUs`}/>
       <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:6,marginTop:4}}>
         <span style={{fontSize:9.5,color:"var(--ink-mute)",fontWeight:600,letterSpacing:".08em",textTransform:"uppercase"}}>Stock Levels</span>
-        <span style={{fontSize:11,fontWeight:700,color:"var(--ink)",fontFamily:"JetBrains Mono,monospace"}} data-counter="1240" data-fmt="comma" data-suffix=" units">0 units</span>
+        <span style={{fontSize:11,fontWeight:700,color:"var(--ink)",fontFamily:"JetBrains Mono,monospace"}} data-counter={data?.stockLevels?.replace(/[^0-9]/g,"") ?? "1240"} data-fmt="comma" data-suffix=" units">0 units</span>
       </div>
       <div style={{display:"flex",flexDirection:"column",gap:6}}>
-        {INV.map((row,i)=>(
+        {items.map((row: NonNullable<TemplatePreviews["inventory"]>["items"][0], i: number) =>(
           <div key={row.sku} style={{background:i===alertIdx?"linear-gradient(90deg,var(--coral-soft) 0%, #fff 60%)":"#fff",border:`1px solid ${i===alertIdx?"rgba(255,89,150,.3)":"var(--line-soft)"}`,borderRadius:8,padding:"7px 9px",display:"flex",alignItems:"center",gap:8,fontSize:11,position:"relative",overflow:"hidden"}}>
             <span style={{background:"var(--mint-soft)",color:"var(--emerald)",fontFamily:"JetBrains Mono,monospace",fontSize:9.5,fontWeight:600,padding:"2px 6px",borderRadius:4,flexShrink:0}}>{row.sku}</span>
             <span style={{fontWeight:600,color:"var(--ink)",flex:1,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap",fontSize:10.5,paddingRight:i===alertIdx?84:0}}>{row.name}</span>
@@ -296,31 +223,25 @@ function InventoryPreview({ hover }: { hover: boolean }) {
   );
 }
 
-const CHK = ["Sign offer letter","Set up workstation","Meet your buddy","Complete IT training"];
-const CHK_DAYS = ["Day 1","Day 1","Day 2","Day 3"];
-function ChecklistPreview({ hover }: { hover: boolean }) {
-  const hRef = useRef(hover);
-  useEffect(() => { hRef.current = hover; }, [hover]);
-  const [done, setDone] = useState(1);
-  useEffect(() => {
-    let tid: ReturnType<typeof setTimeout>;
-    const run = () => { setDone(p => { const n=p+1; return n>CHK.length?0:n; }); tid = setTimeout(run, hRef.current?800:1600); };
-    tid = setTimeout(run, hRef.current?800:1600);
-    return () => clearTimeout(tid);
-  }, []);
+function ChecklistPreview({ hover, data }: { hover: boolean; data?: TemplatePreviews["checklist"] }) {
+  const done = data?.done ?? 1;
+  const total = data?.total ?? 4;
+  const candidate = data?.candidate ?? "Jordan Diaz";
+  const role = data?.role ?? "Product Designer";
+  const tasks = data?.tasks || [{title:"Sign offer letter",day:"Day 1"},{title:"Set up workstation",day:"Day 1"},{title:"Meet your buddy",day:"Day 2"},{title:"Complete IT training",day:"Day 3"}];
   return (
     <div style={{height:"100%",display:"flex",flexDirection:"column",gap:8}}>
       <LiveTag label="DAY 1 of 5"/>
       <div style={{display:"flex",alignItems:"center",gap:8}}>
         <span style={{width:24,height:24,borderRadius:"50%",background:"linear-gradient(135deg,var(--violet),var(--indigo))",color:"#fff",fontSize:10,fontWeight:700,display:"grid",placeItems:"center",flexShrink:0}}>JD</span>
-        <span style={{fontSize:11,color:"var(--ink)",fontWeight:700}}>Jordan Diaz<small style={{display:"block",fontSize:9.5,color:"var(--ink-mute)",fontWeight:500,lineHeight:1.1}}>Product Designer · Joined Mon</small></span>
-        <span style={{marginLeft:"auto",fontSize:9.5,color:"var(--ink-mute)",fontFamily:"JetBrains Mono,monospace",fontWeight:600}}>{done}/4</span>
+        <span style={{fontSize:11,color:"var(--ink)",fontWeight:700}}>{candidate}<small style={{display:"block",fontSize:9.5,color:"var(--ink-mute)",fontWeight:500,lineHeight:1.1}}>{role} · Joined Mon</small></span>
+        <span style={{marginLeft:"auto",fontSize:9.5,color:"var(--ink-mute)",fontFamily:"JetBrains Mono,monospace",fontWeight:600}}>{done}/{total}</span>
       </div>
       <div style={{height:4,background:"var(--cream-2)",borderRadius:99,overflow:"hidden"}}>
-        <div style={{height:"100%",width:(done/CHK.length*100)+"%",background:"linear-gradient(90deg,var(--violet),var(--indigo))",borderRadius:99,transition:"width .6s cubic-bezier(.4,0,.2,1)"}}/>
+        <div style={{height:"100%",width:(done/total*100)+"%",background:"linear-gradient(90deg,var(--violet),var(--indigo))",borderRadius:99,transition:"width .6s cubic-bezier(.4,0,.2,1)"}}/>
       </div>
       <div style={{display:"flex",flexDirection:"column",gap:5,flex:1,overflow:"hidden"}}>
-        {CHK.map((item,i)=>{
+        {tasks.map((task: NonNullable<TemplatePreviews["checklist"]>["tasks"][0], i: number)=>{ const item = task.title; const day = task.day;
           const isDone = i<done;
           return (
             <div key={item} style={{background:isDone?"linear-gradient(90deg,#EDEBFF 0%, #fff 70%)":"#fff",border:"1px solid var(--line-soft)",borderRadius:7,padding:"6px 9px",display:"flex",alignItems:"center",gap:8,transition:"color .3s, background .3s"}}>
@@ -328,7 +249,7 @@ function ChecklistPreview({ hover }: { hover: boolean }) {
                 {isDone&&<svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="3"><polyline points="20 6 9 17 4 12"/></svg>}
               </span>
               <span style={{flex:1,fontSize:10.5,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap",textDecorationLine:isDone?"line-through":"none",textDecorationColor:"rgba(122,115,255,.6)"}}>{item}</span>
-              <span style={{fontSize:9,fontWeight:700,letterSpacing:".06em",textTransform:"uppercase",background:"#EDEBFF",color:"#4A40B8",padding:"2px 6px",borderRadius:4}}>{CHK_DAYS[i]}</span>
+              <span style={{fontSize:9,fontWeight:700,letterSpacing:".06em",textTransform:"uppercase",background:"#EDEBFF",color:"#4A40B8",padding:"2px 6px",borderRadius:4}}>{day}</span>
             </div>
           );
         })}
@@ -337,32 +258,16 @@ function ChecklistPreview({ hover }: { hover: boolean }) {
   );
 }
 
-const SUP_TITLES = ["Webhook returning 500 errors","SSO redirect loop on iOS","Bulk import stuck at 92%","API rate limit unclear","2FA SMS not arriving","Widget rendering blank","Invoice export missing tax","Search returns stale results"];
-interface Ticket { id: number; title: string; pri: string; status: string; key: number; }
-function SupportPreview({ hover }: { hover: boolean }) {
+function SupportPreview({ hover, data }: { hover: boolean; data?: TemplatePreviews["support"] }) {
   const rootRef = useRef<HTMLDivElement>(null);
-  const hRef = useRef(hover);
-  useEffect(() => { hRef.current = hover; }, [hover]);
-  const nextId = useRef(4822);
-  const [tickets, setTickets] = useState<Ticket[]>([
-    {id:4821,title:"Login fails on Safari 17.x",pri:"high",status:"open",key:1},
-    {id:4820,title:"Export CSV column missing",  pri:"med", status:"prog",key:2},
-    {id:4819,title:"Typo on settings page",      pri:"low", status:"done",key:3},
-  ]);
+  const tickets = data?.tickets || [
+    {id:"4821",title:"Login fails on Safari 17.x",pri:"high",status:"open",key:"1"},
+    {id:"4820",title:"Export CSV column missing",  pri:"med", status:"prog",key:"2"},
+    {id:"4819",title:"Typo on settings page",      pri:"low", status:"done",key:"3"},
+  ];
   useEffect(() => {
     const root = rootRef.current; if (root) setTimeout(() => animAll(root), 400);
-    let tid: ReturnType<typeof setTimeout>;
-    const run = () => {
-      setTickets(prev => {
-        const updated = prev.map((t,i)=>{ if(i===0&&t.status==="open") return {...t,status:"prog"}; if(i===0&&t.status==="prog") return {...t,status:"done"}; return t; });
-        const trimmed = updated.length>=4 ? updated.slice(0,updated.length-1) : updated;
-        return [{id:nextId.current++,title:SUP_TITLES[Math.floor(Math.random()*SUP_TITLES.length)],pri:["high","med","low"][Math.floor(Math.random()*3)],status:"open",key:Date.now()},...trimmed];
-      });
-      tid = setTimeout(run, hRef.current?1300:2400);
-    };
-    tid = setTimeout(run, hRef.current?1300:2400);
-    return () => clearTimeout(tid);
-  }, []);
+  }, [data]);
   const priColor = (p:string) => p==="high"?"var(--coral)":p==="med"?"var(--gold)":"var(--mint)";
   const priShadow = (p:string) => p==="high"?"0 0 0 3px rgba(255,89,150,.16)":p==="med"?"0 0 0 3px rgba(248,188,66,.18)":"0 0 0 3px rgba(0,212,177,.14)";
   const stBg = (s:string) => s==="open"?"var(--coral-soft)":s==="prog"?"var(--gold-soft)":"var(--mint-soft)";
@@ -374,12 +279,12 @@ function SupportPreview({ hover }: { hover: boolean }) {
       <div style={{display:"flex",alignItems:"center",justifyContent:"space-between"}}>
         <span style={{fontSize:10,color:"var(--ink)",fontWeight:700,display:"flex",alignItems:"center",gap:5}}>
           <span style={{width:6,height:6,borderRadius:"50%",background:"var(--mint)",boxShadow:"0 0 0 3px rgba(0,212,177,.2)",display:"inline-block"}}/>
-          23 open tickets
+          {data?.openTickets ?? 23} open tickets
         </span>
-        <span style={{fontSize:9.5,color:"var(--ink-mute)",fontFamily:"JetBrains Mono,monospace",fontWeight:600}}>Avg wait <b style={{color:"var(--ink)",fontWeight:700}} data-counter="4" data-suffix="m 12s">0m</b></span>
+        <span style={{fontSize:9.5,color:"var(--ink-mute)",fontFamily:"JetBrains Mono,monospace",fontWeight:600}}>Avg wait <b style={{color:"var(--ink)",fontWeight:700}} data-counter="4" data-suffix="m 12s">{data?.avgWait ?? "4m 12s"}</b></span>
       </div>
       <div style={{display:"flex",flexDirection:"column",gap:5,flex:1,overflow:"hidden"}}>
-        {tickets.map(tk=>(
+        {tickets.map((tk: NonNullable<TemplatePreviews["support"]>["tickets"][0]) =>(
           <div key={tk.key} style={{background:"#fff",border:"1px solid var(--line-soft)",borderRadius:7,padding:"6px 9px",display:"flex",alignItems:"center",gap:7,fontSize:11}}>
             <span style={{width:6,height:6,borderRadius:"50%",flexShrink:0,background:priColor(tk.pri),boxShadow:priShadow(tk.pri)}}/>
             <span style={{fontFamily:"JetBrains Mono,monospace",fontSize:9.5,color:"var(--ink-mute)",fontWeight:600}}>#{tk.id}</span>
@@ -401,7 +306,7 @@ function LiveTag({ label }: { label: string }) {
   );
 }
 
-const PREVIEW_MAP: Record<string, React.FC<{hover:boolean}>> = {
+const PREVIEW_MAP: Record<keyof TemplatePreviews, React.ElementType> = {
   kanban: KanbanPreview, flow: FlowPreview, bars: BarsPreview,
   inventory: InventoryPreview, checklist: ChecklistPreview, support: SupportPreview,
 };
@@ -470,7 +375,7 @@ function LaunchModal({ tmpl, onClose }: { tmpl: Template | null; onClose: () => 
   );
 }
 
-function TemplateCard({ t, onLaunch }: { t: Template; onLaunch: (t: Template) => void }) {
+function TemplateCard({ t, onLaunch, data }: { t: Template; onLaunch: (t: Template) => void; data?: TemplatePreviews[keyof TemplatePreviews] }) {
   const [hover, setHover] = useState(false);
   const PreviewComp = PREVIEW_MAP[t.preview];
   return (
@@ -481,7 +386,7 @@ function TemplateCard({ t, onLaunch }: { t: Template; onLaunch: (t: Template) =>
         <div style={{position:"absolute",inset:0,pointerEvents:"none",background:"radial-gradient(circle at 12% 18%, rgba(99,91,255,.08), transparent 40%),radial-gradient(circle at 88% 82%, rgba(255,89,150,.06), transparent 40%)"}}/>
         <div style={{position:"absolute",inset:0,pointerEvents:"none",background:"linear-gradient(125deg, transparent 30%, rgba(255,255,255,.55) 50%, transparent 70%)",transform:hover?"translateX(130%)":"translateX(-130%)",transition:"transform .9s cubic-bezier(.22,1,.36,1)"}}/>
         <div style={{position:"relative",zIndex:1,height:"100%",padding:14}}>
-          <PreviewComp hover={hover}/>
+          <PreviewComp hover={hover} data={data}/>
         </div>
       </div>
       <div className="tplv2-body">
@@ -512,7 +417,25 @@ function TemplateCard({ t, onLaunch }: { t: Template; onLaunch: (t: Template) =>
 export function Templates() {
   const [activeFilter, setActiveFilter] = useState("All");
   const [launchTmpl, setLaunchTmpl] = useState<Template | null>(null);
+  const [previewData, setPreviewData] = useState<TemplatePreviews>({});
+  
   const visible = TEMPLATES.filter(t => activeFilter==="All" || t.filters.includes(activeFilter));
+
+  useEffect(() => {
+    let mounted = true;
+    async function fetchPreviews() {
+      try {
+        const data = await getDemoDashboardPreviews();
+        if (mounted && data) setPreviewData(data);
+      } catch (err) {
+        console.error("Failed to fetch template previews", err);
+      }
+    }
+    fetchPreviews();
+    const tid = setInterval(fetchPreviews, 5000);
+    return () => { mounted = false; clearInterval(tid); };
+  }, []);
+
   return (
     <>
       <section className="tplv2-section">
@@ -546,7 +469,7 @@ export function Templates() {
             <div className="tplv2-count">Showing <strong>{visible.length}</strong> templates</div>
           </div>
           <div className="tplv2-grid">
-            {visible.map(t=>(<TemplateCard key={t.id} t={t} onLaunch={setLaunchTmpl}/>))}
+            {visible.map(t=>(<TemplateCard key={t.id} t={t} onLaunch={setLaunchTmpl} data={previewData[t.preview]}/>))}
           </div>
         </div>
       </section>
